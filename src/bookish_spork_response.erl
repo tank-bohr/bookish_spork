@@ -19,7 +19,7 @@ all() ->
     >>.
 
 status_line() ->
-    StatusCode = ?DEFAULT_STATUS_CODE,
+    StatusCode = bookish_spork_setings:status(),
     ReasonPhrase = bookish_spork_format:reason_phrase(StatusCode),
     iolist_to_binary([
         [?HTTP11, ?SP],
@@ -31,19 +31,17 @@ headers() ->
     headers(calendar:universal_time()).
 
 headers(Now) ->
-    Server = ?DEFAULT_SERVER,
-    Date = bookish_spork_format:rfc2616_date(Now),
-    Headers = #{
-        <<"Server">> => Server,
-        <<"Date">> => Date
-    },
+    Headers = maps:merge(#{
+        <<"Server">> => ?DEFAULT_SERVER,
+        <<"Date">> => bookish_spork_format:rfc2616_date(Now)
+    }, bookish_spork_setings:headers()),
     maps:fold(fun(K, V, Acc) ->
         <<
-        Acc/binary,
-        K/binary, ?COLON,
-        V/binary, ?CRLF
+            Acc/binary,
+            K/binary, ?COLON,
+            V/binary, ?CRLF
         >>
     end, <<>>, Headers).
 
 content() ->
-    <<>>.
+    bookish_spork_setings:content().

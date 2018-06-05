@@ -3,23 +3,30 @@
 
 -define(T, bookish_spork_setings).
 
-delete_ets() ->
+clear() ->
     case ets:info(?T) of
         undefined -> true;
         _ -> ets:delete(?T)
     end.
 
-without_ets_test_() ->
-    {
-        setup,
-        fun delete_ets/0,
-        [
-            fun init_twice/0
-        ]
-    }.
-
-init_twice() ->
+init_test() ->
+    clear(),
     ?T:init(),
     ?T:init(),
     Info = ets:info(?T),
-    ?_assert(lists:any(fun(_) -> true end, Info)).
+    ?assert(lists:any(fun(_) -> true end, Info), "Can be called twice idempotent").
+
+status_test() ->
+    clear(),
+    ?T:status(302),
+    ?assertEqual(302, ?T:status()).
+
+headers_test() ->
+    clear(),
+    ?T:header(<<"x-lol">>, <<"kjk">>),
+    ?assertMatch(#{<<"x-lol">> := <<"kjk">>}, ?T:headers()).
+
+content_test() ->
+    clear(),
+    ?T:content(<<"Hello">>),
+    ?assertEqual(<<"Hello">>, ?T:content()).
