@@ -8,8 +8,9 @@ status_line_test() ->
     ?assertEqual(<<"HTTP/1.1 204 No Content">>, ?T:status_line()).
 
 response_headers_test() ->
-    Actual = ?T:headers(?NOW),
+    Actual = ?T:headers(<<"XXX">>, ?NOW),
     Expected = <<
+        "Content-Length: 3\r\n",
         "Date: Sat, 28 Apr 2018 05:51:50 GMT\r\n",
         "Server: BookishSpork/0.0.1\r\n"
     >>,
