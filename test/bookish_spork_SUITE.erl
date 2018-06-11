@@ -23,12 +23,7 @@ base_integration_test(_Config) ->
     {ok, {{"HTTP/1.1", 204, "No Content"}, _ResponseHeaders, _Body}} =
       httpc:request(get, {"http://localhost:5432/o/lo/lo?q=kjk", RequestHeaders}, [], []),
 
-    {ok, Request} = receive
-        {bookish_spork, Req} ->
-            {ok, Req}
-        after 2000 ->
-            timeout
-    end,
+    {ok, Request} = ?T:receive_request(),
     ?assertEqual('GET', bookish_spork_request:method(Request)),
     ?assertEqual("/o/lo/lo?q=kjk", bookish_spork_request:uri(Request)),
     ?assertEqual({1, 1}, bookish_spork_request:version(Request)),
@@ -50,7 +45,6 @@ base_integration_test(_Config) ->
 customized_response_test(_Config) ->
     Server = ?T:start_server(#{port => 9871}),
 
-    ?T:tag(custom_tag),
     ?T:status(200),
     ?T:header(<<"X-Custom-Response-Header">>, <<"test">>),
     ?T:content(<<"Hello, Test">>),
@@ -67,12 +61,7 @@ customized_response_test(_Config) ->
         proplists:lookup("x-custom-response-header", ResponseHeaders)),
     ?assertEqual(<<"Hello, Test">>, string:chomp(Body)),
 
-    {ok, Request} = receive
-        {custom_tag, Req} ->
-            {ok, Req}
-        after 2000 ->
-            timeout
-    end,
+    {ok, Request} = ?T:receive_request(),
     ?assertEqual('POST', bookish_spork_request:method(Request)),
     ?assertEqual("/api/v1/users", bookish_spork_request:uri(Request)),
     ?assertEqual({1, 1}, bookish_spork_request:version(Request)),

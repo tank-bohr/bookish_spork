@@ -44,12 +44,10 @@ accept_connection_loop(ListenSocket, Receiver) ->
     case gen_tcp:accept(ListenSocket) of
         {ok, Socket} ->
             Request = accept(Socket),
-            Tag = bookish_spork_settings:tag(),
-            Receiver ! {Tag, Request},
+            Receiver ! {bookish_spork, Request},
             accept_connection_loop(ListenSocket, Receiver);
         {error, closed} ->
-            Tag = bookish_spork_settings:tag(),
-            Receiver ! {Tag, socket_closed}
+            Receiver ! {bookish_spork, socket_closed}
     end.
 
 accept(Socket) ->

@@ -22,11 +22,11 @@
 }.
 
 -record(request, {
-    method         :: atom(),
-    uri            :: string(),
-    version        :: http_version(),
-    headers  = #{} :: map(),
-    body           :: binary()
+    method        :: atom(),
+    uri           :: string(),
+    version       :: http_version(),
+    headers = #{} :: map(),
+    body          :: binary()
 }).
 
 -opaque request() :: #request{}.

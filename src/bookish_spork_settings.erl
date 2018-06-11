@@ -1,8 +1,6 @@
 -module(bookish_spork_settings).
 
 -export([
-    tag/0,
-    tag/1,
     status/0,
     status/1,
     headers/0,
@@ -25,19 +23,6 @@ init() ->
         _ ->
             true
     end.
-
--spec tag() -> Tag :: atom().
-tag() ->
-    init(),
-    case ets:lookup(?TAB, tag) of
-        [{ tag, Tag }] -> Tag;
-        _ -> ?DEFAULT_TAG
-    end.
-
--spec tag(Tag :: atom()) -> true.
-tag(Tag) when is_atom(Tag) ->
-    init(),
-    ets:insert(?TAB, { tag, Tag }).
 
 -spec status() -> non_neg_integer().
 status() ->
