@@ -1,7 +1,7 @@
 -module(bookish_spork_settings_test).
 -include_lib("eunit/include/eunit.hrl").
 
--define(T, bookish_spork_setings).
+-define(T, bookish_spork_settings).
 
 clear() ->
     case ets:info(?T) of

@@ -5,6 +5,7 @@
     reason_phrase/1
 ]).
 
+-spec rfc2616_date(DateTime :: calendar:datetime()) -> binary().
 rfc2616_date({Date, Time}) ->
     {Y, M, D} = Date,
     {H, Min, Sec} = Time,
@@ -22,6 +23,7 @@ rfc2616_date({Date, Time}) ->
         [<<"GMT">>]
     ]).
 
+-spec reason_phrase(Status :: non_neg_integer()) -> binary().
 reason_phrase(100) -> <<"Continue">>;
 reason_phrase(101) -> <<"Switching Protocols">>;
 reason_phrase(200) -> <<"OK">>;
