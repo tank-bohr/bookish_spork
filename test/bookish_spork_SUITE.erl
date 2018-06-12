@@ -18,6 +18,7 @@ all() ->
 
 base_integration_test(_Config) ->
     Server = ?T:start_server(),
+    Acceptor = ?T:stub_request(Server),
 
     RequestHeaders = [],
     {ok, {{"HTTP/1.1", 204, "No Content"}, _ResponseHeaders, _Body}} =
@@ -29,7 +30,7 @@ base_integration_test(_Config) ->
     ?assertEqual({1, 1}, bookish_spork_request:version(Request)),
     ?assertMatch(#{"host" := "localhost:5432"}, bookish_spork_request:headers(Request)),
 
-    ?assertEqual(waiting, bookish_spork_server:status(Server)),
+    ?assertEqual(waiting, process_status(Acceptor)),
     ok = ?T:stop_server(Server),
     socket_closed = receive
         {bookish_spork, Event} ->
@@ -37,17 +38,16 @@ base_integration_test(_Config) ->
         after 2000 ->
             timeout
     end,
-    ?assertEqual(dead, bookish_spork_server:status(Server)).
+    ?assertEqual(dead, process_status(Acceptor)).
 
 
 
 
 customized_response_test(_Config) ->
-    Server = ?T:start_server(#{port => 9871}),
-
-    ?T:status(200),
-    ?T:header(<<"X-Custom-Response-Header">>, <<"test">>),
-    ?T:content(<<"Hello, Test">>),
+    Server = ?T:start_server(9871),
+    ?T:stub_request(Server, 200,
+        #{<<"X-Custom-Response-Header">> => <<"test">>},
+        <<"Hello, Test">>),
 
     RequestBody = <<"{\"name\": \"John Doe\", \"email\": \"john@doe.com\"}">>,
     {ok, {{"HTTP/1.1", 200, "OK"}, ResponseHeaders, Body}} = httpc:request(post, {
@@ -56,7 +56,6 @@ customized_response_test(_Config) ->
         "application/json",
         RequestBody
     }, [], [{body_format, binary}]),
-
     ?assertEqual({"x-custom-response-header", "test"},
         proplists:lookup("x-custom-response-header", ResponseHeaders)),
     ?assertEqual(<<"Hello, Test">>, string:chomp(Body)),
@@ -70,3 +69,10 @@ customized_response_test(_Config) ->
 
     ok = ?T:stop_server(Server).
 
+process_status(Pid) ->
+    case process_info(Pid) of
+        undefined ->
+            dead;
+        ProcessInfo ->
+            proplists:get_value(status, ProcessInfo)
+    end.

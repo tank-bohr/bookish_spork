@@ -1,58 +1,55 @@
 -module(bookish_spork_server).
 
 -export([
-    start/2,
+    start/1,
     stop/1,
-    status/1
+    listen/3
 ]).
 
 -record(server, {
-    socket :: gen_tcp:socket(),
-    pid    :: pid()
+    socket :: gen_tcp:socket()
 }).
 -opaque server() :: #server{}.
 
 -export_type([server/0]).
 
--spec start(Port :: integer(), Receiver :: pid()) -> Server :: server().
-start(Port, Receiver) ->
+-spec start(Port :: integer()) -> Server :: server().
+start(Port) ->
     {ok, ListenSocket} = gen_tcp:listen(Port, [
         binary,
         {packet, http},
         {active, false},
         {reuseaddr, true}
     ]),
-    Pid = spawn(fun() ->
-        accept_connection_loop(ListenSocket, Receiver)
-    end),
-    #server{socket = ListenSocket, pid = Pid}.
+    #server{socket = ListenSocket}.
 
 -spec stop(Server :: server()) -> ok.
 stop(#server{socket = Socket}) ->
     gen_tcp:close(Socket).
 
--spec status(Server :: server()) -> atom().
-status(#server{pid = Pid}) ->
-    case process_info(Pid) of
-        undefined ->
-            dead;
-        ProcessInfo ->
-            proplists:get_value(status, ProcessInfo)
-    end.
+-spec listen(
+    Server   :: server(),
+    Response :: bookish_spork_response:response(),
+    Receiver :: pid()
+) -> Acceptor :: pid().
+listen(#server{socket = ListenSocket}, Response, Receiver) ->
+    spawn_link(fun() ->
+        accept_connection_loop(ListenSocket, Response, Receiver)
+    end).
 
-accept_connection_loop(ListenSocket, Receiver) ->
+accept_connection_loop(ListenSocket, Response, Receiver) ->
     case gen_tcp:accept(ListenSocket) of
         {ok, Socket} ->
-            Request = accept(Socket),
+            Request = accept(Socket, Response),
             Receiver ! {bookish_spork, Request},
-            accept_connection_loop(ListenSocket, Receiver);
+            accept_connection_loop(ListenSocket, Response, Receiver);
         {error, closed} ->
             Receiver ! {bookish_spork, socket_closed}
     end.
 
-accept(Socket) ->
+accept(Socket, Response) ->
     Request = receive_request(Socket),
-    ok = reply(Socket),
+    ok = reply(Socket, Response),
     ok = gen_tcp:shutdown(Socket, write),
     Request.
 
@@ -80,6 +77,6 @@ read_body(Socket, ContentLength) ->
     inet:setopts(Socket, [{packet, http}]),
     Body.
 
-reply(Socket) ->
-    Response = bookish_spork_response:all(),
-    gen_tcp:send(Socket, [Response]).
+reply(Socket, Response) ->
+    String = bookish_spork_response:write_str(Response),
+    gen_tcp:send(Socket, [String]).

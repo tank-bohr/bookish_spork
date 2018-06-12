@@ -22,11 +22,11 @@
 }.
 
 -record(request, {
-    method        :: atom(),
-    uri           :: string(),
-    version       :: http_version(),
+    method        :: undefined | atom(),
+    uri           :: undefined | string(),
+    version       :: undefined | http_version(),
     headers = #{} :: map(),
-    body          :: binary()
+    body          :: undefined | binary()
 }).
 
 -opaque request() :: #request{}.
@@ -51,7 +51,7 @@ request_line(Request, Method, Uri, Version) ->
 add_header(Request, Name, Value) when is_atom(Name) ->
     add_header(Request, atom_to_list(Name), Value);
 add_header(#request{ headers = Headers } = Request, Name, Value) ->
-    HeaderName  = string:lowercase(Name),
+    HeaderName = string:lowercase(Name),
     Request#request{ headers = maps:put(HeaderName, Value, Headers) }.
 
 -spec content_length(Request :: request()) -> integer().
