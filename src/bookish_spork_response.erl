@@ -6,7 +6,6 @@
 -define(COLON, ": ").
 -define(HTTP11, "HTTP/1.1").
 -define(DEFAULT_SERVER, <<"BookishSpork/0.0.1">>).
--define(DEFAULT_STATUS_CODE, 204).
 
 -spec all() -> binary().
 all() ->

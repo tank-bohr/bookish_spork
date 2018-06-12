@@ -10,7 +10,6 @@
 ]).
 
 -define(TAB, ?MODULE).
--define(DEFAULT_TAG, bookish_spork).
 -define(DEFAULT_STATUS, 204).
 -define(DEFAULT_HEADERS, #{}).
 -define(DEFAULT_CONTENT, <<>>).
