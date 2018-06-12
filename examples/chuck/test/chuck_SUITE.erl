@@ -30,39 +30,40 @@ groups() ->
         ]
     }].
 
-init_per_group(_Group, Config) ->
-    application:ensure_all_started(hackney),
+init_per_group(api_methods, Config) ->
+    {ok, _} = application:ensure_all_started(hackney),
+    {ok, _} = bookish_spork:start_server(),
     Config.
 
-end_per_group(_Group, _Config) ->
+end_per_group(api_methods, _Config) ->
+    ok = bookish_spork:stop_server().
+
+init_per_testcase(random_test, Config) ->
+    bookish_spork:stub_request(200,
+        <<"{\"value\": \"Chuck Norris' favourite word: chunk.\"}">>),
+    Config;
+init_per_testcase(random_with_category_test, Config) ->
+    bookish_spork:stub_request(200,
+        <<"{\"value\": \"Chuck Norris has an oscillating penis.\"}">>),
+    Config;
+init_per_testcase(categories_test, Config) ->
+    bookish_spork:stub_request(200, <<"[\"explicit\", \"dev\", \"movie\"]">>),
+    Config.
+
+end_per_testcase(_Test, _Config) ->
     ok.
 
-init_per_testcase(_Test, Config) ->
-    Server = bookish_spork:start_server(),
-    bookish_spork:status(200),
-    [{server, Server} | Config].
-
-end_per_testcase(_Test, Config) ->
-    Server = ?config(server, Config),
-    bookish_spork:stop_server(Server).
-
 random_test(_Config) ->
-    bookish_spork:content(<<"{\"value\": \"Chuck Norris' favourite word: chunk.\"}">>),
-    Result = chuck:random(),
-    ?assertEqual(<<"Chuck Norris' favourite word: chunk.">>, Result),
-    {ok, Request} = bookish_spork:receive_request(),
+    ?assertEqual(<<"Chuck Norris' favourite word: chunk.">>, chuck:random()),
+    {ok, Request} = bookish_spork:capture_request(),
     ?assertEqual("/jokes/random", bookish_spork_request:uri(Request)).
 
 random_with_category_test(_Config) ->
-    bookish_spork:content(<<"{\"value\": \"Chuck Norris has an oscillating penis.\"}">>),
-    Result = chuck:random("explicit"),
-    ?assertEqual(<<"Chuck Norris has an oscillating penis.">>, Result),
-    {ok, Request} = bookish_spork:receive_request(),
+    ?assertEqual(<<"Chuck Norris has an oscillating penis.">>, chuck:random("explicit")),
+    {ok, Request} = bookish_spork:capture_request(),
     ?assertEqual("/jokes/random?category=explicit", bookish_spork_request:uri(Request)).
 
 categories_test(_Config) ->
-    bookish_spork:content(<<"[\"explicit\", \"dev\", \"movie\"]">>),
-    Result = chuck:categories(),
-    ?assertEqual([<<"explicit">>, <<"dev">>, <<"movie">>], Result),
-    {ok, Request} = bookish_spork:receive_request(),
+    ?assertEqual([<<"explicit">>, <<"dev">>, <<"movie">>], chuck:categories()),
+    {ok, Request} = bookish_spork:capture_request(),
     ?assertEqual("/jokes/categories", bookish_spork_request:uri(Request)).

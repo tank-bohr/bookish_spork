@@ -15,12 +15,10 @@
 -endif.
 
 random() ->
-    Result = request("random"),
-    maps:get(value, Result).
+    maps:get(value, request("random")).
 
 random(Category) ->
-    Result = request("random", #{"category" => Category}),
-    maps:get(value, Result).
+    maps:get(value, request("random", #{"category" => Category})).
 
 categories() ->
     request("categories").
