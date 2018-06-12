@@ -2,56 +2,71 @@
 
 -export([
     start/1,
-    stop/1,
-    listen/3
+    stop/0,
+    respond_with/1
 ]).
 
--record(server, {
+-behaviour(gen_server).
+
+-export([
+    init/1,
+    handle_call/3,
+    handle_cast/2,
+    handle_info/2,
+    terminate/2,
+    code_change/3
+]).
+
+-define(SERVER, ?MODULE).
+
+-record(state, {
     socket :: gen_tcp:socket()
 }).
--opaque server() :: #server{}.
 
--export_type([server/0]).
-
--spec start(Port :: integer()) -> Server :: server().
 start(Port) ->
+    gen_server:start({local, ?SERVER}, ?MODULE, Port, []).
+
+stop() ->
+    gen_server:stop(?SERVER).
+
+respond_with(Response) ->
+    gen_server:call(?SERVER, {respond_with, Response}).
+
+init(Port) ->
     {ok, ListenSocket} = gen_tcp:listen(Port, [
         binary,
         {packet, http},
         {active, false},
         {reuseaddr, true}
     ]),
-    #server{socket = ListenSocket}.
+    {ok, #state{socket = ListenSocket}}.
 
--spec stop(Server :: server()) -> ok.
-stop(#server{socket = Socket}) ->
-    gen_tcp:close(Socket).
+handle_call({respond_with, Response}, {Receiver, _Ref}, #state{socket = ListenSocket} = State) ->
+    {reply, accept(ListenSocket, Response, Receiver), State};
+handle_call(_Request, _From, State) ->
+    {reply, {error, unknown_call}, State}.
 
--spec listen(
-    Server   :: server(),
-    Response :: bookish_spork_response:response(),
-    Receiver :: pid()
-) -> Acceptor :: pid().
-listen(#server{socket = ListenSocket}, Response, Receiver) ->
-    spawn_link(fun() ->
-        accept_connection_loop(ListenSocket, Response, Receiver)
-    end).
+handle_cast(_Msg, State) ->
+    {noreply, State}.
 
-accept_connection_loop(ListenSocket, Response, Receiver) ->
-    case gen_tcp:accept(ListenSocket) of
-        {ok, Socket} ->
-            Request = accept(Socket, Response),
-            Receiver ! {bookish_spork, Request},
-            accept_connection_loop(ListenSocket, Response, Receiver);
-        {error, closed} ->
-            Receiver ! {bookish_spork, socket_closed}
-    end.
+handle_info(_Info, State) ->
+    {noreply, State}.
 
-accept(Socket, Response) ->
-    Request = receive_request(Socket),
-    ok = reply(Socket, Response),
-    ok = gen_tcp:shutdown(Socket, write),
-    Request.
+terminate(_Reason, #state{socket = ListenSocket}) ->
+    gen_tcp:close(ListenSocket).
+
+code_change(_OldVsn, State, _Extra) ->
+    {ok, State}.
+
+accept(ListenSocket, Response, Receiver) ->
+    Pid = spawn_link(fun() ->
+        {ok, Socket} = gen_tcp:accept(ListenSocket),
+        Request = receive_request(Socket),
+        Receiver ! {bookish_spork, Request},
+        ok = reply(Socket, Response),
+        ok = gen_tcp:shutdown(Socket, read_write)
+    end),
+    {ok, Pid}.
 
 receive_request(Socket) ->
     receive_request(Socket, bookish_spork_request:new()).

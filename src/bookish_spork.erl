@@ -3,58 +3,37 @@
 -export([
     start_server/0,
     start_server/1,
-    stop_server/1,
+    stop_server/0,
+    stub_request/0,
     stub_request/1,
     stub_request/2,
     stub_request/3,
-    stub_request/4,
     capture_request/0
 ]).
 
 -define(DEFAUT_PORT, 5432).
 -define(RECEIVE_REQUEST_TIMEOUT_MILLIS, 1000).
 
--spec start_server() -> bookish_spork_server:server().
 start_server() ->
     start_server(?DEFAUT_PORT).
 
--spec start_server(Port :: non_neg_integer()) -> bookish_spork_server:server().
 start_server(Port) ->
     bookish_spork_server:start(Port).
 
--spec stop_server(Server :: bookish_spork_server:server()) -> ok.
-stop_server(Server) ->
-    bookish_spork_server:stop(Server).
+stop_server() ->
+    bookish_spork_server:stop().
 
--spec stub_request(Server :: bookish_spork_server:server()) -> Acceptor :: pid().
-stub_request(Server) ->
-    bookish_spork_server:listen(Server, bookish_spork_response:new(), self()).
+stub_request() ->
+    bookish_spork_server:respond_with(bookish_spork_response:new()).
 
--spec stub_request(
-    Server :: bookish_spork_server:server(),
-    Status :: non_neg_integer()
-) -> Acceptor :: pid().
-stub_request(Server, Status) ->
-    bookish_spork_server:listen(Server, bookish_spork_response:new(Status), self()).
+stub_request(Status) ->
+    bookish_spork_server:respond_with(bookish_spork_response:new(Status)).
 
--spec stub_request(
-    Server :: bookish_spork_server:server(),
-    Status :: non_neg_integer(),
-    ContentOrHeaders :: binary() | map()
-) -> Acceptor :: pid().
-stub_request(Server, Status, ContentOrHeaders) ->
-    bookish_spork_server:listen(Server,
-        bookish_spork_response:new(Status, ContentOrHeaders), self()).
+stub_request(Status, ContentOrHeaders) ->
+    bookish_spork_server:respond_with(bookish_spork_response:new(Status, ContentOrHeaders)).
 
--spec stub_request(
-    Server  :: bookish_spork_server:server(),
-    Status  :: non_neg_integer(),
-    Headers :: map(),
-    Content :: binary()
-) -> Acceptor :: pid().
-stub_request(Server, Status, Headers, Content) ->
-    bookish_spork_server:listen(Server,
-        bookish_spork_response:new(Status, Headers, Content), self()).
+stub_request(Status, Headers, Content) ->
+    bookish_spork_server:respond_with(bookish_spork_response:new(Status, Headers, Content)).
 
 -spec capture_request() -> bookish_spork_request:bookish_spork_request().
 capture_request() ->

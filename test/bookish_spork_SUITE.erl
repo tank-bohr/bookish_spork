@@ -1,7 +1,7 @@
 -module(bookish_spork_SUITE).
 
--include_lib("eunit/include/eunit.hrl").
 -include_lib("common_test/include/ct.hrl").
+-include_lib("eunit/include/eunit.hrl").
 
 -define(T, bookish_spork).
 
@@ -17,8 +17,8 @@ all() ->
     [base_integration_test, customized_response_test].
 
 base_integration_test(_Config) ->
-    Server = ?T:start_server(),
-    Acceptor = ?T:stub_request(Server),
+    {ok, _Pid} = ?T:start_server(),
+    {ok, _Acceptor} = ?T:stub_request(),
 
     RequestHeaders = [],
     {ok, {{"HTTP/1.1", 204, "No Content"}, _ResponseHeaders, _Body}} =
@@ -29,23 +29,13 @@ base_integration_test(_Config) ->
     ?assertEqual("/o/lo/lo?q=kjk", bookish_spork_request:uri(Request)),
     ?assertEqual({1, 1}, bookish_spork_request:version(Request)),
     ?assertMatch(#{"host" := "localhost:5432"}, bookish_spork_request:headers(Request)),
-
-    ?assertEqual(waiting, process_status(Acceptor)),
-    ok = ?T:stop_server(Server),
-    socket_closed = receive
-        {bookish_spork, Event} ->
-            Event
-        after 2000 ->
-            timeout
-    end,
-    ?assertEqual(dead, process_status(Acceptor)).
-
+    ok = ?T:stop_server().
 
 
 
 customized_response_test(_Config) ->
-    Server = ?T:start_server(9871),
-    ?T:stub_request(Server, 200,
+    {ok, _Pid} = ?T:start_server(9871),
+    ?T:stub_request(200,
         #{<<"X-Custom-Response-Header">> => <<"test">>},
         <<"Hello, Test">>),
 
@@ -67,12 +57,4 @@ customized_response_test(_Config) ->
     ?assertEqual(RequestBody, bookish_spork_request:body(Request)),
     ?assertMatch(#{"accept" := "text/plain"}, bookish_spork_request:headers(Request)),
 
-    ok = ?T:stop_server(Server).
-
-process_status(Pid) ->
-    case process_info(Pid) of
-        undefined ->
-            dead;
-        ProcessInfo ->
-            proplists:get_value(status, ProcessInfo)
-    end.
+    ok = ?T:stop_server().
