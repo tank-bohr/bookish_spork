@@ -3,8 +3,9 @@
 -export([
     status/0,
     status/1,
-    headers/0,
     header/2,
+    headers/0,
+    headers/1,
     content/0,
     content/1
 ]).
@@ -36,6 +37,11 @@ status(Status) when Status >= 100 andalso Status < 600 ->
 -spec headers() -> map().
 headers() ->
     lookup(headers, ?DEFAULT_HEADERS).
+
+headers(Headers) ->
+    init(),
+    Existent = headers(),
+    ets:insert(?TAB, { headers, maps:merge(Existent, Headers) }).
 
 -spec header(Name :: binary(), Value :: binary()) -> true.
 header(Name, Value) when is_binary(Name) andalso is_binary(Value) ->

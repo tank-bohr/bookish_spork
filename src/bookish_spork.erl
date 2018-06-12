@@ -4,6 +4,7 @@
     start_server/0,
     start_server/1,
     stop_server/1,
+    capture_request/4,
     receive_request/0
 ]).
 
@@ -35,6 +36,10 @@ start_server(Settings) ->
 stop_server(Server) ->
     bookish_spork_server:stop(Server).
 
+-spec capture_request() -> bookish_spork_request:bookish_spork_request().
+capture_request() ->
+    receive_request().
+
 -spec receive_request() -> bookish_spork_request:bookish_spork_request().
 receive_request() ->
     receive
@@ -49,6 +54,10 @@ receive_request() ->
 -spec status(Status :: non_neg_integer()) -> true.
 status(Status) ->
     bookish_spork_settings:status(Status).
+
+-spec headers(Header :: map()) -> true.
+status(Status) ->
+    bookish_spork_settings:headers(Headers).
 
 -spec header(Name :: binary(), Value :: binary()) -> true.
 header(Name, Value) ->
