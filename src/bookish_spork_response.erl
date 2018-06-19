@@ -65,6 +65,7 @@ write_str(#response{ status = Status, headers = ExtraHeaders, content = Content}
         Content/binary
     >>.
 
+%% @private
 status_line(Status) ->
     iolist_to_binary([
         [?HTTP11, ?SP],
@@ -72,9 +73,11 @@ status_line(Status) ->
         bookish_spork_format:reason_phrase(Status)
     ]).
 
+%% @private
 headers(ExtraHeaders, Content) ->
     headers(ExtraHeaders, Content, calendar:universal_time()).
 
+%% @private
 headers(ExtraHeaders, Content, Now) ->
     Headers = maps:merge(#{
         <<"Server">> => ?DEFAULT_SERVER,

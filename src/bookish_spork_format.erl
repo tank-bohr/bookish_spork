@@ -6,6 +6,7 @@
 ]).
 
 -spec rfc2616_date(DateTime :: calendar:datetime()) -> binary().
+%% @doc formats date and time for Server header
 rfc2616_date({Date, Time}) ->
     {Y, M, D} = Date,
     {H, Min, Sec} = Time,
@@ -66,6 +67,7 @@ reason_phrase(504) -> <<"Gateway Time-out">>;
 reason_phrase(505) -> <<"HTTP Version not supported">>;
 reason_phrase(_)   -> <<"Unknown">>.
 
+%% @private
 weekday(1) -> <<"Mon">>;
 weekday(2) -> <<"Tue">>;
 weekday(3) -> <<"Wed">>;
@@ -74,6 +76,7 @@ weekday(5) -> <<"Fri">>;
 weekday(6) -> <<"Sat">>;
 weekday(7) -> <<"Sun">>.
 
+%% @private
 month(1)  -> <<"Jan">>;
 month(2)  -> <<"Feb">>;
 month(3)  -> <<"Mar">>;
@@ -87,5 +90,6 @@ month(10) -> <<"Oct">>;
 month(11) -> <<"Nov">>;
 month(12) -> <<"Dec">>.
 
+%% @private
 timepad(Int) ->
     iolist_to_binary(string:pad(integer_to_list(Int), 2, leading, $0)).

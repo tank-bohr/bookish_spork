@@ -36,18 +36,21 @@
 ]).
 
 -spec new() -> request().
+%% @private
 new() -> #request{}.
 
 -spec request_line(
     Request :: request(),
     Method  :: atom(),
-    Uri     :: string(),
-    Version :: string()
+    Uri     :: string() | undefined,
+    Version :: string() | undefined
 ) -> request().
+%% @private
 request_line(Request, Method, Uri, Version) ->
     Request#request{ method = Method, uri = Uri, version = Version }.
 
 -spec add_header(Request :: request(), Name :: string(), Value :: string()) -> request().
+%% @private
 add_header(Request, Name, Value) when is_atom(Name) ->
     add_header(Request, atom_to_list(Name), Value);
 add_header(#request{ headers = Headers } = Request, Name, Value) ->
@@ -55,6 +58,7 @@ add_header(#request{ headers = Headers } = Request, Name, Value) ->
     Request#request{ headers = maps:put(HeaderName, Value, Headers) }.
 
 -spec content_length(Request :: request()) -> integer().
+%% @doc Content-Length header value as intger
 content_length(#request{ headers = Headers }) ->
     case maps:get("content-length", Headers, undefined) of
         undefined ->
@@ -64,19 +68,25 @@ content_length(#request{ headers = Headers }) ->
     end.
 
 -spec method(Request :: request()) -> atom().
+%% @doc http verb: 'GET', 'POST','PUT', 'DELETE', 'OPTIONS', ...
 method(#request{ method = Method}) -> Method.
 
 -spec uri(Request :: request()) -> string().
+%% @doc path with query string
 uri(#request{ uri = Uri}) -> Uri.
 
--spec version(Request :: request()) -> string().
+-spec version(Request :: request()) -> string() | undefined.
+%% @doc http protocol version tuple. Most often would be {1, 1}
 version(#request{ version = Version }) -> Version.
 
 -spec headers(Request :: request()) -> map().
+%% @doc http headers map. Header names are normalized and lowercased
 headers(#request{ headers = Headers }) -> Headers.
 
 -spec body(Request :: request()) -> binary().
+%% @doc request body
 body(#request{ body = Body }) -> Body.
 
 -spec body(Request :: request(), Body :: binary()) -> request().
+%% @private
 body(Request, Body) -> Request#request{ body = Body }.
