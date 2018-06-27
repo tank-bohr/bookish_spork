@@ -1,5 +1,5 @@
 {application, bookish_spork,
- [{description, "An OTP library"},
+ [{description, "Library for stubbing and setting expectations on HTTP requests in Erlang"},
   {vsn, "0.1.0"},
   {registered, []},
   {applications,
@@ -9,7 +9,8 @@
   {env,[]},
   {modules, []},
 
-  {maintainers, []},
+  {maintainers, ["Alexey Nikitin"]},
   {licenses, ["Apache 2.0"]},
-  {links, []}
+  {links, [{"Github", "https://github.com/tank-bohr/bookish_spork"}]},
+  {exclude_files, ["examples/*"]}
  ]}.

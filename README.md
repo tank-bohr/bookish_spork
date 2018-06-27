@@ -29,7 +29,7 @@ First step: add to your rebar config
 {profiles, [
     {test, [
         {deps, [
-            {bookish_spork, {git, "https://github.com/tank-bohr/bookish_spork.git"}}
+            {bookish_spork, "0.1.0"}
         ]}
     ]}
 ]}.
@@ -52,7 +52,7 @@ The simplest stub you can do is
 bookish_spork:stub_request().
 ```
 
-It will stub your requests with `204 No Content` response wih empty body.
+It will stub your requests with `204 No Content` response with empty body.
 
 If you need specify response you easily can do this:
 

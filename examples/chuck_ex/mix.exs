@@ -23,7 +23,7 @@ defmodule ChuckNorrisApi.MixProject do
     [
       {:httpoison, "~> 1.0"},
       {:poison, "~> 3.1"},
-      {:bookish_spork, git: "https://github.com/tank-bohr/bookish_spork.git", only: :test}
+      {:bookish_spork, "~> 0.1.0", only: :test}
     ]
   end
 end
