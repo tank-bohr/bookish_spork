@@ -1,6 +1,8 @@
 # Bookish spork
 
-An erlang library to test http requests
+An erlang library to test http requests. Inspired by Ruby's [WebMock](https://github.com/bblimke/webmock).
+
+Suitable for Elixir.
 
 ## Rationale
 
