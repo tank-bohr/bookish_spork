@@ -8,3 +8,4 @@ script:
   - rebar3 eunit
   - rebar3 ct --readable=false # See https://github.com/erlang/rebar3/issues/1778
   - rebar3 dialyzer
+  - rebar3 coveralls send
