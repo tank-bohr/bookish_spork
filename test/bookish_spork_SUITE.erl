@@ -22,13 +22,13 @@ base_integration_test(_Config) ->
 
     RequestHeaders = [],
     {ok, {{"HTTP/1.1", 204, "No Content"}, _ResponseHeaders, _Body}} =
-      httpc:request(get, {"http://localhost:5432/o/lo/lo?q=kjk", RequestHeaders}, [], []),
+      httpc:request(get, {"http://localhost:32002/o/lo/lo?q=kjk", RequestHeaders}, [], []),
 
     {ok, Request} = ?T:capture_request(),
     ?assertEqual('GET', bookish_spork_request:method(Request)),
     ?assertEqual("/o/lo/lo?q=kjk", bookish_spork_request:uri(Request)),
     ?assertEqual({1, 1}, bookish_spork_request:version(Request)),
-    ?assertMatch(#{"host" := "localhost:5432"}, bookish_spork_request:headers(Request)),
+    ?assertMatch(#{"host" := "localhost:32002"}, bookish_spork_request:headers(Request)),
     ok = ?T:stop_server().
 
 

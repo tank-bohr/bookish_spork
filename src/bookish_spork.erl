@@ -11,7 +11,7 @@
     capture_request/0
 ]).
 
--define(DEFAUT_PORT, 5432).
+-define(DEFAUT_PORT, 32002).
 -define(RECEIVE_REQUEST_TIMEOUT_MILLIS, 1000).
 
 -type http_status() :: non_neg_integer().

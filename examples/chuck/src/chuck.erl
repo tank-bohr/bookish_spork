@@ -11,7 +11,7 @@
 -define(HOST, "api.chucknorris.io").
 -else.
 -define(PROTO, "http").
--define(HOST, "localhost:5432").
+-define(HOST, "localhost:32002").
 -endif.
 
 random() ->
