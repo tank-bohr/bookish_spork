@@ -1,8 +1,6 @@
 # Bookish spork
 
-[![Build Status](https://travis-ci.org/tank-bohr/bookish_spork.svg?branch=master)](https://travis-ci.org/tank-bohr/bookish_spork)
-
-[![Coverage Status](https://coveralls.io/repos/github/tank-bohr/bookish_spork/badge.svg?branch=master)](https://coveralls.io/github/tank-bohr/bookish_spork?branch=master)
+[![Build Status](https://travis-ci.org/tank-bohr/bookish_spork.svg?branch=master)](https://travis-ci.org/tank-bohr/bookish_spork) [![Coverage Status](https://coveralls.io/repos/github/tank-bohr/bookish_spork/badge.svg?branch=master)](https://coveralls.io/github/tank-bohr/bookish_spork?branch=master)
 
 An erlang library to test http requests. Inspired by Ruby's [WebMock](https://github.com/bblimke/webmock).
 
@@ -35,7 +33,7 @@ First step: add to your rebar config
 {profiles, [
     {test, [
         {deps, [
-            {bookish_spork, "0.1.0"}
+            {bookish_spork, "0.1.1"}
         ]}
     ]}
 ]}.
@@ -47,7 +45,7 @@ Second: start server in your tests.
 bookish_spork:start_server().
 ```
 
-It starts process without link. Thus you can use it in `init_per_group` and in `init_per_suite` callbacks.
+It starts process without link. Thus you can use it in `init_per_group` and in `init_per_suite` callbacks. Default port is 32002 but you can specify any port you like with `bookish_spork:start_server/1`
 
 
 ### Stub request
