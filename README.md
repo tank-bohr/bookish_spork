@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/tank-bohr/bookish_spork.svg?branch=master)](https://travis-ci.org/tank-bohr/bookish_spork)
 
+[![Coverage Status](https://coveralls.io/repos/github/tank-bohr/bookish_spork/badge.svg?branch=master)](https://coveralls.io/github/tank-bohr/bookish_spork?branch=master)
+
 An erlang library to test http requests. Inspired by Ruby's [WebMock](https://github.com/bblimke/webmock).
 
 Suitable for Elixir.
