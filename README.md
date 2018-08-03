@@ -15,7 +15,7 @@ There are several ways to test your http interaction
 
 * You can use external http server like [httpbin](https://httpbin.org/) (hackney approach)
 
-* You can mock your http client library (elixir approach)
+* You can mock your http client library
 
 * Also you can run an http-server within your application on your localhost on a particualr port
 
@@ -82,6 +82,16 @@ It returns you an opaque structure of the request. You can inspect it with
 * `bookish_spork_request:headers/1`
 * `bookish_spork_request:body/1`
 
+
+## Bypass comparision
+
+An elixir library [bypass](https://github.com/PSPDFKit-labs/bypass) does pretty much the same. And illustrates the same approach. It starts a cowboy web-server to replace a real service for test
+
+But bookish_spork has some advantages:
+
+# Bypass depends on `cowboy` and `plug`. Bookish spork has zero dependencies
+# Bookish spork works seamlessly with both erlang and elixir. Bypass is supposed to be an elixir only library
+# Bookish spork much simpler
 
 ## Examples
 
