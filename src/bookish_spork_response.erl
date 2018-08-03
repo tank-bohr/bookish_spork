@@ -75,13 +75,9 @@ status_line(Status) ->
 
 %% @private
 headers(ExtraHeaders, Content) ->
-    headers(ExtraHeaders, Content, calendar:universal_time()).
-
-%% @private
-headers(ExtraHeaders, Content, Now) ->
     Headers = maps:merge(#{
         <<"Server">> => ?DEFAULT_SERVER,
-        <<"Date">> => bookish_spork_format:rfc2616_date(Now),
+        <<"Date">> => bookish_spork_format:rfc2616_date(utc_now()),
         <<"Content-Length">> => list_to_binary(integer_to_list(size(Content)))
     }, ExtraHeaders),
     maps:fold(fun(K, V, Acc) ->
@@ -91,3 +87,13 @@ headers(ExtraHeaders, Content, Now) ->
             V/binary, ?CRLF
         >>
     end, <<>>, Headers).
+
+-ifdef(TEST).
+%% @private
+utc_now() ->
+    {{2018, 4, 28}, {5, 51, 50}}.
+-else.
+%% @private
+utc_now() ->
+    calendar:universal_time().
+-endif.

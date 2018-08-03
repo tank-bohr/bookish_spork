@@ -11,6 +11,7 @@
     method/1,
     uri/1,
     version/1,
+    header/2,
     headers/1,
     body/1,
     body/2
@@ -59,8 +60,8 @@ add_header(#request{ headers = Headers } = Request, Name, Value) ->
 
 -spec content_length(Request :: request()) -> integer().
 %% @doc Content-Length header value as intger
-content_length(#request{ headers = Headers }) ->
-    case maps:get("content-length", Headers, undefined) of
+content_length(Request) ->
+    case header(Request, "content-length") of
         undefined ->
             0;
         ContentLength ->
@@ -69,24 +70,35 @@ content_length(#request{ headers = Headers }) ->
 
 -spec method(Request :: request()) -> atom().
 %% @doc http verb: 'GET', 'POST','PUT', 'DELETE', 'OPTIONS', ...
-method(#request{ method = Method}) -> Method.
+method(#request{ method = Method}) ->
+    Method.
 
 -spec uri(Request :: request()) -> string().
 %% @doc path with query string
-uri(#request{ uri = Uri}) -> Uri.
+uri(#request{ uri = Uri}) ->
+    Uri.
 
 -spec version(Request :: request()) -> string() | undefined.
 %% @doc http protocol version tuple. Most often would be {1, 1}
-version(#request{ version = Version }) -> Version.
+version(#request{ version = Version }) ->
+    Version.
+
+-spec header(Request :: request(), HeaderName :: string()) -> binary().
+%% @doc Returns a particular header from request. Header name is lowerced
+header(#request{ headers = Headers }, HeaderName) ->
+    maps:get(HeaderName, Headers, undefined).
 
 -spec headers(Request :: request()) -> map().
 %% @doc http headers map. Header names are normalized and lowercased
-headers(#request{ headers = Headers }) -> Headers.
+headers(#request{ headers = Headers }) ->
+    Headers.
 
 -spec body(Request :: request()) -> binary().
 %% @doc request body
-body(#request{ body = Body }) -> Body.
+body(#request{ body = Body }) ->
+    Body.
 
 -spec body(Request :: request(), Body :: binary()) -> request().
 %% @private
-body(Request, Body) -> Request#request{ body = Body }.
+body(Request, Body) ->
+    Request#request{ body = Body }.
