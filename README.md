@@ -77,10 +77,10 @@ As usual the main goal is to test that you send the correct request
 
 It returns you an opaque structure of the request. You can inspect it with
 
-* `bookish_spork_request:method/1`
-* `bookish_spork_request:uri/1`
-* `bookish_spork_request:headers/1`
-* `bookish_spork_request:body/1`
+- `bookish_spork_request:method/1`
+- `bookish_spork_request:uri/1`
+- `bookish_spork_request:headers/1`
+- `bookish_spork_request:body/1`
 
 
 ## Bypass comparision
@@ -89,9 +89,9 @@ An elixir library [bypass](https://github.com/PSPDFKit-labs/bypass) does pretty 
 
 But bookish_spork has some advantages:
 
-# Bypass depends on `cowboy` and `plug`. Bookish spork has zero dependencies
-# Bookish spork works seamlessly with both erlang and elixir. Bypass is supposed to be an elixir only library
-# Bookish spork much simpler
+- Bypass depends on `cowboy` and `plug`. Bookish spork has zero dependencies
+- Bookish spork works seamlessly with both erlang and elixir. Bypass is supposed to be an elixir only library
+- Bookish spork much simpler
 
 ## Examples
 
