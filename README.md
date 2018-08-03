@@ -2,7 +2,8 @@
 
 [![Build Status](https://travis-ci.org/tank-bohr/bookish_spork.svg?branch=master)](https://travis-ci.org/tank-bohr/bookish_spork) [![Coverage Status](https://coveralls.io/repos/github/tank-bohr/bookish_spork/badge.svg?branch=master)](https://coveralls.io/github/tank-bohr/bookish_spork?branch=master) [![codecov](https://codecov.io/gh/tank-bohr/bookish_spork/branch/master/graph/badge.svg)](https://codecov.io/gh/tank-bohr/bookish_spork)
 
-[![Hex.pm](https://img.shields.io/hexpm/v/bookish_spork.svg)][![Hex.pm](https://img.shields.io/hexpm/dt/bookish_spork.svg)][![Hex.pm](https://img.shields.io/hexpm/dw/bookish_spork.svg)][![Hex.pm](https://img.shields.io/hexpm/dd/bookish_spork.svg)]
+[![Hex.pm](https://img.shields.io/hexpm/v/bookish_spork.svg)](https://hex.pm/packages/bookish_spork) [![Hex.pm](https://img.shields.io/hexpm/dt/bookish_spork.svg)]() [![Hex.pm](https://img.shields.io/hexpm/dw/bookish_spork.svg)]() [![Hex.pm](https://img.shields.io/hexpm/dd/bookish_spork.svg)]()
+
 An erlang library to test http requests. Inspired by Ruby's [WebMock](https://github.com/bblimke/webmock).
 
 Suitable for Elixir.
