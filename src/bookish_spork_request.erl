@@ -83,7 +83,7 @@ uri(#request{ uri = Uri}) ->
 version(#request{ version = Version }) ->
     Version.
 
--spec header(Request :: request(), HeaderName :: string()) -> binary().
+-spec header(Request :: request(), HeaderName :: string()) -> string() | undefined.
 %% @doc Returns a particular header from request. Header name is lowerced
 header(#request{ headers = Headers }, HeaderName) ->
     maps:get(HeaderName, Headers, undefined).
