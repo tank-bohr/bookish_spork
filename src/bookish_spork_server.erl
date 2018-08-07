@@ -121,5 +121,5 @@ read_body(Socket, ContentLength) ->
 
 %% @private
 reply(Socket, Response) ->
-    String = bookish_spork_response:write_str(Response),
+    String = bookish_spork_response:write_str(Response, calendar:universal_time()),
     gen_tcp:send(Socket, [String]).
