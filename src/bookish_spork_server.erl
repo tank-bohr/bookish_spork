@@ -13,8 +13,7 @@
     handle_call/3,
     handle_cast/2,
     handle_info/2,
-    terminate/2,
-    code_change/3
+    terminate/2
 ]).
 
 -define(SERVER, ?MODULE).
@@ -75,11 +74,6 @@ handle_info(_Info, State) ->
 %% @private
 terminate(_Reason, #state{socket = ListenSocket}) ->
     gen_tcp:close(ListenSocket).
-
--spec code_change(OldVsn :: term(), State :: state(), Extra :: term()) -> {ok, state()}.
-%% @private
-code_change(_OldVsn, State, _Extra) ->
-    {ok, State}.
 
 %% @private
 accept(ListenSocket, Response, Receiver) ->
