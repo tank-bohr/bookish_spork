@@ -28,6 +28,7 @@ bookish_spork provides you facilities to test your requests with *real* http ser
 
 ## Usage
 
+Bookish spork supports Erlang/OTP 20.3 or later.
 
 First step: add to your rebar config
 
