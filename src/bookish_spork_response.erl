@@ -5,7 +5,7 @@
     new/1,
     new/2,
     new/3,
-    write_str/1
+    write_str/2
 ]).
 
 -define(SP, " ").
@@ -55,10 +55,10 @@ new(Status, Headers) when is_map(Headers) ->
 new(Status, Headers, Content) ->
     #response{ status = Status, headers = Headers, content = Content}.
 
--spec write_str(Response :: response()) -> binary().
-write_str(#response{ status = Status, headers = ExtraHeaders, content = Content}) ->
+-spec write_str(Response :: response(), Now :: calendar:datetime()) -> binary().
+write_str(#response{ status = Status, headers = ExtraHeaders, content = Content}, Now) ->
     StatusLine = status_line(Status),
-    Headers = headers(ExtraHeaders, Content),
+    Headers = headers(ExtraHeaders, Content, Now),
     <<
         StatusLine/binary, ?CRLF,
         Headers/binary, ?CRLF,
@@ -74,10 +74,10 @@ status_line(Status) ->
     ]).
 
 %% @private
-headers(ExtraHeaders, Content) ->
+headers(ExtraHeaders, Content, Now) ->
     Headers = maps:merge(#{
         <<"Server">> => ?DEFAULT_SERVER,
-        <<"Date">> => bookish_spork_format:rfc2616_date(utc_now()),
+        <<"Date">> => bookish_spork_format:rfc2616_date(Now),
         <<"Content-Length">> => list_to_binary(integer_to_list(size(Content)))
     }, ExtraHeaders),
     maps:fold(fun(K, V, Acc) ->
@@ -87,13 +87,3 @@ headers(ExtraHeaders, Content) ->
             V/binary, ?CRLF
         >>
     end, <<>>, Headers).
-
--ifdef(TEST).
-%% @private
-utc_now() ->
-    {{2018, 4, 28}, {5, 51, 50}}.
--else.
-%% @private
-utc_now() ->
-    calendar:universal_time().
--endif.
