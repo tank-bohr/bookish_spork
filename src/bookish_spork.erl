@@ -38,13 +38,31 @@ stop_server() ->
 stub_request() ->
     bookish_spork_server:respond_with(bookish_spork_response:new()).
 
--spec stub_request(http_status()) -> {ok, Acceptor :: pid()}.
-%% @doc stub request with particular status
+-spec stub_request(function() | http_status()) -> {ok, Acceptor :: pid()}.
+%% @doc stub request with fun or particular status
+%%
+%% Fun must be {@type fun((bookish_spork_request:request()) -> bookish_spork_response:response())}
+%%
+%% Example:
+%%
+%% ```
+%% stub_request(fun(Request) ->
+%%     case bookish_spork_request:uri(Request) of
+%%         "/bookish/spork" ->
+%%             bookish_spork_response:new(200, <<"Hello">>);
+%%         "/admin/sporks" ->
+%%             bookish_spork_response:new(403, <<"It is not possible here">>)
+%%     end
+%% end)'''
+%%
+%% @end
+stub_request(Fun) when is_function(Fun) ->
+    bookish_spork_server:respond_with(Fun);
 stub_request(Status) ->
     bookish_spork_server:respond_with(bookish_spork_response:new(Status)).
 
 -spec stub_request(http_status(), ContentOrHeaders :: binary() | map()) -> {ok, Acceptor :: pid()}.
-%% @doc stub request with particular status
+%% @doc stub request with particular status and content/headers
 stub_request(Status, ContentOrHeaders) ->
     bookish_spork_server:respond_with(bookish_spork_response:new(Status, ContentOrHeaders)).
 

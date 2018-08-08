@@ -10,12 +10,14 @@
     base_integration_test/1,
     customized_response_test/1,
     failed_capture_test/1,
-    stub_multiple_requests_test/1
+    stub_multiple_requests_test/1,
+    stub_with_fun/1
 ]).
 
 all() ->
     [base_integration_test, customized_response_test,
-    failed_capture_test, stub_multiple_requests_test].
+    failed_capture_test, stub_multiple_requests_test,
+    stub_with_fun].
 
 base_integration_test(_Config) ->
     {ok, _Pid} = bookish_spork:start_server(),
@@ -78,3 +80,24 @@ stub_multiple_requests_test(_Config) ->
     ?assertEqual("/second/request", bookish_spork_request:uri(Request2)),
     ?assertEqual("/third/request", bookish_spork_request:uri(Request3)),
     ok = bookish_spork:stop_server().
+
+stub_with_fun(_Config) ->
+    {ok, _Pid} = bookish_spork:start_server(),
+    bookish_spork:stub_request(fun response/1),
+    bookish_spork:stub_request(fun response/1),
+    {ok, {{"HTTP/1.1", 200, "OK"}, _, WalrusBody}} = httpc:request(get,
+        {"http://localhost:32002/walrus", []}, [], [{body_format, binary}]),
+    ?assertEqual(<<"Walrus">>, string:chomp(WalrusBody)),
+    {ok, {{"HTTP/1.1", 200, "OK"}, _, LentilsBody}} = httpc:request(get,
+        {"http://localhost:32002/lentils", []}, [], [{body_format, binary}]),
+    ?assertEqual(<<"Unknown">>, string:chomp(LentilsBody)),
+    ok = bookish_spork:stop_server().
+
+response(Request) ->
+    Body = case bookish_spork_request:uri(Request) of
+        "/walrus" ->
+            <<"Walrus">>;
+        _ ->
+            <<"Unknown">>
+    end,
+    bookish_spork_response:new(200, Body).
