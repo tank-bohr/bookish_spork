@@ -34,7 +34,7 @@ start(Port) ->
 stop() ->
     gen_server:stop(?SERVER).
 
--spec respond_with(Response :: bookish_spork_response:response()) -> {ok, Acceptor :: pid()}.
+-spec respond_with(Response :: bookish_spork_response:response() | function()) -> {ok, Acceptor :: pid()}.
 respond_with(Response) ->
     gen_server:call(?SERVER, {respond_with, Response}).
 
@@ -81,7 +81,7 @@ accept(ListenSocket, Response, Receiver) ->
         {ok, Socket} = gen_tcp:accept(ListenSocket),
         Request = receive_request(Socket),
         Receiver ! {bookish_spork, Request},
-        ok = reply(Socket, Response),
+        ok = reply(Socket, Response, Request),
         ok = gen_tcp:shutdown(Socket, read_write)
     end),
     {ok, Pid}.
@@ -114,6 +114,9 @@ read_body(Socket, ContentLength) ->
     Body.
 
 %% @private
-reply(Socket, Response) ->
+reply(Socket, ResponseFun, Request) when is_function(ResponseFun) ->
+    Response = ResponseFun(Request),
+    reply(Socket, Response, Request);
+reply(Socket, Response, _Request) ->
     String = bookish_spork_response:write_str(Response, calendar:universal_time()),
     gen_tcp:send(Socket, [String]).
