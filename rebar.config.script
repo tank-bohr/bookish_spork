@@ -10,7 +10,6 @@ case os:getenv("TRAVIS_BUILD_STAGE_NAME") of
     "Deploy" ->
         HexApiKey = os:getenv("HEX_API_KEY"),
         {hex, Hex} = lists:keyfind(hex, 1, CONFIG),
-        io:format("~p~n", [Hex]),
         NewHex = [{key, HexApiKey} | Hex],
         lists:keyreplace(hex, 1, CONFIG, {hex, NewHex});
     _ ->
