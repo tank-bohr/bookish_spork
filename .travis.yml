@@ -17,3 +17,9 @@ after_success:
   - rebar3 covertool generate
   - cp _build/test/covertool/bookish_spork.covertool.xml ./cobertura.xml
   - codecov
+
+deploy:
+  provider: script
+  script: rebar3 do hex publish, hex docs
+  on:
+    tags: true

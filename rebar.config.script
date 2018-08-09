@@ -4,4 +4,14 @@ case os:getenv("TRAVIS") of
         lists:keystore(coveralls_service_job_id, 1, CONFIG, {coveralls_service_job_id, JobId});
     _ ->
         CONFIG
+end,
+
+case os:getenv("TRAVIS_BUILD_STAGE_NAME") of
+    "Deploy" ->
+        HexApiKey = os:getenv("HEX_API_KEY"),
+        Hex = lists:keyfind(hex, 1, CONFIG),
+        NewHex = [{key, HexApiKey} | Hex],
+        lists:keyreplace(hex, 1, CONFIG, NewHex);
+    _ ->
+        CONFIG
 end.
