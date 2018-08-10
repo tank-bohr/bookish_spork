@@ -36,7 +36,7 @@ First step: add to your rebar config
 {profiles, [
     {test, [
         {deps, [
-            {bookish_spork, "0.2.0"}
+            {bookish_spork, "0.2.1"}
         ]}
     ]}
 ]}.
