@@ -15,7 +15,7 @@ There are several ways to test your http interaction
 
 - Real http request to real servers: not very reliable, requires internet
 
-- You can use external http server like [httpbin](https://httpbin.org/) (hackney approach)
+- You can use external http server like [https://httpbin.org/] (hackney approach)
 
 - You can mock your http client library
 
@@ -139,7 +139,7 @@ As you can see there are two types of assertions:
 
 - we check a testee function result
 
-- we check a side effect: verifying outgoing request has correct parameters (uri in this case)
+- we check a side effect: verifying outgoing request has correct attributes (uri in this case)
 
 
 ==== More complex expectations ====

@@ -1,3 +1,9 @@
+%% @doc This is the main interface module
+%%
+%% It provides basic functions for using library
+%%
+%% @end
+
 -module(bookish_spork).
 
 -export([
@@ -17,7 +23,7 @@
 -type http_status() :: non_neg_integer().
 
 -spec start_server() -> {ok, pid()} | {error, Error :: term()}.
-%% @doc starts http server on a default port
+%% @equiv start_server(32002)
 start_server() ->
     start_server(?DEFAUT_PORT).
 
@@ -32,8 +38,11 @@ stop_server() ->
     bookish_spork_server:stop().
 
 -spec stub_request() -> {ok, Acceptor :: pid()}.
-%% @doc stubs request with default response
-%% Defult response is 204 No Content without body. With just two headers: Server and Date
+%% @equiv
+%% stub_request(204, #{
+%%   <<"Server">> => <<"BookishSpork/0.0.1">>,
+%%   <<"Date">> => <<"Sat, 28 Apr 2018 05:51:50 GMT">>
+%% }, <<>>)
 %% @end
 stub_request() ->
     bookish_spork_server:respond_with(bookish_spork_response:new()).
