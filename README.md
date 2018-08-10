@@ -98,4 +98,91 @@ But bookish_spork has some advantages:
 
 ## Examples
 
-See examples dir.
+Setup and teardown
+
+```erlang
+init_per_group(_GroupName, Config) ->
+    {ok, _} = bookish_spork:start_server(),
+    Config.
+
+end_per_group(_GroupName, _Config) ->
+    ok = bookish_spork:stop_server().
+```
+
+Set expectation
+
+```erlang
+init_per_testcase(random_test, Config) ->
+    bookish_spork:stub_request(200,
+        <<"{\"value\": \"Chuck Norris' favourite word: chunk.\"}">>),
+    Config.
+```
+
+Make assertions
+
+```erlang
+random_test(_Config) ->
+    ?assertEqual(<<"Chuck Norris' favourite word: chunk.">>, testee:make_request()),
+    {ok, Request} = bookish_spork:capture_request(),
+    ?assertEqual("/jokes/random", bookish_spork_request:uri(Request)).
+```
+
+As you can see there are two types of assertions:
+
+- we check a testee function result
+
+- we check a side effect: verifying outgoing request has correct parameters (uri in this case)
+
+
+### More complex expectations
+
+There are cases when the testee function initiates more than one request. But if you know the order of your requests, you can set several expectations
+
+```erlang
+bookish_spork:stub_request(200, <<"{\"value\": \"The first response\"}">>),
+bookish_spork:stub_request(200, <<"{\"value\": \"The second response\"}">>).
+```
+
+The library will response in the order the stubs were defined.
+
+
+Sometimes you can't guarantee the order of requests. Then you may stub request with the fun
+
+```erlang
+bookish_spork:stub_request(fun(Request) ->
+    case bookish_spork_request:uri(Request) of
+        "/bookish/spork" ->
+            bookish_spork_response:new(200, <<"Hello">>);
+        "/admin/sporks" ->
+            bookish_spork_response:new(403, <<"It is not possible here">>)
+    end
+end)
+```
+
+### Elixir example
+
+
+```elixir
+defmodule ChuckNorrisApiTest do
+  use ExUnit.Case
+  doctest ChuckNorrisApi
+
+  setup_all do
+    {:ok, _} = :bookish_spork.start_server
+    {:ok, %{}}
+  end
+
+  test "retrieves a random joke" do
+    :bookish_spork.stub_request(200, "{
+      \"value\": \"Chuck norris tried to crank that soulja boy but it wouldn't crank up\"
+    }")
+    assert ChuckNorrisApi.random == "Chuck norris tried to crank that soulja boy but it wouldn't crank up"
+
+    {:ok, request} = :bookish_spork.capture_request
+    assert :bookish_spork_request.uri(request) == '/jokes/random'
+  end
+end
+
+```
+
+For more details see examples dir.
