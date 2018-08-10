@@ -131,7 +131,7 @@ As you can see there are two types of assertions:
 
 - we check a testee function result
 
-- we check a side effect: verifying outgoing request has correct parameters (uri in this case)
+- we check a side effect: verifying outgoing request has correct attributes (uri in this case)
 
 
 ### More complex expectations
