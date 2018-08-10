@@ -23,3 +23,7 @@ deploy:
   script: rebar3 do hex publish, hex docs
   on:
     tags: true
+
+cache:
+  directories:
+    - $HOME/.cache/rebar3
