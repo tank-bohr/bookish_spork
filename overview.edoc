@@ -2,7 +2,7 @@
 
 @copyright 2018 Alexey Nikitin
 
-@version 0.2.1
+@version 0.2.2
 
 @author Alexey Nikitin <tank@bohr.su>
   [https://twitter.com/tank_bohr]
@@ -35,7 +35,7 @@ First step: add to your rebar config
 {profiles, [
     {test, [
         {deps, [
-            {bookish_spork, "0.2.1"}
+            {bookish_spork, "0.2.2"}
         ]}
     ]}
 ]}.
