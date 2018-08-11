@@ -1,17 +1,14 @@
 case os:getenv("TRAVIS") of
     "true" ->
+        %% Adjust coverall config
         JobId = os:getenv("TRAVIS_JOB_ID"),
-        lists:keystore(coveralls_service_job_id, 1, CONFIG, {coveralls_service_job_id, JobId});
-    _ ->
-        CONFIG
-end,
-
-case os:getenv("TRAVIS_BUILD_STAGE_NAME") of
-    "Deploy" ->
+        CoverallesdConfig = lists:keystore(coveralls_service_job_id, 1,
+            CONFIG, {coveralls_service_job_id, JobId}),
+        %% hex.pm api key addition
         HexApiKey = os:getenv("HEX_API_KEY"),
         {hex, Hex} = lists:keyfind(hex, 1, CONFIG),
         NewHex = [{key, HexApiKey} | Hex],
-        lists:keyreplace(hex, 1, CONFIG, {hex, NewHex});
+        lists:keyreplace(hex, 1, CoverallesdConfig, {hex, NewHex});
     _ ->
         CONFIG
 end.
