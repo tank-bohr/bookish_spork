@@ -14,9 +14,7 @@ script:
 
 after_success:
   - rebar3 coveralls send
-  - rebar3 covertool generate
-  - cp _build/test/covertool/bookish_spork.covertool.xml ./cobertura.xml
-  - codecov
+  - bash scripts/codecov.sh
 
 deploy:
   provider: script
