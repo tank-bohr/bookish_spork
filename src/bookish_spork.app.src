@@ -1,6 +1,6 @@
 {application, bookish_spork,
  [{description, "Library for stubbing and setting expectations on HTTP requests in Erlang"},
-  {vsn, "0.2.2"},
+  {vsn,"git"},
   {registered, []},
   {applications,
    [kernel,
