@@ -1,4 +1,4 @@
-case os:getenv("TRAVIS") of
+CoveralledConfig = case os:getenv("TRAVIS") of
     "true" ->
         %% Adjust coverall config
         JobId = os:getenv("TRAVIS_JOB_ID"),
@@ -6,3 +6,9 @@ case os:getenv("TRAVIS") of
     _ ->
         CONFIG
 end.
+
+%% Add version number for edoc
+{plain, Version}  = rebar_git_resource:make_vsn("."),
+{edoc_opts, EdocOpts} = lists:keyfind(edoc_opts, 1, CoveralledConfig),
+NewEdocOpts = [{def, {version, Version}} | EdocOpts],
+lists:keyreplace(edoc_opts, 1, CoveralledConfig, {edoc_opts, NewEdocOpts}).
