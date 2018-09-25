@@ -37,7 +37,7 @@ start_server(Port) ->
 stop_server() ->
     bookish_spork_server:stop().
 
--spec stub_request() -> {ok, Acceptor :: pid()}.
+-spec stub_request() -> ok.
 %% @equiv
 %% stub_request(204, #{
 %%   <<"Server">> => <<"BookishSpork/0.0.1">>,
@@ -47,7 +47,7 @@ stop_server() ->
 stub_request() ->
     bookish_spork_server:respond_with(bookish_spork_response:new()).
 
--spec stub_request(function() | http_status()) -> {ok, Acceptor :: pid()}.
+-spec stub_request(function() | http_status()) -> ok.
 %% @doc stub request with fun or particular status
 %%
 %% Fun must be {@type fun((bookish_spork_request:request()) -> bookish_spork_response:response())}
@@ -70,12 +70,12 @@ stub_request(Fun) when is_function(Fun) ->
 stub_request(Status) ->
     bookish_spork_server:respond_with(bookish_spork_response:new(Status)).
 
--spec stub_request(http_status(), ContentOrHeaders :: binary() | map()) -> {ok, Acceptor :: pid()}.
+-spec stub_request(http_status(), ContentOrHeaders :: binary() | map()) -> ok.
 %% @doc stub request with particular status and content/headers
 stub_request(Status, ContentOrHeaders) ->
     bookish_spork_server:respond_with(bookish_spork_response:new(Status, ContentOrHeaders)).
 
--spec stub_request(http_status(), Headers :: map(), Content :: binary()) -> {ok, Acceptor :: pid()}.
+-spec stub_request(http_status(), Headers :: map(), Content :: binary()) -> ok.
 stub_request(Status, Headers, Content) ->
     bookish_spork_server:respond_with(bookish_spork_response:new(Status, Headers, Content)).
 

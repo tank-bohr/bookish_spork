@@ -22,7 +22,7 @@ all() ->
 
 base_integration_test(_Config) ->
     {ok, _Pid} = bookish_spork:start_server(),
-    {ok, _Acceptor} = bookish_spork:stub_request(),
+    ok = bookish_spork:stub_request(),
     RequestHeaders = [],
     {ok, {{"HTTP/1.1", 204, "No Content"}, _ResponseHeaders, _Body}} =
       httpc:request(get, {"http://localhost:32002/o/lo/lo?q=kjk", RequestHeaders}, [], []),
@@ -95,13 +95,16 @@ stub_with_fun(_Config) ->
     ok = bookish_spork:stop_server().
 
 keepalive_connection(_Config) ->
+    {ok, _Apps} = application:ensure_all_started(gun),
     {ok, _Pid} = bookish_spork:start_server(),
-    bookish_spork:stub_request(200, <<"OK">>),
+    bookish_spork:stub_request(200, <<"OK1">>),
+    bookish_spork:stub_request(200, <<"OK2">>),
     {ok, ConnectionPid} = gun:open("localhost", 32002),
-    ?assertEqual(<<"OK">>, gun_request(ConnectionPid)),
-    ?assertEqual(<<"OK">>, gun_request(ConnectionPid)),
+    ?assertEqual(<<"OK1">>, gun_request(ConnectionPid)),
+    ?assertEqual(<<"OK2">>, gun_request(ConnectionPid)),
     ok = gun:close(ConnectionPid),
-    ok = bookish_spork:stop_server().
+    ok = bookish_spork:stop_server(),
+    ok = application:stop(gun).
 
 gun_request(ConnectionPid) ->
     StreamRef = gun:get(ConnectionPid, "/"),
