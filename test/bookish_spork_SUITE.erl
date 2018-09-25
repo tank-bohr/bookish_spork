@@ -99,10 +99,14 @@ keepalive_connection(_Config) ->
     {ok, _Pid} = bookish_spork:start_server(),
     bookish_spork:stub_request(200, <<"OK1">>),
     bookish_spork:stub_request(200, <<"OK2">>),
-    {ok, ConnectionPid} = gun:open("localhost", 32002),
-    ?assertEqual(<<"OK1">>, gun_request(ConnectionPid)),
-    ?assertEqual(<<"OK2">>, gun_request(ConnectionPid)),
-    ok = gun:close(ConnectionPid),
+    bookish_spork:stub_request(200, <<"OK3">>),
+    {ok, ConnectionPid1} = gun:open("localhost", 32002),
+    ?assertEqual(<<"OK1">>, gun_request(ConnectionPid1)),
+    ?assertEqual(<<"OK2">>, gun_request(ConnectionPid1)),
+    ok = gun:close(ConnectionPid1),
+    {ok, ConnectionPid2} = gun:open("localhost", 32002),
+    ?assertEqual(<<"OK3">>, gun_request(ConnectionPid2)),
+    ok = gun:close(ConnectionPid2),
     ok = bookish_spork:stop_server(),
     ok = application:stop(gun).
 
