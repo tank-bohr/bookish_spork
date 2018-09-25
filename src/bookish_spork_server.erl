@@ -79,12 +79,21 @@ terminate(_Reason, #state{socket = ListenSocket}) ->
 accept(ListenSocket, Response, Receiver) ->
     Pid = spawn_link(fun() ->
         {ok, Socket} = gen_tcp:accept(ListenSocket),
-        Request = receive_request(Socket),
-        Receiver ! {bookish_spork, Request},
-        ok = reply(Socket, Response, Request),
-        ok = gen_tcp:shutdown(Socket, read_write)
+        ok = handle_connection(Socket, Response, Receiver)
     end),
     {ok, Pid}.
+
+%% @private
+handle_connection(Socket, Response, Receiver) ->
+    Request = receive_request(Socket),
+    Receiver ! {bookish_spork, Request},
+    ok = reply(Socket, Response, Request),
+    case bookish_spork_request:is_keepalive(Request) of
+        true ->
+            handle_connection(Socket, Response, Receiver);
+        false ->
+            gen_tcp:shutdown(Socket, read_write)
+    end.
 
 %% @private
 receive_request(Socket) ->

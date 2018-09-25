@@ -11,13 +11,14 @@
     customized_response_test/1,
     failed_capture_test/1,
     stub_multiple_requests_test/1,
-    stub_with_fun/1
+    stub_with_fun/1,
+    keepalive_connection/1
 ]).
 
 all() ->
     [base_integration_test, customized_response_test,
     failed_capture_test, stub_multiple_requests_test,
-    stub_with_fun].
+    stub_with_fun, keepalive_connection].
 
 base_integration_test(_Config) ->
     {ok, _Pid} = bookish_spork:start_server(),
@@ -93,6 +94,20 @@ stub_with_fun(_Config) ->
     ?assertEqual(<<"Unknown">>, string:chomp(LentilsBody)),
     ok = bookish_spork:stop_server().
 
+keepalive_connection(_Config) ->
+    {ok, _Pid} = bookish_spork:start_server(),
+    bookish_spork:stub_request(200, <<"OK">>),
+    {ok, ConnectionPid} = gun:open("localhost", 32002),
+    ?assertEqual(<<"OK">>, gun_request(ConnectionPid)),
+    ?assertEqual(<<"OK">>, gun_request(ConnectionPid)),
+    ok = gun:close(ConnectionPid),
+    ok = bookish_spork:stop_server().
+
+gun_request(ConnectionPid) ->
+    StreamRef = gun:get(ConnectionPid, "/"),
+    {ok, Body} = gun:await_body(ConnectionPid, StreamRef),
+    Body.
+
 response(Request) ->
     Body = case bookish_spork_request:uri(Request) of
         "/walrus" ->
@@ -101,3 +116,4 @@ response(Request) ->
             <<"Unknown">>
     end,
     bookish_spork_response:new(200, Body).
+

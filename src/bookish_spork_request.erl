@@ -4,7 +4,8 @@
     new/0,
     request_line/4,
     add_header/3,
-    content_length/1
+    content_length/1,
+    is_keepalive/1
 ]).
 
 -export([
@@ -102,3 +103,11 @@ body(#request{ body = Body }) ->
 %% @private
 body(Request, Body) ->
     Request#request{ body = Body }.
+
+-spec is_keepalive(Request :: request()) -> boolean().
+is_keepalive(#request{ version = {1, 0} }) ->
+    false;
+is_keepalive(#request{ headers = #{"connection" := "close"}, version = {1, 1} }) ->
+    false;
+is_keepalive(_) ->
+    true.
