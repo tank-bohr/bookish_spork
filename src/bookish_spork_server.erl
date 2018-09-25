@@ -92,18 +92,27 @@ terminate(_Reason, #state{socket = ListenSocket, acceptor = Acceptor}) ->
 
 %% @private
 accept(ListenSocket) ->
-    Pid = spawn_link(fun() ->
+    AcceptorPid = spawn_link(fun AcceptorFun() ->
         {ok, Socket} = gen_tcp:accept(ListenSocket),
-        ok = handle_connection(Socket)
+        ok = handle_connection(Socket),
+        AcceptorFun()
     end),
-    {ok, Pid}.
+    {ok, AcceptorPid}.
 
 %% @private
 handle_connection(Socket) ->
-    Request = receive_request(Socket),
-    {Response, Receiver} = response(),
-    Receiver ! {bookish_spork, Request},
-    ok = reply(Socket, Response, Request),
+    case receive_request(Socket) of
+        {ok, Request} ->
+            {Response, Receiver} = response(),
+            Receiver ! {bookish_spork, Request},
+            ok = reply(Socket, Response, Request),
+            complete_connection(Socket, Request);
+        socket_closed ->
+            ok
+    end.
+
+%% @private
+complete_connection(Socket, Request) ->
     case bookish_spork_request:is_keepalive(Request) of
         true ->
             handle_connection(Socket);
@@ -126,7 +135,10 @@ receive_request(Socket, RequestIn) ->
             receive_request(Socket, RequestOut);
         {ok, http_eoh} ->
             Body = read_body(Socket, bookish_spork_request:content_length(RequestIn)),
-            bookish_spork_request:body(RequestIn, Body)
+            RequestOut = bookish_spork_request:body(RequestIn, Body),
+            {ok, RequestOut};
+        {error, closed} ->
+            socket_closed
     end.
 
 %% @private
