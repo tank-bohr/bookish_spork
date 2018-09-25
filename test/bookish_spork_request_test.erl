@@ -2,14 +2,29 @@
 
 -include_lib("eunit/include/eunit.hrl").
 
--define(T, bookish_spork_request).
-
 content_length_test() ->
-    Request = ?T:new(),
-    ?assertEqual(0, ?T:content_length(Request)),
-    RequestWithContentLength = ?T:add_header(Request, "Content-Length", "17"),
-    ?assertEqual(17, ?T:content_length(RequestWithContentLength)).
+    Request = bookish_spork_request:new(),
+    ?assertEqual(0, bookish_spork_request:content_length(Request)),
+    RequestWithContentLength = bookish_spork_request:add_header(Request, "Content-Length", "17"),
+    ?assertEqual(17, bookish_spork_request:content_length(RequestWithContentLength)).
 
 add_header_test() ->
-    Request = ?T:add_header(?T:new(), "X-Lol", "kjk"),
-    ?assertEqual(#{"x-lol" => "kjk"}, ?T:headers(Request), "Converts header name to lower case").
+    Request = bookish_spork_request:add_header(bookish_spork_request:new(), "X-Lol", "kjk"),
+    ?assertEqual(#{"x-lol" => "kjk"}, bookish_spork_request:headers(Request),
+        "Converts header name to lower case").
+
+
+is_keepalive_test_() ->
+    Http10Req = bookish_spork_request:request_line(
+        bookish_spork_request:new(), 'GET', "/", {1, 0}),
+    Http10KeepAliveReq = bookish_spork_request:add_header(
+        bookish_spork_request:request_line(
+            bookish_spork_request:new(),'GET', "/", {1, 0}), "Connection", "Keep-Alive"),
+    ConnectionCloseReq = bookish_spork_request:add_header(
+        bookish_spork_request:request_line(
+            bookish_spork_request:new(),'GET', "/", {1, 1}), "Connection", "close"),
+    ReqularRequest = bookish_spork_request:new(),
+    [?_assertEqual(false, bookish_spork_request:is_keepalive(Http10Req)),
+    ?_assertEqual(true, bookish_spork_request:is_keepalive(Http10KeepAliveReq)),
+    ?_assertEqual(false, bookish_spork_request:is_keepalive(ConnectionCloseReq)),
+    ?_assertEqual(true, bookish_spork_request:is_keepalive(ReqularRequest))].

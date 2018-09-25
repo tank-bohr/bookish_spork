@@ -45,7 +45,7 @@ new() -> #request{}.
     Request :: request(),
     Method  :: atom(),
     Uri     :: string() | undefined,
-    Version :: string() | undefined
+    Version :: http_version() | undefined
 ) -> request().
 %% @private
 request_line(Request, Method, Uri, Version) ->
@@ -105,6 +105,8 @@ body(Request, Body) ->
     Request#request{ body = Body }.
 
 -spec is_keepalive(Request :: request()) -> boolean().
+is_keepalive(#request{ headers = #{"connection" := Conn}, version = {1, 0} }) ->
+    string:lowercase(Conn) =:= "keep-alive";
 is_keepalive(#request{ version = {1, 0} }) ->
     false;
 is_keepalive(#request{ headers = #{"connection" := "close"}, version = {1, 1} }) ->
