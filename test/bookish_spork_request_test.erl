@@ -2,11 +2,11 @@
 
 -include_lib("eunit/include/eunit.hrl").
 
-content_length_test() ->
+content_length_test_() ->
     Request = bookish_spork_request:new(),
-    ?assertEqual(0, bookish_spork_request:content_length(Request)),
     RequestWithContentLength = bookish_spork_request:add_header(Request, "Content-Length", "17"),
-    ?assertEqual(17, bookish_spork_request:content_length(RequestWithContentLength)).
+    [?_assertEqual(0, bookish_spork_request:content_length(Request)),
+    ?_assertEqual(17, bookish_spork_request:content_length(RequestWithContentLength))].
 
 add_header_test() ->
     Request = bookish_spork_request:add_header(bookish_spork_request:new(), "X-Lol", "kjk"),
