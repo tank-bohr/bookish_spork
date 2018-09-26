@@ -12,13 +12,14 @@
     failed_capture_test/1,
     stub_multiple_requests_test/1,
     stub_with_fun/1,
-    keepalive_connection/1
+    keepalive_connection/1,
+    without_keepalive/1
 ]).
 
 all() ->
     [base_integration_test, customized_response_test,
     failed_capture_test, stub_multiple_requests_test,
-    stub_with_fun, keepalive_connection].
+    stub_with_fun, keepalive_connection, without_keepalive].
 
 base_integration_test(_Config) ->
     {ok, _Pid} = bookish_spork:start_server(),
@@ -109,6 +110,16 @@ keepalive_connection(_Config) ->
     ok = gun:close(ConnectionPid2),
     ok = bookish_spork:stop_server(),
     ok = application:stop(gun).
+
+without_keepalive(_Config) ->
+    {ok, _Pid} = bookish_spork:start_server(),
+    bookish_spork:stub_request(),
+    bookish_spork:stub_request(),
+    {ok, {{"HTTP/1.1", 204, "No Content"}, _, _}} = httpc:request(get,
+        {"http://localhost:32002", [{"Connection", "close"}]}, [], [{body_format, binary}]),
+    {ok, {{"HTTP/1.1", 204, "No Content"}, _, _}} = httpc:request(get,
+        {"http://localhost:32002", [{"Connection", "close"}]}, [], [{body_format, binary}]),
+    ok = bookish_spork:stop_server().
 
 gun_request(ConnectionPid) ->
     StreamRef = gun:get(ConnectionPid, "/"),
