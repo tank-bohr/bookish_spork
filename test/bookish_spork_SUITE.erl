@@ -11,17 +11,19 @@
     customized_response_test/1,
     failed_capture_test/1,
     stub_multiple_requests_test/1,
-    stub_with_fun/1
+    stub_with_fun/1,
+    keepalive_connection/1,
+    without_keepalive/1
 ]).
 
 all() ->
     [base_integration_test, customized_response_test,
     failed_capture_test, stub_multiple_requests_test,
-    stub_with_fun].
+    stub_with_fun, keepalive_connection, without_keepalive].
 
 base_integration_test(_Config) ->
     {ok, _Pid} = bookish_spork:start_server(),
-    {ok, _Acceptor} = bookish_spork:stub_request(),
+    ok = bookish_spork:stub_request(),
     RequestHeaders = [],
     {ok, {{"HTTP/1.1", 204, "No Content"}, _ResponseHeaders, _Body}} =
       httpc:request(get, {"http://localhost:32002/o/lo/lo?q=kjk", RequestHeaders}, [], []),
@@ -93,6 +95,37 @@ stub_with_fun(_Config) ->
     ?assertEqual(<<"Unknown">>, string:chomp(LentilsBody)),
     ok = bookish_spork:stop_server().
 
+keepalive_connection(_Config) ->
+    {ok, _Apps} = application:ensure_all_started(gun),
+    {ok, _Pid} = bookish_spork:start_server(),
+    bookish_spork:stub_request(200, <<"OK1">>),
+    bookish_spork:stub_request(200, <<"OK2">>),
+    bookish_spork:stub_request(200, <<"OK3">>),
+    {ok, ConnectionPid1} = gun:open("localhost", 32002),
+    ?assertEqual(<<"OK1">>, gun_request(ConnectionPid1)),
+    ?assertEqual(<<"OK2">>, gun_request(ConnectionPid1)),
+    ok = gun:close(ConnectionPid1),
+    {ok, ConnectionPid2} = gun:open("localhost", 32002),
+    ?assertEqual(<<"OK3">>, gun_request(ConnectionPid2)),
+    ok = gun:close(ConnectionPid2),
+    ok = bookish_spork:stop_server(),
+    ok = application:stop(gun).
+
+without_keepalive(_Config) ->
+    {ok, _Pid} = bookish_spork:start_server(),
+    bookish_spork:stub_request(),
+    bookish_spork:stub_request(),
+    {ok, {{"HTTP/1.1", 204, "No Content"}, _, _}} = httpc:request(get,
+        {"http://localhost:32002", [{"Connection", "close"}]}, [], [{body_format, binary}]),
+    {ok, {{"HTTP/1.1", 204, "No Content"}, _, _}} = httpc:request(get,
+        {"http://localhost:32002", [{"Connection", "close"}]}, [], [{body_format, binary}]),
+    ok = bookish_spork:stop_server().
+
+gun_request(ConnectionPid) ->
+    StreamRef = gun:get(ConnectionPid, "/"),
+    {ok, Body} = gun:await_body(ConnectionPid, StreamRef),
+    Body.
+
 response(Request) ->
     Body = case bookish_spork_request:uri(Request) of
         "/walrus" ->
@@ -101,3 +134,4 @@ response(Request) ->
             <<"Unknown">>
     end,
     bookish_spork_response:new(200, Body).
+
