@@ -5,10 +5,15 @@ CoveralledConfig = case os:getenv("TRAVIS") of
         lists:keystore(coveralls_service_job_id, 1, CONFIG, {coveralls_service_job_id, JobId});
     _ ->
         CONFIG
-end.
+end,
 
 %% Add version number for edoc
-{plain, Version}  = rebar_git_resource:make_vsn("."),
-{edoc_opts, EdocOpts} = lists:keyfind(edoc_opts, 1, CoveralledConfig),
-NewEdocOpts = [{def, {version, Version}} | EdocOpts],
-lists:keyreplace(edoc_opts, 1, CoveralledConfig, {edoc_opts, NewEdocOpts}).
+case os:cmd("git tag -l --points-at HEAD") of
+    [$v | Version0] ->
+        Version = string:trim(Version0, both, "\n"),
+        {edoc_opts, EdocOpts} = lists:keyfind(edoc_opts, 1, CoveralledConfig),
+        NewEdocOpts = [{def, {version, Version}} | EdocOpts],
+        lists:keyreplace(edoc_opts, 1, CoveralledConfig, {edoc_opts, NewEdocOpts});
+    _ ->
+        CoveralledConfig
+end.
