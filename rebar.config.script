@@ -1,4 +1,4 @@
-CoveralledConfig = case os:getenv("TRAVIS") of
+Config1 = case os:getenv("TRAVIS") of
     "true" ->
         %% Adjust coverall config
         JobId = os:getenv("TRAVIS_JOB_ID"),
@@ -7,13 +7,24 @@ CoveralledConfig = case os:getenv("TRAVIS") of
         CONFIG
 end,
 
+%% Add shields to edown
+{ok, ShieldsBinary} = file:read_file("shields.md"),
+Shields = binary_to_list(ShieldsBinary),
+{profiles, Profiles0} = lists:keyfind(profiles, 1, Config1),
+{edown, EdownProfile0} = lists:keyfind(edown, 1, Profiles0),
+{edoc_opts, EdownEdocOpts0} = lists:keyfind(edoc_opts, 1, EdownProfile0),
+EdownEdocOpts1 = [{def, {shields, Shields}} | EdownEdocOpts0],
+EdownProfile1 = lists:keyreplace(edoc_opts, 1, EdownProfile0, {edoc_opts, EdownEdocOpts1}),
+Profiles1 = lists:keyreplace(edown, 1, Profiles0, {edown, EdownProfile1}),
+Config2 = lists:keyreplace(profiles, 1, Config1, {profiles, Profiles1}),
+
 %% Add version number for edoc
-case os:cmd("git tag -l --points-at HEAD") of
+case os:cmd("git tag | tail -1") of
     [$v | Version0] ->
         Version = string:trim(Version0, both, "\n"),
-        {edoc_opts, EdocOpts} = lists:keyfind(edoc_opts, 1, CoveralledConfig),
-        NewEdocOpts = [{def, {version, Version}} | EdocOpts],
-        lists:keyreplace(edoc_opts, 1, CoveralledConfig, {edoc_opts, NewEdocOpts});
+        {edoc_opts, EdocOpts0} = lists:keyfind(edoc_opts, 1, Config2),
+        EdocOpts1 = [{def, {version, Version}} | EdocOpts0],
+        lists:keyreplace(edoc_opts, 1, Config2, {edoc_opts, EdocOpts1});
     _ ->
-        CoveralledConfig
+        Config2
 end.

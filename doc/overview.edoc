@@ -1,4 +1,4 @@
-@title Bookish Spork
+@title Bookish spork
 
 @copyright 2018 Alexey Nikitin
 
@@ -8,6 +8,12 @@
   [https://twitter.com/tank_bohr]
 
 @doc
+
+An erlang library to test http requests. Inspired by Ruby's <a href="https://github.com/bblimke/webmock">WebMock</a>.
+
+Suitable for Elixir.
+
+{@shields}
 
 == Rationale ==
 
@@ -31,22 +37,21 @@ Bookish spork supports Erlang/OTP 20.3 or later.
 
 First step: add to your rebar config
 
-```
+<pre lang="erlang">
 {profiles, [
     {test, [
         {deps, [
             {bookish_spork, "{@version}"}
         ]}
     ]}
-]}.
-'''
+]}.</pre>
 
 
 Second: start server in your tests.
 
-```
+<pre lang="erlang">
 bookish_spork:start_server().
-'''
+</pre>
 
 
 It starts process without link. Thus you can use it in `init_per_group' and in `init_per_suite' callbacks. Default port is 32002 but you can specify any port you like with `bookish_spork:start_server/1'
@@ -57,18 +62,18 @@ It starts process without link. Thus you can use it in `init_per_group' and in `
 
 The simplest stub you can do is
 
-```
-bookish_spork:stub_request().
-'''
+<pre lang="erlang">
+bookih_spork:stub_request().
+</pre>
 
-It will stub your requests with `204 No Content` response with empty body.
+It will stub your requests with `204 No Content' response with empty body.
 
 If you need specify response you easily can do this:
 
 
-```
-bookish_spork:stub_request(Status, Headers, Content).
-'''
+<pre lang="erlang">
+bookih_spork:stub_request(Status, Headers, Content).
+</pre>
 
 
 === Capture request ===
@@ -77,24 +82,24 @@ bookish_spork:stub_request(Status, Headers, Content).
 As usual the main goal is to test that you send the correct request
 
 
-```
-{ok, Request} = bookish_spork:capture_request().
-'''
+<pre lang="erlang">
+{ok, equest} = bookish_spork:capture_request().
+</pre>
 
 It returns you an opaque structure of the request. You can inspect it with
 
-- `bookish_spork_request:method/1'
+- {@link bookish_spork_request:method/1}
 
-- `bookish_spork_request:uri/1'
+- {@link bookish_spork_request:uri/1}
 
-- `bookish_spork_request:headers/1'
+- {@link bookish_spork_request:headers/1}
 
-- `bookish_spork_request:body/1'
+- {@link bookish_spork_request:body/1}
 
 
 === Bypass comparision ===
 
-An elixir library `bypass' ([https://github.com/PSPDFKit-labs/bypass]) does pretty much the same. And illustrates the same approach. It starts a cowboy web-server to replace a real service for test
+An elixir library [bypass](https://github.com/PSPDFKit-labs/bypass) does pretty much the same. And illustrates the same approach. It starts a cowboy web-server to replace a real service for test
 
 But bookish_spork has some advantages:
 
@@ -108,32 +113,30 @@ But bookish_spork has some advantages:
 
 Setup and teardown
 
-```
+<pre lang="erlang">
 init_per_group(_GroupName, Config) ->
     {ok, _} = bookish_spork:start_server(),
     Config.
 
 end_per_group(_GroupName, _Config) ->
     ok = bookish_spork:stop_server().
-'''
+</pre>
 
 Set expectation
 
-```
-init_per_testcase(random_test, Config) ->
+<pre lang="erlang"><![CDATA[init_per_testcase(random_test, Config) ->
     bookish_spork:stub_request(200,
         <<"{\"value\": \"Chuck Norris' favourite word: chunk.\"}">>),
-    Config.
-'''
+    Config.]]>
+</pre>
 
 Make assertions
 
-```
-random_test(_Config) ->
+<pre lang="erlang"><![CDATA[random_test(_Config) ->
     ?assertEqual(<<"Chuck Norris' favourite word: chunk.">>, testee:make_request()),
     {ok, Request} = bookish_spork:capture_request(),
-    ?assertEqual("/jokes/random", bookish_spork_request:uri(Request)).
-'''
+    ?ssertEqual("/jokes/random", bookish_spork_request:uri(Request)).]]>
+</pre>
 
 As you can see there are two types of assertions:
 
@@ -146,26 +149,24 @@ As you can see there are two types of assertions:
 
 There are cases when the testee function initiates more than one request. But if you know the order of your requests, you can set several expectations
 
-```
-bookish_spork:stub_request(200, <<"{\"value\": \"The first response\"}">>),
-bookish_spork:stub_request(200, <<"{\"value\": \"The second response\"}">>).
-'''
+<pre lang="erlang"><![CDATA[bookish_spork:stub_request(200, <<"{\"value\": \"The first response\"}">>),
+bookih_spork:stub_request(200, <<"{\"value\": \"The second response\"}">>).]]>
+</pre>
 
 The library will response in the order the stubs were defined.
 
 
 Sometimes you can't guarantee the order of requests. Then you may stub request with the fun
 
-```
-bookish_spork:stub_request(fun(Request) ->
+<pre lang="erlang"><![CDATA[bookish_spork:stub_request(fun(Request) ->
     case bookish_spork_request:uri(Request) of
         "/bookish/spork" ->
             bookish_spork_response:new(200, <<"Hello">>);
         "/admin/sporks" ->
             bookish_spork_response:new(403, <<"It is not possible here">>)
     end
-end)
-'''
+end]]>
+</pre>
 
 {@link bookish_spork_request. Module to work with request}
 
@@ -175,7 +176,7 @@ end)
 ==== Elixir example ====
 
 
-```
+<pre lang="elixir">
 defmodule ChuckNorrisApiTest do
   use ExUnit.Case
   doctest ChuckNorrisApi
@@ -195,7 +196,8 @@ defmodule ChuckNorrisApiTest do
     assert :bookish_spork_request.uri(request) == '/jokes/random'
   end
 end
+</pre>
 
-'''
+For more details see examples dir.
 
 @end
