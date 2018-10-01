@@ -11,6 +11,10 @@
 
   {maintainers, ["Alexey Nikitin", "Vasily Kolesnikov"]},
   {licenses, ["Apache 2.0"]},
-  {links, [{"Github", "https://github.com/tank-bohr/bookish_spork"}]},
+  {links, [
+    {"Github", "https://github.com/tank-bohr/bookish_spork"},
+    {"Changelog", "https://github.com/tank-bohr/bookish_spork/releases"},
+    {"Chat", "https://gitter.im/bookish_spork"}
+  ]},
   {exclude_files, ["examples/*"]}
  ]}.
