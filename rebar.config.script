@@ -18,13 +18,18 @@ EdownProfile1 = lists:keyreplace(edoc_opts, 1, EdownProfile0, {edoc_opts, EdownE
 Profiles1 = lists:keyreplace(edown, 1, Profiles0, {edown, EdownProfile1}),
 Config2 = lists:keyreplace(profiles, 1, Config1, {profiles, Profiles1}),
 
+%% Add year to Copyright
+{{Year, _, _}, _} = calendar:universal_time(),
+{edoc_opts, EdocOpts0} = lists:keyfind(edoc_opts, 1, Config2),
+EdocOpts1 = [{def, {year, integer_to_list(Year)}} | EdocOpts0],
+Config3 = lists:keyreplace(edoc_opts, 1, Config2, {edoc_opts, EdocOpts1}),
+
 %% Add version number for edoc
 case os:cmd("git tag | tail -1") of
     [$v | Version0] ->
         Version = string:trim(Version0, both, "\n"),
-        {edoc_opts, EdocOpts0} = lists:keyfind(edoc_opts, 1, Config2),
-        EdocOpts1 = [{def, {version, Version}} | EdocOpts0],
-        lists:keyreplace(edoc_opts, 1, Config2, {edoc_opts, EdocOpts1});
+        EdocOpts2 = [{def, {version, Version}} | EdocOpts1],
+        lists:keyreplace(edoc_opts, 1, Config3, {edoc_opts, EdocOpts2});
     _ ->
-        Config2
+        Config3
 end.

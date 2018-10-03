@@ -1,7 +1,11 @@
-.PHONY: edown codecov test
+.PHONY: doc edown codecov test
 .DEFAULT_GOAL := test
 
 COVERTOOL_REPORT=_build/test/covertool/bookish_spork.covertool.xml
+
+doc: edown
+	rebar3 edoc
+	open doc/index.html
 
 edown:
 	rebar3 as edown edoc
