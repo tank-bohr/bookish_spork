@@ -22,7 +22,7 @@ __abstract datatype__: `request()`
 ## Function Index ##
 
 
-<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#body-1">body/1</a></td><td>request body.</td></tr><tr><td valign="top"><a href="#content_length-1">content_length/1</a></td><td>Content-Length header value as intger.</td></tr><tr><td valign="top"><a href="#header-2">header/2</a></td><td>Returns a particular header from request.</td></tr><tr><td valign="top"><a href="#headers-1">headers/1</a></td><td>http headers map.</td></tr><tr><td valign="top"><a href="#is_keepalive-1">is_keepalive/1</a></td><td></td></tr><tr><td valign="top"><a href="#method-1">method/1</a></td><td>http verb: 'GET', 'POST','PUT', 'DELETE', 'OPTIONS', ...</td></tr><tr><td valign="top"><a href="#uri-1">uri/1</a></td><td>path with query string.</td></tr><tr><td valign="top"><a href="#version-1">version/1</a></td><td>http protocol version tuple.</td></tr></table>
+<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#body-1">body/1</a></td><td>request body.</td></tr><tr><td valign="top"><a href="#content_length-1">content_length/1</a></td><td>Content-Length header value as intger.</td></tr><tr><td valign="top"><a href="#header-2">header/2</a></td><td>Returns a particular header from request.</td></tr><tr><td valign="top"><a href="#headers-1">headers/1</a></td><td>http headers map.</td></tr><tr><td valign="top"><a href="#is_keepalive-1">is_keepalive/1</a></td><td>tells you if the request is keepalive or not <a href="https://tools.ietf.org.md/rfc6223" target="_top"><tt>https://tools.ietf.org/html/rfc6223</tt></a></td></tr><tr><td valign="top"><a href="#method-1">method/1</a></td><td>http verb: 'GET', 'POST','PUT', 'DELETE', 'OPTIONS', ...</td></tr><tr><td valign="top"><a href="#uri-1">uri/1</a></td><td>path with query string.</td></tr><tr><td valign="top"><a href="#version-1">version/1</a></td><td>http protocol version tuple.</td></tr></table>
 
 
 <a name="functions"></a>
@@ -81,6 +81,8 @@ http headers map. Header names are normalized and lowercased
 is_keepalive(Request::<a href="#type-request">request()</a>) -&gt; boolean()
 </code></pre>
 <br />
+
+tells you if the request is keepalive or not [`https://tools.ietf.org/html/rfc6223`](https://tools.ietf.org.md/rfc6223)
 
 <a name="method-1"></a>
 
