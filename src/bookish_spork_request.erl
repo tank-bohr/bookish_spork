@@ -105,11 +105,12 @@ body(Request, Body) ->
     Request#request{ body = Body }.
 
 -spec is_keepalive(Request :: request()) -> boolean().
-is_keepalive(#request{ headers = #{"connection" := Conn}, version = {1, 0} }) ->
+%% @doc tells you if the request is keepalive or not [https://tools.ietf.org/html/rfc6223]
+is_keepalive(#request{ headers = #{"connection" := Conn }, version = {1, 0} }) ->
     string:lowercase(Conn) =:= "keep-alive";
 is_keepalive(#request{ version = {1, 0} }) ->
     false;
-is_keepalive(#request{ headers = #{"connection" := "close"}, version = {1, 1} }) ->
+is_keepalive(#request{ headers = #{"connection" := "close" }, version = {1, 1} }) ->
     false;
 is_keepalive(_) ->
     true.
