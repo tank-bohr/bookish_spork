@@ -69,7 +69,7 @@ The simplest stub you can do is
 
 ```erlang
 
-bookih_spork:stub_request().
+bookish_spork:stub_request().
 
 ```
 
@@ -79,7 +79,7 @@ If you need specify response you easily can do this:
 
 ```erlang
 
-bookih_spork:stub_request(Status, Headers, Content).
+bookish_spork:stub_request(Status, Headers, Content).
 
 ```
 
@@ -165,7 +165,7 @@ There are cases when the testee function initiates more than one request. But if
 
 ```erlang
 bookish_spork:stub_request(200, <<"{\"value\": \"The first response\"}">>),
-bookih_spork:stub_request(200, <<"{\"value\": \"The second response\"}">>).
+bookish_spork:stub_request(200, <<"{\"value\": \"The second response\"}">>).
 
 ```
 

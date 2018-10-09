@@ -63,7 +63,7 @@ It starts process without link. Thus you can use it in `init_per_group' and in `
 The simplest stub you can do is
 
 <pre lang="erlang">
-bookih_spork:stub_request().
+bookish_spork:stub_request().
 </pre>
 
 It will stub your requests with `204 No Content' response with empty body.
@@ -72,7 +72,7 @@ If you need specify response you easily can do this:
 
 
 <pre lang="erlang">
-bookih_spork:stub_request(Status, Headers, Content).
+bookish_spork:stub_request(Status, Headers, Content).
 </pre>
 
 
@@ -150,7 +150,7 @@ As you can see there are two types of assertions:
 There are cases when the testee function initiates more than one request. But if you know the order of your requests, you can set several expectations
 
 <pre lang="erlang"><![CDATA[bookish_spork:stub_request(200, <<"{\"value\": \"The first response\"}">>),
-bookih_spork:stub_request(200, <<"{\"value\": \"The second response\"}">>).]]>
+bookish_spork:stub_request(200, <<"{\"value\": \"The second response\"}">>).]]>
 </pre>
 
 The library will response in the order the stubs were defined.
