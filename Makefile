@@ -17,4 +17,4 @@ $(COVERTOOL_REPORT):
 	rebar3 covertool generate
 
 test:
-	rebar3 do eunit, ct
+	rebar3 do eunit, ct, dialyzer

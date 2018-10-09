@@ -2,14 +2,14 @@ language: erlang
 
 otp_release:
   - 20.3
-  - 21.0
+  - 21.1
 
 install:
   sudo pip install codecov
 
 script:
   - rebar3 eunit
-  - rebar3 ct --readable=false # See https://github.com/erlang/rebar3/issues/1778
+  - rebar3 ct
   - rebar3 dialyzer
 
 after_success:
