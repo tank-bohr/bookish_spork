@@ -4,12 +4,14 @@ otp_release:
   - 20.3
   - 21.1
 
-env:
-  - DEPS_BIN=$HOME/.deps-bin
-
 before_install:
-  - scripts/install-deps.sh
-  - export PATH=$DEPS_BIN:$PATH
+  - sudo apt-add-repository --yes ppa:ansible/ansible
+  - sudo apt-get update
+  - sudo apt-get install ansible
+
+install:
+  - ansible-playbook scripts/provision-ci.yml
+  - export PATH=$HOME/.dependencies/bin:$PATH
 
 script:
   - make
@@ -25,5 +27,5 @@ deploy:
 
 cache:
   directories:
-    - $DEPS_BIN
+    - $HOME/.dependencies
     - $HOME/.cache/rebar3

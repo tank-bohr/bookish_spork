@@ -1,0 +1,43 @@
+---
+- hosts: 127.0.0.1
+  connection: local
+  vars:
+    deps_dir: "$HOME/.dependencies"
+    bin_dir: "{{ deps_dir }}/bin"
+    rebar3_bin: "{{ bin_dir }}/rebar3"
+    elvis_bin: "{{ bin_dir }}/elvis"
+    elvis_dir: "{{ deps_dir }}/elvis"
+    elvis_built: "{{ elvis_dir }}/_build/default/bin/elvis"
+  tasks:
+    - name: Install codecov
+      pip:
+        name: codecov
+      become: yes
+
+    - name: Ensure deps dir exists
+      file:
+        path: "{{ bin_dir }}"
+        state: directory
+
+    - name: Install rebar3
+      get_url:
+        url: https://s3.amazonaws.com/rebar3/rebar3
+        dest: "{{ rebar3_bin }}"
+        mode: a+x
+
+    - name: Fetch elvis
+      git:
+        repo: https://github.com/inaka/elvis.git
+        dest: "{{ elvis_dir }}"
+
+    - name: Build elvis
+      shell: "{{ rebar3_bin }} escriptize"
+      args:
+        chdir: "{{ elvis_dir }}"
+        creates: "{{ elvis_built }}"
+
+    - name: Move elvis to bin
+      file:
+        src: "{{ elvis_built }}"
+        dest: "{{ elvis_bin }}"
+        state: link
