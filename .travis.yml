@@ -4,13 +4,16 @@ otp_release:
   - 20.3
   - 21.1
 
-install:
-  sudo pip install codecov
+before_install:
+  - sudo pip install codecov
+  - scripts/install-elvis.sh
+  - export PATH=$HOME/.elvis/bin:$PATH
 
 script:
   - rebar3 eunit
   - rebar3 ct --readable=false # See https://github.com/erlang/rebar3/issues/1778
   - rebar3 dialyzer
+  - elvis rock --verbose
 
 after_success:
   - rebar3 coveralls send
@@ -25,3 +28,4 @@ deploy:
 cache:
   directories:
     - $HOME/.cache/rebar3
+    - $HOME/.elvis
