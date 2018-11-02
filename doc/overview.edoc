@@ -13,7 +13,20 @@ An erlang library to test http requests. Inspired by Ruby's <a target="_blank" h
 
 Suitable for Elixir.
 
-{@shields}
+<a target="_blank" href="https://travis-ci.org/tank-bohr/bookish_spork">
+  <img alt="Build Status" src="https://travis-ci.org/tank-bohr/bookish_spork.svg?branch=master"/>
+</a>
+<a target="_blank" href="https://coveralls.io/github/tank-bohr/bookish_spork?branch=master">
+  <img alt="Coverage Status"
+       src="https://coveralls.io/repos/github/tank-bohr/bookish_spork/badge.svg?branch=master"
+  />
+</a>
+<a target="_blank" href="https://hex.pm/packages/bookish_spork">
+  <img alt="Hex.pm" src="https://img.shields.io/hexpm/v/bookish_spork.svg"/>
+</a>
+<a target="_blank" href="https://gitter.im/bookish_spork">
+  <img alt="Gitter" src="https://badges.gitter.im/join.svg"/>
+</a>
 
 == Rationale ==
 
