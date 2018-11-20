@@ -16,5 +16,9 @@
     {"Changelog", "https://github.com/tank-bohr/bookish_spork/releases"},
     {"Chat", "https://gitter.im/bookish_spork"}
   ]},
-  {exclude_files, ["examples/*"]}
+  {exclude_files, [
+    "examples/*",
+    "doc/*",
+    "scripts/*"
+  ]}
  ]}.
