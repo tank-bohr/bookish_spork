@@ -19,6 +19,7 @@
   {exclude_files, [
     "examples/*",
     "doc/*",
+    "docs/*",
     "scripts/*"
   ]}
  ]}.
