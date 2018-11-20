@@ -12,10 +12,10 @@
 
 
 
-### <a name="type-response">response()</a> ###
+### <a name="type-t">t()</a> ###
 
 
-__abstract datatype__: `response()`
+__abstract datatype__: `t()`
 
 <a name="index"></a>
 
@@ -34,7 +34,7 @@ __abstract datatype__: `response()`
 ### new/0 ###
 
 <pre><code>
-new() -&gt; <a href="#type-response">response()</a>
+new() -&gt; <a href="#type-t">t()</a>
 </code></pre>
 <br />
 
@@ -43,7 +43,7 @@ new() -&gt; <a href="#type-response">response()</a>
 ### new/1 ###
 
 <pre><code>
-new(Status::non_neg_integer()) -&gt; <a href="#type-response">response()</a>
+new(Status::non_neg_integer()) -&gt; <a href="#type-t">t()</a>
 </code></pre>
 <br />
 
@@ -52,7 +52,7 @@ new(Status::non_neg_integer()) -&gt; <a href="#type-response">response()</a>
 ### new/2 ###
 
 <pre><code>
-new(Status::non_neg_integer(), ContentOrHeaders::binary() | map()) -&gt; <a href="#type-response">response()</a>
+new(Status::non_neg_integer(), ContentOrHeaders::binary() | map()) -&gt; <a href="#type-t">t()</a>
 </code></pre>
 <br />
 
@@ -61,7 +61,7 @@ new(Status::non_neg_integer(), ContentOrHeaders::binary() | map()) -&gt; <a href
 ### new/3 ###
 
 <pre><code>
-new(Status::non_neg_integer(), Headers::map(), Content::binary()) -&gt; <a href="#type-response">response()</a>
+new(Status::non_neg_integer(), Headers::map(), Content::binary()) -&gt; <a href="#type-t">t()</a>
 </code></pre>
 <br />
 
@@ -70,7 +70,7 @@ new(Status::non_neg_integer(), Headers::map(), Content::binary()) -&gt; <a href=
 ### write_str/2 ###
 
 <pre><code>
-write_str(Response::<a href="#type-response">response()</a>, Now::<a href="calendar.md#type-datetime">calendar:datetime()</a>) -&gt; binary()
+write_str(Response::<a href="#type-t">t()</a>, Now::<a href="calendar.md#type-datetime">calendar:datetime()</a>) -&gt; binary()
 </code></pre>
 <br />
 

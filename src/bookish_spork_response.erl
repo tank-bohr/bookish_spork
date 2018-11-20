@@ -24,24 +24,24 @@
     content = ?DEFAULT_CONTENT :: binary()
 }).
 
--opaque response() :: #response{}.
+-opaque t() :: #response{}.
 
 -export_type([
-    response/0
+    t/0
 ]).
 
--spec new() -> response().
+-spec new() -> t().
 new() ->
     #response{}.
 
--spec new(Status :: non_neg_integer()) -> response().
+-spec new(Status :: non_neg_integer()) -> t().
 new(Status) ->
     #response{ status = Status }.
 
 -spec new(
     Status :: non_neg_integer(),
     ContentOrHeaders :: binary() | map()
-) -> response().
+) -> t().
 new(Status, Content) when is_binary(Content) ->
     #response{ status = Status, content = Content };
 new(Status, Headers) when is_map(Headers) ->
@@ -51,11 +51,11 @@ new(Status, Headers) when is_map(Headers) ->
     Status  :: non_neg_integer(),
     Headers :: map(),
     Content :: binary()
-) -> response().
+) -> t().
 new(Status, Headers, Content) ->
     #response{ status = Status, headers = Headers, content = Content}.
 
--spec write_str(Response :: response(), Now :: calendar:datetime()) -> binary().
+-spec write_str(Response :: t(), Now :: calendar:datetime()) -> binary().
 write_str(#response{ status = Status, headers = ExtraHeaders, content = Content}, Now) ->
     StatusLine = status_line(Status),
     Headers = headers(ExtraHeaders, Content, Now),
