@@ -3,6 +3,16 @@
 
 -define(NOW, {{2018, 4, 28}, {5, 51, 50}}).
 
+new_test_() ->
+    Status = 200,
+    Headers = #{<<"X-Test">> => <<"pants">>},
+    Content = <<"Hello">>,
+    Expected = bookish_spork_response:new(Status, Headers, Content),
+    [?_assertEqual(Expected, bookish_spork_response:new(Expected)),
+    ?_assertEqual(Expected, bookish_spork_response:new({Status, Headers, Content})),
+    ?_assertEqual(Expected, bookish_spork_response:new([Status, Headers, Content])),
+    ?_assertEqual(Expected, bookish_spork_response:new([Status, [{<<"X-Test">>, <<"pants">>}], Content]))].
+
 status_line_test() ->
     ?assertEqual(<<"HTTP/1.1 204 No Content">>, bookish_spork_response:status_line(204)).
 

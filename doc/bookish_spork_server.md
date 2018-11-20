@@ -18,7 +18,7 @@ __Behaviours:__ [`gen_server`](gen_server.md).
 
 
 <pre><code>
-response() = <a href="bookish_spork_response.md#type-t">bookish_spork_response:t()</a> | function()
+response() = <a href="bookish_spork_response.md#type-t">bookish_spork_response:t()</a> | <a href="bookish_spork.md#type-stub_request_fun">bookish_spork:stub_request_fun()</a>
 </code></pre>
 
 <a name="index"></a>

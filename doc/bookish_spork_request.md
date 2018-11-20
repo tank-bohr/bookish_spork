@@ -115,5 +115,5 @@ version(Request::<a href="#type-t">t()</a>) -&gt; string() | undefined
 </code></pre>
 <br />
 
-http protocol version tuple. Most often would be {1, 1}
+http protocol version tuple. Most often would be `{1, 1}`
 

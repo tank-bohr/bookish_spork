@@ -18,7 +18,7 @@
 
 -define(SERVER, ?MODULE).
 
--type response() :: bookish_spork_response:t() | function().
+-type response() :: bookish_spork_response:t() | bookish_spork:stub_request_fun().
 
 -record(state, {
     response_queue = queue:new() :: queue:queue({response(), pid()}),
@@ -153,7 +153,7 @@ read_body(Socket, ContentLength) ->
 %% @private
 reply(Socket, ResponseFun, Request) when is_function(ResponseFun) ->
     Response = ResponseFun(Request),
-    reply(Socket, Response, Request);
+    reply(Socket, bookish_spork_response:new(Response), Request);
 reply(Socket, Response, _Request) ->
     String = bookish_spork_response:write_str(Response, calendar:universal_time()),
     gen_tcp:send(Socket, [String]).

@@ -21,6 +21,11 @@
 -define(RECEIVE_REQUEST_TIMEOUT_MILLIS, 1000).
 
 -type http_status() :: non_neg_integer().
+-type stub_request_fun() :: fun((bookish_spork_request:t()) -> bookish_spork_response:response()).
+
+-export_type([
+    stub_request_fun/0
+]).
 
 -spec start_server() -> {ok, pid()} | {error, Error :: term()}.
 %% @equiv start_server(32002)
@@ -47,37 +52,37 @@ stop_server() ->
 stub_request() ->
     bookish_spork_server:respond_with(bookish_spork_response:new()).
 
--spec stub_request(function() | http_status()) -> ok.
+-spec stub_request(stub_request_fun() | bookish_spork_response:response()) -> ok.
 %% @doc stub request with fun or particular status
 %%
-%% Fun must be {@type fun((bookish_spork_request:t()) -> bookish_spork_response:t())}
+%% Fun must be {@type fun((bookish_spork_request:t()) -> bookish_spork_response:response())}
 %%
 %% Example:
 %%
 %% ```
-%% stub_request(fun(Request) ->
+%% {@module}:stub_request(fun(Request) ->
 %%     case bookish_spork_request:uri(Request) of
 %%         "/bookish/spork" ->
-%%             bookish_spork_response:new(200, <<"Hello">>);
+%%             [200, [], <<"Hello">>];
 %%         "/admin/sporks" ->
-%%             bookish_spork_response:new(403, <<"It is not possible here">>)
+%%             [403, [], <<"It is not possible here">>]
 %%     end
 %% end)'''
 %%
 %% @end
 stub_request(Fun) when is_function(Fun) ->
     bookish_spork_server:respond_with(Fun);
-stub_request(Status) ->
-    bookish_spork_server:respond_with(bookish_spork_response:new(Status)).
+stub_request(Response) ->
+    bookish_spork_server:respond_with(bookish_spork_response:new(Response)).
 
 -spec stub_request(http_status(), ContentOrHeaders :: binary() | map()) -> ok.
 %% @doc stub request with particular status and content/headers
 stub_request(Status, ContentOrHeaders) ->
     bookish_spork_server:respond_with(bookish_spork_response:new(Status, ContentOrHeaders)).
 
--spec stub_request(http_status(), Headers :: map(), Content :: binary()) -> ok.
+-spec stub_request(http_status(), Headers :: map() | list(), Content :: binary()) -> ok.
 stub_request(Status, Headers, Content) ->
-    bookish_spork_server:respond_with(bookish_spork_response:new(Status, Headers, Content)).
+    bookish_spork_server:respond_with(bookish_spork_response:new({Status, Headers, Content})).
 
 -spec capture_request() -> bookish_spork_request:bookish_spork_request().
 capture_request() ->
