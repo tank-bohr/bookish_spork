@@ -12,6 +12,16 @@
 
 
 
+### <a name="type-response">response()</a> ###
+
+
+<pre><code>
+response() = <a href="#type-t">t()</a> | non_neg_integer() | {non_neg_integer(), map(), binary()} | {non_neg_integer(), list(), binary()} | nonempty_list()
+</code></pre>
+
+
+
+
 ### <a name="type-t">t()</a> ###
 
 
@@ -22,7 +32,7 @@ __abstract datatype__: `t()`
 ## Function Index ##
 
 
-<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#new-0">new/0</a></td><td></td></tr><tr><td valign="top"><a href="#new-1">new/1</a></td><td></td></tr><tr><td valign="top"><a href="#new-2">new/2</a></td><td></td></tr><tr><td valign="top"><a href="#new-3">new/3</a></td><td></td></tr><tr><td valign="top"><a href="#write_str-2">write_str/2</a></td><td></td></tr></table>
+<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#new-0">new/0</a></td><td></td></tr><tr><td valign="top"><a href="#new-1">new/1</a></td><td>Constructs a response data structure.</td></tr><tr><td valign="top"><a href="#new-2">new/2</a></td><td></td></tr><tr><td valign="top"><a href="#write_str-2">write_str/2</a></td><td></td></tr></table>
 
 
 <a name="functions"></a>
@@ -43,9 +53,30 @@ new() -&gt; <a href="#type-t">t()</a>
 ### new/1 ###
 
 <pre><code>
-new(Status::non_neg_integer()) -&gt; <a href="#type-t">t()</a>
+new(Response::<a href="#type-response">response()</a>) -&gt; <a href="#type-t">t()</a>
 </code></pre>
 <br />
+
+Constructs a response data structure
+
+Arg can be one of
+
+* Http status code [`https://tools.ietf.org/html/rfc2616#section-6.1.1`](https://tools.ietf.org.md/rfc2616#section-6.1.1)
+
+* Response tuple `{Status, Headers, Body}`
+
+* Response list `[Status, Headers, Body]`
+
+* Response record. Then returns itself
+
+
+Headers may be map or proplist
+
+Example:
+
+```
+  bookish_spork_response:new([200, #{}, <<"Hello">>])
+```
 
 <a name="new-2"></a>
 
@@ -53,15 +84,6 @@ new(Status::non_neg_integer()) -&gt; <a href="#type-t">t()</a>
 
 <pre><code>
 new(Status::non_neg_integer(), ContentOrHeaders::binary() | map()) -&gt; <a href="#type-t">t()</a>
-</code></pre>
-<br />
-
-<a name="new-3"></a>
-
-### new/3 ###
-
-<pre><code>
-new(Status::non_neg_integer(), Headers::map(), Content::binary()) -&gt; <a href="#type-t">t()</a>
 </code></pre>
 <br />
 

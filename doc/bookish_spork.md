@@ -27,6 +27,16 @@ It provides basic functions for using library
 http_status() = non_neg_integer()
 </code></pre>
 
+
+
+
+### <a name="type-stub_request_fun">stub_request_fun()</a> ###
+
+
+<pre><code>
+stub_request_fun() = fun((<a href="bookish_spork_request.md#type-t">bookish_spork_request:t()</a>) -&gt; <a href="bookish_spork_response.md#type-response">bookish_spork_response:response()</a>)
+</code></pre>
+
 <a name="index"></a>
 
 ## Function Index ##
@@ -100,23 +110,23 @@ Equivalent to [`stub_request(204,#{<<"Server">> => <<"BookishSpork/0.0.1">>,<<"D
 ### stub_request/1 ###
 
 <pre><code>
-stub_request(Fun::function() | <a href="#type-http_status">http_status()</a>) -&gt; ok
+stub_request(Fun::<a href="#type-stub_request_fun">stub_request_fun()</a> | <a href="bookish_spork_response.md#type-response">bookish_spork_response:response()</a>) -&gt; ok
 </code></pre>
 <br />
 
 stub request with fun or particular status
 
-Fun must be <code>fun((<a href="bookish_spork_request.md#type-t">bookish_spork_request:t()</a>) -> <a href="bookish_spork_response.md#type-t">bookish_spork_response:t()</a>)</code>
+Fun must be <code>fun((<a href="bookish_spork_request.md#type-t">bookish_spork_request:t()</a>) -> <a href="bookish_spork_response.md#type-response">bookish_spork_response:response()</a>)</code>
 
 Example:
 
 ```
-  stub_request(fun(Request) ->
+  bookish_spork:stub_request(fun(Request) ->
       case bookish_spork_request:uri(Request) of
           "/bookish/spork" ->
-              bookish_spork_response:new(200, <<"Hello">>);
+              [200, [], <<"Hello">>];
           "/admin/sporks" ->
-              bookish_spork_response:new(403, <<"It is not possible here">>)
+              [403, [], <<"It is not possible here">>]
       end
   end)
 ```
@@ -138,7 +148,7 @@ stub request with particular status and content/headers
 ### stub_request/3 ###
 
 <pre><code>
-stub_request(Status::<a href="#type-http_status">http_status()</a>, Headers::map(), Content::binary()) -&gt; ok
+stub_request(Status::<a href="#type-http_status">http_status()</a>, Headers::map() | list(), Content::binary()) -&gt; ok
 </code></pre>
 <br />
 

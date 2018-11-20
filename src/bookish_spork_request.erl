@@ -80,7 +80,7 @@ uri(#request{ uri = Uri}) ->
     Uri.
 
 -spec version(Request :: t()) -> string() | undefined.
-%% @doc http protocol version tuple. Most often would be {1, 1}
+%% @doc http protocol version tuple. Most often would be `{1, 1}'
 version(#request{ version = Version }) ->
     Version.
 

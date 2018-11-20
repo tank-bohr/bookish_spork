@@ -4,7 +4,6 @@
     new/0,
     new/1,
     new/2,
-    new/3,
     write_str/2
 ]).
 
@@ -18,6 +17,11 @@
 -define(DEFAULT_HEADERS, #{}).
 -define(DEFAULT_CONTENT, <<>>).
 
+-type response() :: t() | non_neg_integer() |
+    {non_neg_integer(), map(), binary()} |
+    {non_neg_integer(), list(), binary()} |
+    nonempty_list().
+
 -record(response, {
     status  = ?DEFAULT_STATUS  :: non_neg_integer(),
     headers = ?DEFAULT_HEADERS :: map(),
@@ -27,6 +31,7 @@
 -opaque t() :: #response{}.
 
 -export_type([
+    response/0,
     t/0
 ]).
 
@@ -34,8 +39,34 @@
 new() ->
     #response{}.
 
--spec new(Status :: non_neg_integer()) -> t().
-new(Status) ->
+-spec new(Response :: response()) -> t().
+%% @doc Constructs a response data structure
+%%
+%% Arg can be one of
+%%
+%% <ul>
+%%   <li>
+%%     Http status code [https://tools.ietf.org/html/rfc2616#section-6.1.1]
+%%   </li>
+%%   <li>Response tuple `{Status, Headers, Body}'</li>
+%%   <li>Response list `[Status, Headers, Body]'</li>
+%%   <li>Response record. Then returns itself</li>
+%% </ul>
+%%
+%% Headers may be map or proplist
+%%
+%% Example:
+%%
+%% ```
+%% {@module}:new([200, #{}, <<"Hello">>])
+%% '''
+new(Response) when is_record(Response, response) ->
+    Response;
+new({Status, Headers, Content}) ->
+    new(Status, Headers, Content);
+new([Status, Headers, Content]) ->
+    new(Status, Headers, Content);
+new(Status) when is_integer(Status) ->
     #response{ status = Status }.
 
 -spec new(
@@ -49,9 +80,12 @@ new(Status, Headers) when is_map(Headers) ->
 
 -spec new(
     Status  :: non_neg_integer(),
-    Headers :: map(),
+    Headers :: map() | list(),
     Content :: binary()
 ) -> t().
+%% @private
+new(Status, Headers, Content) when is_list(Headers) ->
+    new(Status, maps:from_list(Headers), Content);
 new(Status, Headers, Content) ->
     #response{ status = Status, headers = Headers, content = Content}.
 
