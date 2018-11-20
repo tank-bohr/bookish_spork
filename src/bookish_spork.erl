@@ -50,7 +50,7 @@ stub_request() ->
 -spec stub_request(function() | http_status()) -> ok.
 %% @doc stub request with fun or particular status
 %%
-%% Fun must be {@type fun((bookish_spork_request:request()) -> bookish_spork_response:response())}
+%% Fun must be {@type fun((bookish_spork_request:t()) -> bookish_spork_response:t())}
 %%
 %% Example:
 %%

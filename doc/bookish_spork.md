@@ -106,7 +106,7 @@ stub_request(Fun::function() | <a href="#type-http_status">http_status()</a>) -&
 
 stub request with fun or particular status
 
-Fun must be <code>fun((<a href="bookish_spork_request.md#type-request">bookish_spork_request:request()</a>) -> <a href="bookish_spork_response.md#type-response">bookish_spork_response:response()</a>)</code>
+Fun must be <code>fun((<a href="bookish_spork_request.md#type-t">bookish_spork_request:t()</a>) -> <a href="bookish_spork_response.md#type-t">bookish_spork_response:t()</a>)</code>
 
 Example:
 

@@ -100,13 +100,13 @@ As usual the main goal is to test that you send the correct request
 
 It returns you an opaque structure of the request. You can inspect it with
 
-- [`bookish_spork_request:method/1`](http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_request.md#method-1)
+- [`bookish_spork_request:method/1`](http://github.com/tank-bohr/bookish_spork/blob/data-driven/doc/bookish_spork_request.md#method-1)
 
-- [`bookish_spork_request:uri/1`](http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_request.md#uri-1)
+- [`bookish_spork_request:uri/1`](http://github.com/tank-bohr/bookish_spork/blob/data-driven/doc/bookish_spork_request.md#uri-1)
 
-- [`bookish_spork_request:headers/1`](http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_request.md#headers-1)
+- [`bookish_spork_request:headers/1`](http://github.com/tank-bohr/bookish_spork/blob/data-driven/doc/bookish_spork_request.md#headers-1)
 
-- [`bookish_spork_request:body/1`](http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_request.md#body-1)
+- [`bookish_spork_request:body/1`](http://github.com/tank-bohr/bookish_spork/blob/data-driven/doc/bookish_spork_request.md#body-1)
 
 
 #### <a name="Bypass_comparision">Bypass comparision</a> ####
@@ -189,9 +189,9 @@ end
 
 ```
 
-[Module to work with request](http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_request.md)
+[Module to work with request](http://github.com/tank-bohr/bookish_spork/blob/data-driven/doc/bookish_spork_request.md)
 
-[Module to work with response](http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_response.md)
+[Module to work with response](http://github.com/tank-bohr/bookish_spork/blob/data-driven/doc/bookish_spork_response.md)
 
 <h5><a name="Elixir_example">Elixir example</a></h5>
 
@@ -225,9 +225,9 @@ For more details see examples dir.
 
 
 <table width="100%" border="0" summary="list of modules">
-<tr><td><a href="http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork.md" class="module">bookish_spork</a></td></tr>
-<tr><td><a href="http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_format.md" class="module">bookish_spork_format</a></td></tr>
-<tr><td><a href="http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_request.md" class="module">bookish_spork_request</a></td></tr>
-<tr><td><a href="http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_response.md" class="module">bookish_spork_response</a></td></tr>
-<tr><td><a href="http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_server.md" class="module">bookish_spork_server</a></td></tr></table>
+<tr><td><a href="http://github.com/tank-bohr/bookish_spork/blob/data-driven/doc/bookish_spork.md" class="module">bookish_spork</a></td></tr>
+<tr><td><a href="http://github.com/tank-bohr/bookish_spork/blob/data-driven/doc/bookish_spork_format.md" class="module">bookish_spork_format</a></td></tr>
+<tr><td><a href="http://github.com/tank-bohr/bookish_spork/blob/data-driven/doc/bookish_spork_request.md" class="module">bookish_spork_request</a></td></tr>
+<tr><td><a href="http://github.com/tank-bohr/bookish_spork/blob/data-driven/doc/bookish_spork_response.md" class="module">bookish_spork_response</a></td></tr>
+<tr><td><a href="http://github.com/tank-bohr/bookish_spork/blob/data-driven/doc/bookish_spork_server.md" class="module">bookish_spork_server</a></td></tr></table>
 

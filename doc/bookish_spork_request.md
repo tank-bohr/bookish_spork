@@ -12,10 +12,10 @@
 
 
 
-### <a name="type-request">request()</a> ###
+### <a name="type-t">t()</a> ###
 
 
-__abstract datatype__: `request()`
+__abstract datatype__: `t()`
 
 <a name="index"></a>
 
@@ -34,7 +34,7 @@ __abstract datatype__: `request()`
 ### body/1 ###
 
 <pre><code>
-body(Request::<a href="#type-request">request()</a>) -&gt; binary()
+body(Request::<a href="#type-t">t()</a>) -&gt; binary()
 </code></pre>
 <br />
 
@@ -45,7 +45,7 @@ request body
 ### content_length/1 ###
 
 <pre><code>
-content_length(Request::<a href="#type-request">request()</a>) -&gt; integer()
+content_length(Request::<a href="#type-t">t()</a>) -&gt; integer()
 </code></pre>
 <br />
 
@@ -56,7 +56,7 @@ Content-Length header value as intger
 ### header/2 ###
 
 <pre><code>
-header(Request::<a href="#type-request">request()</a>, HeaderName::string()) -&gt; string() | undefined
+header(Request::<a href="#type-t">t()</a>, HeaderName::string()) -&gt; string() | undefined
 </code></pre>
 <br />
 
@@ -67,7 +67,7 @@ Returns a particular header from request. Header name is lowerced
 ### headers/1 ###
 
 <pre><code>
-headers(Request::<a href="#type-request">request()</a>) -&gt; map()
+headers(Request::<a href="#type-t">t()</a>) -&gt; map()
 </code></pre>
 <br />
 
@@ -78,7 +78,7 @@ http headers map. Header names are normalized and lowercased
 ### is_keepalive/1 ###
 
 <pre><code>
-is_keepalive(Request::<a href="#type-request">request()</a>) -&gt; boolean()
+is_keepalive(Request::<a href="#type-t">t()</a>) -&gt; boolean()
 </code></pre>
 <br />
 
@@ -89,7 +89,7 @@ tells you if the request is keepalive or not [`https://tools.ietf.org/html/rfc62
 ### method/1 ###
 
 <pre><code>
-method(Request::<a href="#type-request">request()</a>) -&gt; atom()
+method(Request::<a href="#type-t">t()</a>) -&gt; atom()
 </code></pre>
 <br />
 
@@ -100,7 +100,7 @@ http verb: 'GET', 'POST','PUT', 'DELETE', 'OPTIONS', ...
 ### uri/1 ###
 
 <pre><code>
-uri(Request::<a href="#type-request">request()</a>) -&gt; string()
+uri(Request::<a href="#type-t">t()</a>) -&gt; string()
 </code></pre>
 <br />
 
@@ -111,7 +111,7 @@ path with query string
 ### version/1 ###
 
 <pre><code>
-version(Request::<a href="#type-request">request()</a>) -&gt; string() | undefined
+version(Request::<a href="#type-t">t()</a>) -&gt; string() | undefined
 </code></pre>
 <br />
 

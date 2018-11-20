@@ -18,7 +18,7 @@
 
 -define(SERVER, ?MODULE).
 
--type response() :: bookish_spork_response:response() | function().
+-type response() :: bookish_spork_response:t() | function().
 
 -record(state, {
     response_queue = queue:new() :: queue:queue({response(), pid()}),
