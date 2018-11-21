@@ -4,7 +4,7 @@
 
 Copyright (c) 2018 Alexey Nikitin
 
-__Version:__ 0.2.5
+__Version:__ 0.2.6
 
 __Authors:__ Alexey Nikitin ([`tank@bohr.su`](mailto:tank@bohr.su)) (_web site:_ [`https://twitter.com/tank_bohr`](https://twitter.com/tank_bohr)).
 
@@ -50,7 +50,7 @@ First step: add to your rebar config
 {profiles, [
     {test, [
         {deps, [
-            {bookish_spork, "0.2.5"}
+            {bookish_spork, "0.2.6"}
         ]}
     ]}
 ]}.
@@ -94,7 +94,7 @@ As usual the main goal is to test that you send the correct request
 
 ```erlang
 
-{ok, equest} = bookish_spork:capture_request().
+{ok, Request} = bookish_spork:capture_request().
 
 ```
 

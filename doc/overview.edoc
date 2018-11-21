@@ -96,7 +96,7 @@ As usual the main goal is to test that you send the correct request
 
 
 <pre lang="erlang">
-{ok, equest} = bookish_spork:capture_request().
+{ok, Request} = bookish_spork:capture_request().
 </pre>
 
 It returns you an opaque structure of the request. You can inspect it with
