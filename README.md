@@ -2,7 +2,7 @@
 
 # Bookish spork #
 
-Copyright (c) 2018 Alexey Nikitin
+Copyright (c) 2018-2019 Alexey Nikitin
 
 __Version:__ 0.2.6
 

@@ -10,7 +10,7 @@ end,
 %% Add year to Copyright
 {{Year, _, _}, _} = calendar:universal_time(),
 {edoc_opts, EdocOpts0} = lists:keyfind(edoc_opts, 1, Config1),
-EdocOpts1 = [{def, {year, integer_to_list(Year)}} | EdocOpts0],
+EdocOpts1 = [{def, {years, "2018-" ++ integer_to_list(Year)}} | EdocOpts0],
 Config2 = lists:keyreplace(edoc_opts, 1, Config1, {edoc_opts, EdocOpts1}),
 
 %% Add version number for edoc
