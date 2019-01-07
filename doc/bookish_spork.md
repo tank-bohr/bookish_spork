@@ -57,7 +57,7 @@ stub_request_fun() = fun((<a href="bookish_spork_request.md#type-t">bookish_spor
 ### capture_request/0 ###
 
 <pre><code>
-capture_request() -&gt; <a href="bookish_spork_request.md#type-bookish_spork_request">bookish_spork_request:bookish_spork_request()</a>
+capture_request() -&gt; {ok, Request::<a href="bookish_spork_request.md#type-t">bookish_spork_request:t()</a>} | {error, ErrorMessage::string()}
 </code></pre>
 <br />
 
