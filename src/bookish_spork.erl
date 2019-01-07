@@ -18,7 +18,6 @@
 ]).
 
 -define(DEFAUT_PORT, 32002).
--define(RECEIVE_REQUEST_TIMEOUT_MILLIS, 1000).
 
 -type http_status() :: non_neg_integer().
 -type stub_request_fun() :: fun((bookish_spork_request:t()) -> bookish_spork_response:response()).
@@ -84,13 +83,8 @@ stub_request(Status, ContentOrHeaders) ->
 stub_request(Status, Headers, Content) ->
     bookish_spork_server:respond_with(bookish_spork_response:new({Status, Headers, Content})).
 
--spec capture_request() -> bookish_spork_request:bookish_spork_request().
+-spec capture_request() ->
+    {ok, Request :: bookish_spork_request:t()} |
+    {error, ErrorMessage :: string()}.
 capture_request() ->
-    receive
-        {bookish_spork, Request} ->
-            {ok, Request};
-        Unexpected ->
-            {unexpected, Unexpected}
-        after ?RECEIVE_REQUEST_TIMEOUT_MILLIS ->
-            timeout
-    end.
+    bookish_spork_server:retrieve_request().

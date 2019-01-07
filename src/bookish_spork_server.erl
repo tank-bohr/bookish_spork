@@ -3,7 +3,8 @@
 -export([
     start/1,
     stop/0,
-    respond_with/1
+    respond_with/1,
+    retrieve_request/0
 ]).
 
 -behaviour(gen_server).
@@ -19,9 +20,11 @@
 -define(SERVER, ?MODULE).
 
 -type response() :: bookish_spork_response:t() | bookish_spork:stub_request_fun().
+-type request() :: bookish_spork_request:t().
 
 -record(state, {
-    response_queue = queue:new() :: queue:queue({response(), pid()}),
+    response_queue = queue:new() :: queue:queue(response()),
+    request_queue = queue:new() :: queue:queue(request()),
     acceptor :: pid(),
     socket :: gen_tcp:socket()
 }).
@@ -42,7 +45,16 @@ stop() ->
 respond_with(Response) ->
     gen_server:call(?SERVER, {respond_with, Response}).
 
--spec response() -> {Response :: response(), Receiver :: pid()}.
+-spec retrieve_request() -> {ok, Request :: request()} | {error, ErrorMessage :: string()}.
+retrieve_request() ->
+    gen_server:call(?SERVER, request).
+
+-spec store_request(Request :: request()) -> ok.
+%% @private
+store_request(Request) ->
+    gen_server:call(?SERVER, {request, Request}).
+
+-spec response() -> Response :: response().
 %% @private
 response() ->
     gen_server:call(?SERVER, response).
@@ -65,12 +77,20 @@ init(Port) ->
     State :: state()
 ) -> {reply, {ok, pid()}, state()}.
 %% @private
-handle_call({respond_with, Response}, {Receiver, _Ref}, #state{response_queue = Q1} = State) ->
-    Q2 = queue:in({Response, Receiver}, Q1),
-    {reply, ok, State#state{response_queue = Q2}};
+handle_call({respond_with, Response}, _From, #state{response_queue = Q} = State) ->
+    {reply, ok, State#state{response_queue = queue:in(Response, Q)}};
+handle_call({request, Request}, _From, #state{request_queue = Q} = State) ->
+    {reply, ok, State#state{request_queue = queue:in(Request, Q)}};
 handle_call(response, _From, #state{response_queue = Q1} = State) ->
     {{value, Val}, Q2} = queue:out(Q1),
     {reply, Val, State#state{response_queue = Q2}};
+handle_call(request, _From, #state{request_queue = Q1} = State) ->
+    case queue:out(Q1) of
+        {{value, Val}, Q2} ->
+            {reply, {ok, Val}, State#state{request_queue = Q2}};
+        {empty, _} ->
+            {reply, {error, "There were no requests"}, State}
+    end;
 handle_call(_Request, _From, State) ->
     {reply, {error, unknown_call}, State}.
 
@@ -103,8 +123,8 @@ accept(ListenSocket) ->
 handle_connection(Socket) ->
     case receive_request(Socket) of
         {ok, Request} ->
-            {Response, Receiver} = response(),
-            Receiver ! {bookish_spork, Request},
+            store_request(Request),
+            Response = response(),
             ok = reply(Socket, Response, Request),
             complete_connection(Socket, Request);
         socket_closed ->

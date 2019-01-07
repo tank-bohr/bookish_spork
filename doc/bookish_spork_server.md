@@ -14,6 +14,16 @@ __Behaviours:__ [`gen_server`](gen_server.md).
 
 
 
+### <a name="type-request">request()</a> ###
+
+
+<pre><code>
+request() = <a href="bookish_spork_request.md#type-t">bookish_spork_request:t()</a>
+</code></pre>
+
+
+
+
 ### <a name="type-response">response()</a> ###
 
 
@@ -26,7 +36,7 @@ response() = <a href="bookish_spork_response.md#type-t">bookish_spork_response:t
 ## Function Index ##
 
 
-<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#respond_with-1">respond_with/1</a></td><td></td></tr><tr><td valign="top"><a href="#start-1">start/1</a></td><td>starts server.</td></tr><tr><td valign="top"><a href="#stop-0">stop/0</a></td><td>stops server.</td></tr></table>
+<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#respond_with-1">respond_with/1</a></td><td></td></tr><tr><td valign="top"><a href="#retrieve_request-0">retrieve_request/0</a></td><td></td></tr><tr><td valign="top"><a href="#start-1">start/1</a></td><td>starts server.</td></tr><tr><td valign="top"><a href="#stop-0">stop/0</a></td><td>stops server.</td></tr></table>
 
 
 <a name="functions"></a>
@@ -39,6 +49,15 @@ response() = <a href="bookish_spork_response.md#type-t">bookish_spork_response:t
 
 <pre><code>
 respond_with(Response::<a href="#type-response">response()</a>) -&gt; ok
+</code></pre>
+<br />
+
+<a name="retrieve_request-0"></a>
+
+### retrieve_request/0 ###
+
+<pre><code>
+retrieve_request() -&gt; {ok, Request::<a href="#type-request">request()</a>} | {error, ErrorMessage::string()}
 </code></pre>
 <br />
 

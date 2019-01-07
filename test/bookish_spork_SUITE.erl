@@ -58,7 +58,7 @@ customized_response_test(_Config) ->
 
 failed_capture_test(_Config) ->
     {ok, _Pid} = bookish_spork:start_server(),
-    ?assertEqual(timeout, bookish_spork:capture_request(), "Got timeout when there is no stub"),
+    ?assertMatch({error, _}, bookish_spork:capture_request(), "Got an error when there is no stub"),
     ok = bookish_spork:stop_server().
 
 stub_multiple_requests_test(_Config) ->
