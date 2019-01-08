@@ -14,6 +14,7 @@
     stub_request/1,
     stub_request/2,
     stub_request/3,
+    stub_multi/2,
     capture_request/0
 ]).
 
@@ -82,6 +83,25 @@ stub_request(Status, ContentOrHeaders) ->
 -spec stub_request(http_status(), Headers :: map() | list(), Content :: binary()) -> ok.
 stub_request(Status, Headers, Content) ->
     bookish_spork_server:respond_with(bookish_spork_response:new({Status, Headers, Content})).
+
+-spec stub_multi(
+    Response :: stub_request_fun() | bookish_spork_response:response(),
+    Times :: non_neg_integer()) -> ok.
+%% @doc stub multiple requests with one response
+%%
+%% `Response' can be
+%% <ul>
+%%   <li>either {@type fun((bookish_spork_request:t()) -> bookish_spork_response:response())}</li>
+%%   <li>or response data structure {@type bookish_spork_response:response()}</li>
+%% </ul>
+%% @see stub_request/1
+%% @see bookish_spork_response:new/1
+%%
+%% @end
+stub_multi(Fun, Times) when is_function(Fun) ->
+    bookish_spork_server:respond_with(Fun, Times);
+stub_multi(Response, Times) ->
+    bookish_spork_server:respond_with(bookish_spork_response:new(Response), Times).
 
 -spec capture_request() ->
     {ok, Request :: bookish_spork_request:t()} |
