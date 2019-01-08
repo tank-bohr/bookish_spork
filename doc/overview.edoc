@@ -179,7 +179,7 @@ Sometimes you can't guarantee the order of requests. Then you may stub request w
         "/admin/sporks" ->
             bookish_spork_response:new(403, <<"It is not possible here">>)
     end
-end]]>
+end)]]>
 </pre>
 
 {@link bookish_spork_request. Module to work with request}
