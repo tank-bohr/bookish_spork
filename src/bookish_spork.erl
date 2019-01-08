@@ -103,8 +103,6 @@ stub_multi(Fun, Times) when is_function(Fun) ->
 stub_multi(Response, Times) ->
     bookish_spork_server:respond_with(bookish_spork_response:new(Response), Times).
 
--spec capture_request() ->
-    {ok, Request :: bookish_spork_request:t()} |
-    {error, ErrorMessage :: string()}.
+-spec capture_request() -> {ok, Request :: bookish_spork_request:t()} | {error, Error :: term()}.
 capture_request() ->
     bookish_spork_server:retrieve_request().

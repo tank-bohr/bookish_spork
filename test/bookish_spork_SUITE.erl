@@ -99,7 +99,7 @@ stub_with_fun(_Config) ->
     ok = bookish_spork:stop_server().
 
 stub_multi(_Config) ->
-    {ok, Server} = bookish_spork:start_server(),
+    {ok, _} = bookish_spork:start_server(),
     bookish_spork:stub_multi([200, #{}, <<"Multi-pulti">>], _Times = 2),
     {ok, {{"HTTP/1.1", 200, "OK"}, _, Body}} = httpc:request(get,
         {"http://localhost:32002/multi", []}, [], [{body_format, binary}]),
@@ -111,7 +111,7 @@ stub_multi(_Config) ->
     ?assertEqual("/pulti", bookish_spork_request:uri(Request2)),
     ?assertMatch({error, _},
         httpc:request(get, {"http://localhost:32002", []}, [], [{body_format, binary}])),
-    ?assertNot(is_process_alive(Server), "Server crashed").
+    ok = bookish_spork:stop_server().
 
 stub_multi_with_fun(_Config) ->
     {ok, _Pid} = bookish_spork:start_server(),

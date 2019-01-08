@@ -50,7 +50,7 @@ respond_with(Response) ->
 respond_with(Response, Times) ->
     gen_server:call(?SERVER, {respond_with, Response, Times}).
 
--spec retrieve_request() -> {ok, Request :: request()} | {error, ErrorMessage :: string()}.
+-spec retrieve_request() -> {ok, Request :: request()} | {error, Error :: term()}.
 retrieve_request() ->
     gen_server:call(?SERVER, request).
 
@@ -90,14 +90,18 @@ handle_call({respond_with, Response, Times}, _From, #state{response_queue = Q1} 
 handle_call({request, Request}, _From, #state{request_queue = Q} = State) ->
     {reply, ok, State#state{request_queue = queue:in(Request, Q)}};
 handle_call(response, _From, #state{response_queue = Q1} = State) ->
-    {{value, Val}, Q2} = queue:out(Q1),
-    {reply, Val, State#state{response_queue = Q2}};
+    case queue:out(Q1) of
+        {{value, Val}, Q2} ->
+            {reply, {ok, Val}, State#state{response_queue = Q2}};
+        {empty, _} ->
+            {reply, {error, no_response}, State}
+    end;
 handle_call(request, _From, #state{request_queue = Q1} = State) ->
     case queue:out(Q1) of
         {{value, Val}, Q2} ->
             {reply, {ok, Val}, State#state{request_queue = Q2}};
         {empty, _} ->
-            {reply, {error, "There were no requests"}, State}
+            {reply, {error, no_request}, State}
     end;
 handle_call(_Request, _From, State) ->
     {reply, {error, unknown_call}, State}.
@@ -132,9 +136,13 @@ handle_connection(Socket) ->
     case receive_request(Socket) of
         {ok, Request} ->
             store_request(Request),
-            Response = response(),
-            ok = reply(Socket, Response, Request),
-            complete_connection(Socket, Request);
+            case response() of
+                {ok, Response} ->
+                    ok = reply(Socket, Response, Request),
+                    complete_connection(Socket, Request);
+                {error, no_response} ->
+                    gen_tcp:close(Socket)
+            end;
         socket_closed ->
             ok
     end.
