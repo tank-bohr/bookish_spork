@@ -59,7 +59,7 @@ retrieve_request() ->
 store_request(Request) ->
     gen_server:call(?SERVER, {request, Request}).
 
--spec response() -> Response :: response().
+-spec response() -> {ok, response()} | {error, no_response}.
 %% @private
 response() ->
     gen_server:call(?SERVER, response).
