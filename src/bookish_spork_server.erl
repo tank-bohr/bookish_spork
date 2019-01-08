@@ -3,7 +3,6 @@
 -export([
     start/1,
     stop/0,
-    respond_with/1,
     respond_with/2,
     retrieve_request/0
 ]).
@@ -41,10 +40,6 @@ start(Port) ->
 %% @doc stops server
 stop() ->
     gen_server:stop(?SERVER).
-
--spec respond_with(Response :: response()) -> ok.
-respond_with(Response) ->
-    gen_server:call(?SERVER, {respond_with, Response}).
 
 -spec respond_with(Response :: response(), Times :: non_neg_integer()) -> ok.
 respond_with(Response, Times) ->

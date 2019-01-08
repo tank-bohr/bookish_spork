@@ -13,14 +13,14 @@
     stub_request/0,
     stub_request/1,
     stub_request/2,
-    stub_request/3,
-    stub_multi/2,
     capture_request/0
 ]).
 
 -define(DEFAUT_PORT, 32002).
+-define(DEFAULT_STATUS, 204).
+-define(DEFAULT_HEADERS, #{}).
+-define(DEFAULT_CONTENT, <<>>).
 
--type http_status() :: non_neg_integer().
 -type stub_request_fun() :: fun((bookish_spork_request:t()) -> bookish_spork_response:response()).
 
 -export_type([
@@ -41,7 +41,6 @@ start_server(Port) ->
 %% @doc stops http server
 stop_server() ->
     bookish_spork_server:stop().
-
 -spec stub_request() -> ok.
 %% @equiv
 %% stub_request(204, #{
@@ -50,12 +49,24 @@ stop_server() ->
 %% }, <<>>)
 %% @end
 stub_request() ->
-    bookish_spork_server:respond_with(bookish_spork_response:new()).
+    stub_request([?DEFAULT_STATUS, ?DEFAULT_HEADERS, ?DEFAULT_CONTENT]).
 
 -spec stub_request(stub_request_fun() | bookish_spork_response:response()) -> ok.
-%% @doc stub request with fun or particular status
+%% @equiv stub_request(Response, 1)
+stub_request(Response) ->
+    stub_request(Response, 1).
+
+-spec stub_request(
+    Response :: stub_request_fun() | bookish_spork_response:response(),
+    Times :: non_neg_integer()
+) -> ok.
+%% @doc stub request with fun or particular response
 %%
-%% Fun must be {@type fun((bookish_spork_request:t()) -> bookish_spork_response:response())}
+%% `Response' can be
+%% <ul>
+%%   <li>either {@type fun((bookish_spork_request:t()) -> bookish_spork_response:response())}</li>
+%%   <li>or response data structure {@type bookish_spork_response:response()}</li>
+%% </ul>
 %%
 %% Example:
 %%
@@ -67,40 +78,12 @@ stub_request() ->
 %%         "/admin/sporks" ->
 %%             [403, [], <<"It is not possible here">>]
 %%     end
-%% end)'''
+%% end, _Times = 20)'''
 %%
 %% @end
-stub_request(Fun) when is_function(Fun) ->
-    bookish_spork_server:respond_with(Fun);
-stub_request(Response) ->
-    bookish_spork_server:respond_with(bookish_spork_response:new(Response)).
-
--spec stub_request(http_status(), ContentOrHeaders :: binary() | map()) -> ok.
-%% @doc stub request with particular status and content/headers
-stub_request(Status, ContentOrHeaders) ->
-    bookish_spork_server:respond_with(bookish_spork_response:new(Status, ContentOrHeaders)).
-
--spec stub_request(http_status(), Headers :: map() | list(), Content :: binary()) -> ok.
-stub_request(Status, Headers, Content) ->
-    bookish_spork_server:respond_with(bookish_spork_response:new({Status, Headers, Content})).
-
--spec stub_multi(
-    Response :: stub_request_fun() | bookish_spork_response:response(),
-    Times :: non_neg_integer()) -> ok.
-%% @doc stub multiple requests with one response
-%%
-%% `Response' can be
-%% <ul>
-%%   <li>either {@type fun((bookish_spork_request:t()) -> bookish_spork_response:response())}</li>
-%%   <li>or response data structure {@type bookish_spork_response:response()}</li>
-%% </ul>
-%% @see stub_request/1
-%% @see bookish_spork_response:new/1
-%%
-%% @end
-stub_multi(Fun, Times) when is_function(Fun) ->
+stub_request(Fun, Times) when is_function(Fun) ->
     bookish_spork_server:respond_with(Fun, Times);
-stub_multi(Response, Times) ->
+stub_request(Response, Times) ->
     bookish_spork_server:respond_with(bookish_spork_response:new(Response), Times).
 
 -spec capture_request() -> {ok, Request :: bookish_spork_request:t()} | {error, Error :: term()}.

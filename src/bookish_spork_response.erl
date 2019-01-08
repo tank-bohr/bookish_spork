@@ -1,9 +1,7 @@
 -module (bookish_spork_response).
 
 -export([
-    new/0,
     new/1,
-    new/2,
     write_str/2
 ]).
 
@@ -13,19 +11,15 @@
 -define(HTTP11, "HTTP/1.1").
 -define(DEFAULT_SERVER, <<"BookishSpork/0.0.1">>).
 
--define(DEFAULT_STATUS, 204).
--define(DEFAULT_HEADERS, #{}).
--define(DEFAULT_CONTENT, <<>>).
-
 -type response() :: t() | non_neg_integer() |
     {non_neg_integer(), map(), binary()} |
     {non_neg_integer(), list(), binary()} |
     nonempty_list().
 
 -record(response, {
-    status  = ?DEFAULT_STATUS  :: non_neg_integer(),
-    headers = ?DEFAULT_HEADERS :: map(),
-    content = ?DEFAULT_CONTENT :: binary()
+    status  :: non_neg_integer(),
+    headers :: map(),
+    content :: binary()
 }).
 
 -opaque t() :: #response{}.
@@ -34,10 +28,6 @@
     response/0,
     t/0
 ]).
-
--spec new() -> t().
-new() ->
-    #response{}.
 
 -spec new(Response :: response()) -> t().
 %% @doc Constructs a response data structure
@@ -65,18 +55,7 @@ new(Response) when is_record(Response, response) ->
 new({Status, Headers, Content}) ->
     new(Status, Headers, Content);
 new([Status, Headers, Content]) ->
-    new(Status, Headers, Content);
-new(Status) when is_integer(Status) ->
-    #response{ status = Status }.
-
--spec new(
-    Status :: non_neg_integer(),
-    ContentOrHeaders :: binary() | map()
-) -> t().
-new(Status, Content) when is_binary(Content) ->
-    #response{ status = Status, content = Content };
-new(Status, Headers) when is_map(Headers) ->
-    #response{ status = Status, headers = Headers }.
+    new(Status, Headers, Content).
 
 -spec new(
     Status  :: non_neg_integer(),
