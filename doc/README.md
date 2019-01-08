@@ -181,7 +181,7 @@ bookish_spork:stub_request(fun(Request) ->
         "/admin/sporks" ->
             bookish_spork_response:new(403, <<"It is not possible here">>)
     end
-end
+end)
 
 ```
 
