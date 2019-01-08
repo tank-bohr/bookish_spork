@@ -12,6 +12,8 @@
     failed_capture_test/1,
     stub_multiple_requests_test/1,
     stub_with_fun/1,
+    stub_multi/1,
+    stub_multi_with_fun/1,
     keepalive_connection/1,
     without_keepalive/1
 ]).
@@ -19,7 +21,8 @@
 all() ->
     [base_integration_test, customized_response_test,
     failed_capture_test, stub_multiple_requests_test,
-    stub_with_fun, keepalive_connection, without_keepalive].
+    stub_with_fun, stub_multi, stub_multi_with_fun,
+    keepalive_connection,without_keepalive].
 
 base_integration_test(_Config) ->
     {ok, _Pid} = bookish_spork:start_server(),
@@ -87,6 +90,32 @@ stub_with_fun(_Config) ->
     {ok, _Pid} = bookish_spork:start_server(),
     bookish_spork:stub_request(fun response/1),
     bookish_spork:stub_request(fun response/1),
+    {ok, {{"HTTP/1.1", 200, "OK"}, _, WalrusBody}} = httpc:request(get,
+        {"http://localhost:32002/walrus", []}, [], [{body_format, binary}]),
+    ?assertEqual(<<"Walrus">>, string:chomp(WalrusBody)),
+    {ok, {{"HTTP/1.1", 200, "OK"}, _, LentilsBody}} = httpc:request(get,
+        {"http://localhost:32002/lentils", []}, [], [{body_format, binary}]),
+    ?assertEqual(<<"Unknown">>, string:chomp(LentilsBody)),
+    ok = bookish_spork:stop_server().
+
+stub_multi(_Config) ->
+    {ok, Server} = bookish_spork:start_server(),
+    bookish_spork:stub_multi([200, #{}, <<"Multi-pulti">>], _Times = 2),
+    {ok, {{"HTTP/1.1", 200, "OK"}, _, Body}} = httpc:request(get,
+        {"http://localhost:32002/multi", []}, [], [{body_format, binary}]),
+    {ok, Request1} = bookish_spork:capture_request(),
+    ?assertEqual("/multi", bookish_spork_request:uri(Request1)),
+    {ok, {{"HTTP/1.1", 200, "OK"}, _, Body}} = httpc:request(get,
+        {"http://localhost:32002/pulti", []}, [], [{body_format, binary}]),
+    {ok, Request2} = bookish_spork:capture_request(),
+    ?assertEqual("/pulti", bookish_spork_request:uri(Request2)),
+    ?assertMatch({error, _},
+        httpc:request(get, {"http://localhost:32002", []}, [], [{body_format, binary}])),
+    ?assertNot(is_process_alive(Server), "Server crashed").
+
+stub_multi_with_fun(_Config) ->
+    {ok, _Pid} = bookish_spork:start_server(),
+    bookish_spork:stub_multi(fun response/1, 2),
     {ok, {{"HTTP/1.1", 200, "OK"}, _, WalrusBody}} = httpc:request(get,
         {"http://localhost:32002/walrus", []}, [], [{body_format, binary}]),
     ?assertEqual(<<"Walrus">>, string:chomp(WalrusBody)),

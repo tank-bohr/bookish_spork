@@ -4,6 +4,7 @@
     start/1,
     stop/0,
     respond_with/1,
+    respond_with/2,
     retrieve_request/0
 ]).
 
@@ -45,6 +46,10 @@ stop() ->
 respond_with(Response) ->
     gen_server:call(?SERVER, {respond_with, Response}).
 
+-spec respond_with(Response :: response(), Times :: non_neg_integer()) -> ok.
+respond_with(Response, Times) ->
+    gen_server:call(?SERVER, {respond_with, Response, Times}).
+
 -spec retrieve_request() -> {ok, Request :: request()} | {error, ErrorMessage :: string()}.
 retrieve_request() ->
     gen_server:call(?SERVER, request).
@@ -79,6 +84,9 @@ init(Port) ->
 %% @private
 handle_call({respond_with, Response}, _From, #state{response_queue = Q} = State) ->
     {reply, ok, State#state{response_queue = queue:in(Response, Q)}};
+handle_call({respond_with, Response, Times}, _From, #state{response_queue = Q1} = State) ->
+    Q2 = lists:foldl(fun(_, Q) -> queue:in(Response, Q) end, Q1, lists:seq(1, Times)),
+    {reply, ok, State#state{response_queue = Q2}};
 handle_call({request, Request}, _From, #state{request_queue = Q} = State) ->
     {reply, ok, State#state{request_queue = queue:in(Request, Q)}};
 handle_call(response, _From, #state{response_queue = Q1} = State) ->

@@ -36,7 +36,7 @@ response() = <a href="bookish_spork_response.md#type-t">bookish_spork_response:t
 ## Function Index ##
 
 
-<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#respond_with-1">respond_with/1</a></td><td></td></tr><tr><td valign="top"><a href="#retrieve_request-0">retrieve_request/0</a></td><td></td></tr><tr><td valign="top"><a href="#start-1">start/1</a></td><td>starts server.</td></tr><tr><td valign="top"><a href="#stop-0">stop/0</a></td><td>stops server.</td></tr></table>
+<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#respond_with-1">respond_with/1</a></td><td></td></tr><tr><td valign="top"><a href="#respond_with-2">respond_with/2</a></td><td></td></tr><tr><td valign="top"><a href="#retrieve_request-0">retrieve_request/0</a></td><td></td></tr><tr><td valign="top"><a href="#start-1">start/1</a></td><td>starts server.</td></tr><tr><td valign="top"><a href="#stop-0">stop/0</a></td><td>stops server.</td></tr></table>
 
 
 <a name="functions"></a>
@@ -49,6 +49,15 @@ response() = <a href="bookish_spork_response.md#type-t">bookish_spork_response:t
 
 <pre><code>
 respond_with(Response::<a href="#type-response">response()</a>) -&gt; ok
+</code></pre>
+<br />
+
+<a name="respond_with-2"></a>
+
+### respond_with/2 ###
+
+<pre><code>
+respond_with(Response::<a href="#type-response">response()</a>, Times::non_neg_integer()) -&gt; ok
 </code></pre>
 <br />
 

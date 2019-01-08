@@ -42,7 +42,7 @@ stub_request_fun() = fun((<a href="bookish_spork_request.md#type-t">bookish_spor
 ## Function Index ##
 
 
-<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#capture_request-0">capture_request/0</a></td><td></td></tr><tr><td valign="top"><a href="#start_server-0">start_server/0</a></td><td>Equivalent to <a href="#start_server-1"><tt>start_server(32002)</tt></a>.</td></tr><tr><td valign="top"><a href="#start_server-1">start_server/1</a></td><td>starts http server on a particular port.</td></tr><tr><td valign="top"><a href="#stop_server-0">stop_server/0</a></td><td>stops http server.</td></tr><tr><td valign="top"><a href="#stub_request-0">stub_request/0</a></td><td>Equivalent to <a href="#stub_request-3"><tt>stub_request(204,
+<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#capture_request-0">capture_request/0</a></td><td></td></tr><tr><td valign="top"><a href="#start_server-0">start_server/0</a></td><td>Equivalent to <a href="#start_server-1"><tt>start_server(32002)</tt></a>.</td></tr><tr><td valign="top"><a href="#start_server-1">start_server/1</a></td><td>starts http server on a particular port.</td></tr><tr><td valign="top"><a href="#stop_server-0">stop_server/0</a></td><td>stops http server.</td></tr><tr><td valign="top"><a href="#stub_multi-2">stub_multi/2</a></td><td>stub multiple requests with one response.</td></tr><tr><td valign="top"><a href="#stub_request-0">stub_request/0</a></td><td>Equivalent to <a href="#stub_request-3"><tt>stub_request(204,
 #{&lt;&lt;"Server"&gt;&gt; =&gt; &lt;&lt;"BookishSpork/0.0.1"&gt;&gt;,
 &lt;&lt;"Date"&gt;&gt; =&gt; &lt;&lt;"Sat, 28 Apr 2018 05:51:50 GMT"&gt;&gt;},
 &lt;&lt;&gt;&gt;)</tt></a>.</td></tr><tr><td valign="top"><a href="#stub_request-1">stub_request/1</a></td><td>stub request with fun or particular status.</td></tr><tr><td valign="top"><a href="#stub_request-2">stub_request/2</a></td><td>stub request with particular status and content/headers.</td></tr><tr><td valign="top"><a href="#stub_request-3">stub_request/3</a></td><td></td></tr></table>
@@ -93,6 +93,26 @@ stop_server() -&gt; ok
 <br />
 
 stops http server
+
+<a name="stub_multi-2"></a>
+
+### stub_multi/2 ###
+
+<pre><code>
+stub_multi(Response::<a href="#type-stub_request_fun">stub_request_fun()</a> | <a href="bookish_spork_response.md#type-response">bookish_spork_response:response()</a>, Times::non_neg_integer()) -&gt; ok
+</code></pre>
+<br />
+
+stub multiple requests with one response
+
+`Response` can be
+
+* either <code>fun((<a href="bookish_spork_request.md#type-t">bookish_spork_request:t()</a>) -> <a href="bookish_spork_response.md#type-response">bookish_spork_response:response()</a>)</code>
+
+* or response data structure <code><a href="bookish_spork_response.md#type-response">bookish_spork_response:response()</a></code>
+
+
+__See also:__ [stub_request/1](#stub_request-1), [bookish_spork_response:new/1](bookish_spork_response.md#new-1).
 
 <a name="stub_request-0"></a>
 
