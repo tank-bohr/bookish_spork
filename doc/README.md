@@ -26,17 +26,17 @@ Suitable for Elixir.
 
 There are several ways to test your http interaction
 
-- Real http request to real servers: not very reliable, requires internet
+* Real http request to real servers: not very reliable, requires internet
+* You can use external http server like [`https://httpbin.org/`](https://httpbin.org/) (hackney approach)
+* You can mock your http client library
+* Also you can run an http-server within your application on your localhost on a particualr port
 
-- You can use external http server like [`https://httpbin.org/`](https://httpbin.org/) (hackney approach)
-
-- You can mock your http client library
-
-- Also you can run an http-server within your application on your localhost on a particualr port
 
 The last approach is the best IMHO. It is absolutely http-client agnostic. It doesn't require internet connection or any external utilities.
 
-bookish_spork provides you facilities to test your requests with *real* http server.
+bookish_spork provides you facilities to test your requests with 
+<strong>real</strong>
+ http server.
 
 
 ### <a name="Usage">Usage</a> ###
@@ -100,13 +100,11 @@ As usual the main goal is to test that you send the correct request
 
 It returns you an opaque structure of the request. You can inspect it with
 
-- [`bookish_spork_request:method/1`](bookish_spork_request.md#method-1)
+* [`bookish_spork_request:method/1`](bookish_spork_request.md#method-1)
+* [`bookish_spork_request:uri/1`](bookish_spork_request.md#uri-1)
+* [`bookish_spork_request:headers/1`](bookish_spork_request.md#headers-1)
+* [`bookish_spork_request:body/1`](bookish_spork_request.md#body-1)
 
-- [`bookish_spork_request:uri/1`](bookish_spork_request.md#uri-1)
-
-- [`bookish_spork_request:headers/1`](bookish_spork_request.md#headers-1)
-
-- [`bookish_spork_request:body/1`](bookish_spork_request.md#body-1)
 
 
 #### <a name="Bypass_comparision">Bypass comparision</a> ####
@@ -115,11 +113,9 @@ An elixir library [bypass](https://github.com/PSPDFKit-labs/bypass) does pretty 
 
 But bookish_spork has some advantages:
 
-- Bypass depends on `cowboy` and `plug`. Bookish spork has zero dependencies
-
-- Bookish spork works seamlessly with both erlang and elixir. Bypass is supposed to be an elixir only library
-
-- Bookish spork much simpler
+* Bypass depends on `cowboy` and `plug`. Bookish spork has zero dependencies
+* Bookish spork works seamlessly with both erlang and elixir. Bypass is supposed to be an elixir only library
+* Bookish spork much simpler
 
 
 #### <a name="Examples">Examples</a> ####
@@ -159,9 +155,9 @@ random_test(_Config) ->
 
 As you can see there are two types of assertions:
 
-- we check a testee function result
+* we check a testee function result
+* we check a side effect: verifying outgoing request has correct attributes (uri in this case)
 
-- we check a side effect: verifying outgoing request has correct attributes (uri in this case)
 
 <h5><a name="More_complex_expectations">More complex expectations</a></h5>
 
@@ -192,6 +188,29 @@ end
 [Module to work with request](bookish_spork_request.md)
 
 [Module to work with response](bookish_spork_response.md)
+
+<h5><a name="Stub_multiple_requests_with_one_response">Stub multiple requests with one response</a></h5>
+
+It can be usefull to stub several requests with one command
+
+```erlang
+
+bookish_spork:stub_multi([200, #{<<"Content-Type" => "text/plan">>}, <<"Pants">>], _Times = 20)
+
+```
+
+The same with the `fun`
+
+```erlang
+
+bookish_spork:stub_multi(fun(Req) ->
+    Body = bookish_spork_request:body(Req),
+    [200, #{<<"X-Respond-With">> => <<"echo">>}, Body]
+end, _Times = 150)
+
+```
+
+As you can see that it's not necessary to build response structure yourself. You can use handy [three-element tuple or list syntax](https://github.com/tank-bohr/bookish_spork/issues/32) to define the response. But the [`bookish_spork_response:new/1`](bookish_spork_response.md#new-1) still works.
 
 <h5><a name="Elixir_example">Elixir example</a></h5>
 
