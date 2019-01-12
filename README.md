@@ -4,7 +4,7 @@
 
 Copyright (c) 2018-2019 Alexey Nikitin
 
-__Version:__ 0.2.6
+__Version:__ 0.2.7
 
 __Authors:__ Alexey Nikitin ([`tank@bohr.su`](mailto:tank@bohr.su)) (_web site:_ [`https://twitter.com/tank_bohr`](https://twitter.com/tank_bohr)).
 
@@ -50,7 +50,7 @@ First step: add to your rebar config
 {profiles, [
     {test, [
         {deps, [
-            {bookish_spork, "0.2.6"}
+            {bookish_spork, "0.2.7"}
         ]}
     ]}
 ]}.
@@ -83,7 +83,7 @@ If you need specify response you easily can do this:
 
 ```erlang
 
-bookish_spork:stub_request(Status, Headers, Content).
+bookish_spork:stub_request([Status, Headers, Content]).
 
 ```
 
@@ -115,7 +115,7 @@ But bookish_spork has some advantages:
 
 * Bypass depends on `cowboy` and `plug`. Bookish spork has zero dependencies
 * Bookish spork works seamlessly with both erlang and elixir. Bypass is supposed to be an elixir only library
-* Bookish spork much simpler
+* Bookish spork much simpler (I believe)
 
 
 #### <a name="Examples">Examples</a> ####
@@ -137,8 +137,8 @@ Set expectation
 
 ```erlang
 init_per_testcase(random_test, Config) ->
-    bookish_spork:stub_request(200,
-        <<"{\"value\": \"Chuck Norris' favourite word: chunk.\"}">>),
+    bookish_spork:stub_request([200, #{}
+        <<"{\"value\": \"Chuck Norris' favourite word: chunk.\"}">>]),
     Config.
 
 ```
@@ -164,8 +164,8 @@ As you can see there are two types of assertions:
 There are cases when the testee function initiates more than one request. But if you know the order of your requests, you can set several expectations
 
 ```erlang
-bookish_spork:stub_request(200, <<"{\"value\": \"The first response\"}">>),
-bookish_spork:stub_request(200, <<"{\"value\": \"The second response\"}">>).
+bookish_spork:stub_request([200, #{}, <<"{\"value\": \"The first response\"}">>]),
+bookish_spork:stub_request([200, #{}, <<"{\"value\": \"The second response\"}">>]).
 
 ```
 
@@ -177,9 +177,9 @@ Sometimes you can't guarantee the order of requests. Then you may stub request w
 bookish_spork:stub_request(fun(Request) ->
     case bookish_spork_request:uri(Request) of
         "/bookish/spork" ->
-            bookish_spork_response:new(200, <<"Hello">>);
+            [200, #{}, <<"Hello">>];
         "/admin/sporks" ->
-            bookish_spork_response:new(403, <<"It is not possible here">>)
+            [403, #{}, <<"It is not possible here">>]
     end
 end)
 
@@ -195,7 +195,7 @@ It can be usefull to stub several requests with one command
 
 ```erlang
 
-bookish_spork:stub_multi([200, #{<<"Content-Type" => "text/plan">>}, <<"Pants">>], _Times = 20)
+bookish_spork:stub_request([200, #{<<"Content-Type" => "text/plan">>}, <<"Pants">>], _Times = 20)
 
 ```
 
@@ -203,7 +203,7 @@ The same with the `fun`
 
 ```erlang
 
-bookish_spork:stub_multi(fun(Req) ->
+bookish_spork:stub_request(fun(Req) ->
     Body = bookish_spork_request:body(Req),
     [200, #{<<"X-Respond-With">> => <<"echo">>}, Body]
 end, _Times = 150)
@@ -226,9 +226,9 @@ defmodule ChuckNorrisApiTest do
   end
 
   test "retrieves a random joke" do
-    :bookish_spork.stub_request(200, "{
+    :bookish_spork.stub_request([200, %{}, "{
       \"value\": \"Chuck norris tried to crank that soulja boy but it wouldn't crank up\"
-    }")
+    }"])
     assert ChuckNorrisApi.random == "Chuck norris tried to crank that soulja boy but it wouldn't crank up"
 
     {:ok, request} = :bookish_spork.capture_request

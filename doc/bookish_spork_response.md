@@ -32,21 +32,12 @@ __abstract datatype__: `t()`
 ## Function Index ##
 
 
-<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#new-0">new/0</a></td><td></td></tr><tr><td valign="top"><a href="#new-1">new/1</a></td><td>Constructs a response data structure.</td></tr><tr><td valign="top"><a href="#new-2">new/2</a></td><td></td></tr><tr><td valign="top"><a href="#write_str-2">write_str/2</a></td><td></td></tr></table>
+<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#new-1">new/1</a></td><td>Constructs a response data structure.</td></tr><tr><td valign="top"><a href="#write_str-2">write_str/2</a></td><td></td></tr></table>
 
 
 <a name="functions"></a>
 
 ## Function Details ##
-
-<a name="new-0"></a>
-
-### new/0 ###
-
-<pre><code>
-new() -&gt; <a href="#type-t">t()</a>
-</code></pre>
-<br />
 
 <a name="new-1"></a>
 
@@ -77,15 +68,6 @@ Example:
 ```
   bookish_spork_response:new([200, #{}, <<"Hello">>])
 ```
-
-<a name="new-2"></a>
-
-### new/2 ###
-
-<pre><code>
-new(Status::non_neg_integer(), ContentOrHeaders::binary() | map()) -&gt; <a href="#type-t">t()</a>
-</code></pre>
-<br />
 
 <a name="write_str-2"></a>
 
