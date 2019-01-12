@@ -4,7 +4,7 @@
 
 Copyright (c) 2018-2019 Alexey Nikitin
 
-__Version:__ 0.2.7
+__Version:__ 0.3.0
 
 __Authors:__ Alexey Nikitin ([`tank@bohr.su`](mailto:tank@bohr.su)) (_web site:_ [`https://twitter.com/tank_bohr`](https://twitter.com/tank_bohr)).
 
@@ -50,7 +50,7 @@ First step: add to your rebar config
 {profiles, [
     {test, [
         {deps, [
-            {bookish_spork, "0.2.7"}
+            {bookish_spork, "0.3.0"}
         ]}
     ]}
 ]}.
