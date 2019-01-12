@@ -39,15 +39,15 @@ end_per_group(api_methods, _Config) ->
     ok = bookish_spork:stop_server().
 
 init_per_testcase(random_test, Config) ->
-    bookish_spork:stub_request(200,
-        <<"{\"value\": \"Chuck Norris' favourite word: chunk.\"}">>),
+    bookish_spork:stub_request([200, #{},
+        <<"{\"value\": \"Chuck Norris' favourite word: chunk.\"}">>]),
     Config;
 init_per_testcase(random_with_category_test, Config) ->
-    bookish_spork:stub_request(200,
-        <<"{\"value\": \"Chuck Norris has an oscillating penis.\"}">>),
+    bookish_spork:stub_request([200, #{},
+        <<"{\"value\": \"Chuck Norris has an oscillating penis.\"}">>]),
     Config;
 init_per_testcase(categories_test, Config) ->
-    bookish_spork:stub_request(200, <<"[\"explicit\", \"dev\", \"movie\"]">>),
+    bookish_spork:stub_request([200, #{}, <<"[\"explicit\", \"dev\", \"movie\"]">>]),
     Config.
 
 end_per_testcase(_Test, _Config) ->
