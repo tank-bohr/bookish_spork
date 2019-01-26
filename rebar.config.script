@@ -7,14 +7,19 @@ Config1 = case os:getenv("TRAVIS") of
         CONFIG
 end,
 
-%% Add year to Copyright
+%% Add logo and year to Copyright
+{ok, LogoBin} = file:read_file("logo.svg"),
 {{Year, _, _}, _} = calendar:universal_time(),
-{edoc_opts, EdocOpts0} = lists:keyfind(edoc_opts, 1, Config1),
-EdocOpts1 = [{def, {years, "2018-" ++ integer_to_list(Year)}} | EdocOpts0],
+EdocOpts0 = proplists:get_value(edoc_opts, Config1),
+EdocOpts1 = [
+    {def, {logo, binary_to_list(LogoBin)}} | [
+    {def, {years, "2018-" ++ integer_to_list(Year)}} |
+    EdocOpts0
+]],
 Config2 = lists:keyreplace(edoc_opts, 1, Config1, {edoc_opts, EdocOpts1}),
 
 %% Add version number for edoc
-case os:cmd("git tag | tail -1") of
+Config3 = case os:cmd("git tag | tail -1") of
     [$v | Version0] ->
         Version = string:trim(Version0, both, "\n"),
         EdocOpts2 = [{def, {version, Version}} | EdocOpts1],

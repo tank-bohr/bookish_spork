@@ -8,23 +8,7 @@ __Version:__ 0.3.0
 
 __Authors:__ Alexey Nikitin ([`tank@bohr.su`](mailto:tank@bohr.su)) (_web site:_ [`https://twitter.com/tank_bohr`](https://twitter.com/tank_bohr)).
 
-<svg width="152" height="175" viewBox="0 0 605 750">
-<defs>
-<style>
-      .with-gradient {
-        fill:url(#linear-gradient);
-      }</style>
-
-<linearGradient id="linear-gradient" x1="302" y1="750" x2="302" gradientUnits="userSpaceOnUse">
-<stop offset="0" stop-color="#237d26"></stop>
-
-<stop offset="1" stop-color="#cce70b"></stop>
-</linearGradient>
-</defs>
-
-<path class="with-gradient" d="M464.83,68.37c-12-13.05-33.4-1-28.57,16l23.92,84.38c5.67,20,.64,39.9-20.16,39.9-16.72,0-27.43-10-31.31-29.83L380.07,21.52A22.41,22.41,0,0,0,367.13,2.29l-.43-.2a22.4,22.4,0,0,0-31.8,19.41l4.87,151.35a37.31,37.31,0,0,1-74.56,0L270.09,21.5a22.4,22.4,0,0,0-31.8-19.41l-.43.2a22.41,22.41,0,0,0-12.93,19.23L196.28,178.83c-3.88,19.87-14.59,29.83-31.31,29.83h0c-20.8,0-25.83-19.89-20.16-39.9l23.92-84.38c4.83-17-16.59-29.07-28.57-16C55.9,160.27,0,312.82,0,447.36c0,167.06,135.43,302.5,302.49,302.51h0C469.57,749.86,605,614.43,605,447.36,605,312.82,549.1,160.27,464.83,68.37Zm-1.46,545.11A227.5,227.5,0,0,1,75,452.61a10,10,0,0,1,20,0,207.5,207.5,0,1,0,415,0,10,10,0,0,1,20,0A226,226,0,0,1,463.37,613.48Z"></path>
-
-</svg>
+![Logo](logo.svg)
 
 An erlang library to test http requests. Inspired by Ruby's [WebMock](https://github.com/bblimke/webmock).
 
