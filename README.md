@@ -8,6 +8,8 @@ __Version:__ 0.3.0
 
 __Authors:__ Alexey Nikitin ([`tank@bohr.su`](mailto:tank@bohr.su)) (_web site:_ [`https://twitter.com/tank_bohr`](https://twitter.com/tank_bohr)).
 
+![Logo](https://github.com/tank-bohr/bookish_spork/blob/master/logo.svg)
+
 An erlang library to test http requests. Inspired by Ruby's [WebMock](https://github.com/bblimke/webmock).
 
 Suitable for Elixir.

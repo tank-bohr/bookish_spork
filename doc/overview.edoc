@@ -9,6 +9,8 @@
 
 @doc
 
+<img alt="Logo" src="https://github.com/tank-bohr/bookish_spork/blob/master/logo.svg"/>
+
 An erlang library to test http requests. Inspired by Ruby's <a target="_blank" href="https://github.com/bblimke/webmock">WebMock</a>.
 
 Suitable for Elixir.
