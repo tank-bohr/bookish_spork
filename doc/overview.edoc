@@ -227,7 +227,7 @@ defmodule ChuckNorrisApiTest do
     assert ChuckNorrisApi.random == "Chuck norris tried to crank that soulja boy but it wouldn't crank up"
 
     {:ok, request} = :bookish_spork.capture_request
-    assert :bookish_spork_request.uri(request) == '/jokes/random'
+    assert request.uri == '/jokes/random'
   end
 end
 </pre>

@@ -2,6 +2,39 @@
 
 -include_lib("eunit/include/eunit.hrl").
 
+elixir_interface_test_() ->
+    Request = bookish_spork_request:new(),
+    [?_assertEqual(Request, bookish_spork_request:'__struct__'()),
+    ?_assertEqual(Request, bookish_spork_request:'__struct__'([])),
+    ?_assertEqual(Request, bookish_spork_request:'__struct__'(#{}))].
+
+new_test_() ->
+    Method = 'POST',
+    Uri = "/foo/bar",
+    Version = {1, 1},
+    Body = <<"Hello">>,
+    Request = lists:foldl(fun(F, Acc) -> F(Acc) end, bookish_spork_request:new(), [
+        fun(Req) -> bookish_spork_request:request_line(Req, Method, Uri, Version) end,
+        fun(Req) -> bookish_spork_request:add_header(Req, "X-Foo", "Bar") end,
+        fun(Req) -> bookish_spork_request:body(Req, Body) end
+    ]),
+    Map = #{
+        method => Method,
+        uri => Uri,
+        version => Version,
+        headers => #{"x-foo" => "Bar"},
+        body => Body
+    },
+    List = [
+        {method, Method},
+        {uri, Uri},
+        {version, Version},
+        {headers, #{"x-foo" => "Bar"}},
+        {body, Body}
+    ],
+    [?_assertEqual(Request, bookish_spork_request:new(Map)),
+    ?_assertEqual(Request, bookish_spork_request:new(List))].
+
 content_length_test_() ->
     Request = bookish_spork_request:new(),
     RequestWithContentLength = bookish_spork_request:add_header(Request, "Content-Length", "17"),

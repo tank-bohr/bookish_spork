@@ -56,7 +56,7 @@ Content-Length header value as intger
 ### header/2 ###
 
 <pre><code>
-header(Request::<a href="#type-t">t()</a>, HeaderName::string()) -&gt; string() | undefined
+header(Request::<a href="#type-t">t()</a>, HeaderName::string()) -&gt; string() | nil
 </code></pre>
 <br />
 
@@ -111,7 +111,7 @@ path with query string
 ### version/1 ###
 
 <pre><code>
-version(Request::<a href="#type-t">t()</a>) -&gt; string() | undefined
+version(Request::<a href="#type-t">t()</a>) -&gt; string() | nil
 </code></pre>
 <br />
 
