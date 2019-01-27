@@ -21,5 +21,6 @@
     "doc/*",
     "docs/*",
     "scripts/*"
-  ]}
+  ]},
+  {include_files, ["logo.svg"]}
  ]}.
