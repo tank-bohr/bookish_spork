@@ -8,7 +8,12 @@ Config1 = case os:getenv("TRAVIS") of
 end,
 
 %% Add logo and year to Copyright
-{ok, LogoBin} = file:read_file("logo.svg"),
+LogoBin = case file:read_file("logo.svg") of
+    {ok, Bin} ->
+        Bin;
+    _ ->
+        <<>>
+end,
 {{Year, _, _}, _} = calendar:universal_time(),
 EdocOpts0 = proplists:get_value(edoc_opts, Config1),
 EdocOpts1 = [
