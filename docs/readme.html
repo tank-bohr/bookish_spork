@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.19.3">
+    <title>Bookish spork — Bookish spork v0.3.3</title>
+    <link rel="stylesheet" href="dist/html-17f11fce3c17ca7c2e4e.css" />
+    <script src="dist/sidebar_items-43ce421f02.js"></script>
+      <script src="config.js"></script>
+    <script async src="dist/html-17f11fce3c17ca7c2e4e.js"></script>
+    
+  </head>
+  <body data-type="extras">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+<div class="main">
+<button class="sidebar-button sidebar-toggle">
+  <span class="icon-menu" title="Collapse/expand sidebar"></span>
+</button>
+<button class="sidebar-button night-mode-toggle">
+  <span class="icon-theme" title="Toggle night/day mode"></span>
+</button>
+<section class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectDetails">
+      <a href="https://github.com/tank-bohr/bookish_spork" class="sidebar-projectName">
+Bookish spork      </a>
+      <h2 class="sidebar-projectVersion">
+        v0.3.3
+      </h2>
+    </div>
+      <a href="https://github.com/tank-bohr/bookish_spork">
+        <img src="assets/logo.svg" alt="Bookish spork" class="sidebar-projectImage">
+      </a>
+  </div>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="Search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+
+
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content">
+  <div class="content-outer">
+    <div id="content" class="content-inner">
+
+
+<h1>Bookish spork</h1>
+<p>Copyright (c) 2018-2019 Alexey Nikitin</p>
+<p><strong>Version:</strong> 0.3.3</p>
+<p><strong>Authors:</strong> Alexey Nikitin (<a href="mailto:tank@bohr.su"><code class="inline">tank@bohr.su</code></a>) (<em>web site:</em> <a href="https://twitter.com/tank_bohr"><code class="inline">https://twitter.com/tank_bohr</code></a>).</p>
+<p><img src="logo.svg" alt="Logo"/></p>
+<p>An erlang library to test http requests. Inspired by Ruby&#39;s <a href="https://github.com/bblimke/webmock">WebMock</a>.</p>
+<p>Suitable for Elixir.</p>
+<p><a href="https://travis-ci.org/tank-bohr/bookish_spork"><img src="https://travis-ci.org/tank-bohr/bookish_spork.svg?branch=master" alt="Build Status"/>
+</a>
+<a href="https://coveralls.io/github/tank-bohr/bookish_spork?branch=master"><img src="https://coveralls.io/repos/github/tank-bohr/bookish_spork/badge.svg?branch=master" alt="Coverage Status"/>
+</a>
+<a href="https://hex.pm/packages/bookish_spork"><img src="https://img.shields.io/hexpm/v/bookish_spork.svg" alt="Hex.pm"/>
+</a>
+<a href="https://gitter.im/bookish_spork"><img src="https://badges.gitter.im/join.svg" alt="Gitter"/>
+</a></p>
+<h3 id="rationale" class="section-heading">
+  <a href="#rationale" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  <a name="Rationale">Rationale</a>
+</h3>
+
+<p>There are several ways to test your http interaction</p>
+<ul>
+<li>Real http request to real servers: not very reliable, requires internet
+</li>
+<li>You can use external http server like <a href="https://httpbin.org/"><code class="inline">https://httpbin.org/</code></a> (hackney approach)
+</li>
+<li>You can mock your http client library
+</li>
+<li>Also you can run an http-server within your application on your localhost on a particualr port
+</li>
+</ul>
+<p>The last approach is the best IMHO. It is absolutely http-client agnostic. It doesn&#39;t require internet connection or any external utilities.</p>
+<p>bookish_spork provides you facilities to test your requests with 
+<strong>real</strong>
+ http server.</p>
+<h3 id="usage" class="section-heading">
+  <a href="#usage" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  <a name="Usage">Usage</a>
+</h3>
+
+<p>Bookish spork supports Erlang/OTP 20.3 or later.</p>
+<p>First step: add to your rebar config</p>
+<pre><code class="erlang">
+{profiles, [
+    {test, [
+        {deps, [
+            {bookish_spork, &quot;0.3.3&quot;}
+        ]}
+    ]}
+]}.</code></pre>
+<p>Second: start server in your tests.</p>
+<pre><code class="erlang">
+bookish_spork:start_server().
+</code></pre>
+<p>It starts process without link. Thus you can use it in <code class="inline">init_per_group</code> and in <code class="inline">init_per_suite</code> callbacks. Default port is 32002 but you can specify any port you like with <code class="inline">bookish_spork:start_server/1</code></p>
+<h4><a name="Stub_request">Stub request</a></h4>
+<p>The simplest stub you can do is</p>
+<pre><code class="erlang">
+bookish_spork:stub_request().
+</code></pre>
+<p>It will stub your requests with <code class="inline">204 No Content</code> response with empty body.</p>
+<p>If you need specify response you easily can do this:</p>
+<pre><code class="erlang">
+bookish_spork:stub_request([Status, Headers, Content]).
+</code></pre>
+<h4><a name="Capture_request">Capture request</a></h4>
+<p>As usual the main goal is to test that you send the correct request</p>
+<pre><code class="erlang">
+{ok, Request} = bookish_spork:capture_request().
+</code></pre>
+<p>It returns you an opaque structure of the request. You can inspect it with</p>
+<ul>
+<li><a href="http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_request.md#method-1"><code class="inline">bookish_spork_request:method/1</code></a>
+</li>
+<li><a href="http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_request.md#uri-1"><code class="inline">bookish_spork_request:uri/1</code></a>
+</li>
+<li><a href="http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_request.md#headers-1"><code class="inline">bookish_spork_request:headers/1</code></a>
+</li>
+<li><a href="http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_request.md#body-1"><code class="inline">bookish_spork_request:body/1</code></a>
+</li>
+</ul>
+<h4><a name="Bypass_comparision">Bypass comparision</a></h4>
+<p>An elixir library <a href="https://github.com/PSPDFKit-labs/bypass">bypass</a> does pretty much the same. And illustrates the same approach. It starts a cowboy web-server to replace a real service for test</p>
+<p>But bookish_spork has some advantages:</p>
+<ul>
+<li>Bypass depends on <code class="inline">cowboy</code> and <code class="inline">plug</code>. Bookish spork has zero dependencies
+</li>
+<li>Bookish spork works seamlessly with both erlang and elixir. Bypass is supposed to be an elixir only library
+</li>
+<li>Bookish spork much simpler (I believe)
+</li>
+</ul>
+<h4><a name="Elli_comparision">Elli comparision</a></h4>
+<p>Very often people use <a href="https://github.com/elli-lib/elli">elli</a> for this purpose. But elli is a full-featured web-server while bookish_spork is a testing library. It allows you to stub requests as close to your tests as possible. Without callback module and supervisor.</p>
+<h4><a name="Examples">Examples</a></h4>
+<p>Setup and teardown</p>
+<pre><code class="erlang">
+init_per_group(_GroupName, Config) -&gt;
+    {ok, _} = bookish_spork:start_server(),
+    Config.
+
+end_per_group(_GroupName, _Config) -&gt;
+    ok = bookish_spork:stop_server().
+</code></pre>
+<p>Set expectation</p>
+<pre><code class="erlang">init_per_testcase(random_test, Config) -&gt;
+    bookish_spork:stub_request([200, #{}
+        &lt;&lt;&quot;{\&quot;value\&quot;: \&quot;Chuck Norris&#39; favourite word: chunk.\&quot;}&quot;&gt;&gt;]),
+    Config.
+</code></pre>
+<p>Make assertions</p>
+<pre><code class="erlang">random_test(_Config) -&gt;
+    ?assertEqual(&lt;&lt;&quot;Chuck Norris&#39; favourite word: chunk.&quot;&gt;&gt;, testee:make_request()),
+    {ok, Request} = bookish_spork:capture_request(),
+    ?ssertEqual(&quot;/jokes/random&quot;, bookish_spork_request:uri(Request)).
+</code></pre>
+<p>As you can see there are two types of assertions:</p>
+<ul>
+<li>we check a testee function result
+</li>
+<li>we check a side effect: verifying outgoing request has correct attributes (uri in this case)
+</li>
+</ul>
+<h5><a name="More_complex_expectations">More complex expectations</a></h5><p>There are cases when the testee function initiates more than one request. But if you know the order of your requests, you can set several expectations</p>
+<pre><code class="erlang">bookish_spork:stub_request([200, #{}, &lt;&lt;&quot;{\&quot;value\&quot;: \&quot;The first response\&quot;}&quot;&gt;&gt;]),
+bookish_spork:stub_request([200, #{}, &lt;&lt;&quot;{\&quot;value\&quot;: \&quot;The second response\&quot;}&quot;&gt;&gt;]).
+</code></pre>
+<p>The library will response in the order the stubs were defined.</p>
+<p>Sometimes you can&#39;t guarantee the order of requests. Then you may stub request with the fun</p>
+<pre><code class="erlang">bookish_spork:stub_request(fun(Request) -&gt;
+    case bookish_spork_request:uri(Request) of
+        &quot;/bookish/spork&quot; -&gt;
+            [200, #{}, &lt;&lt;&quot;Hello&quot;&gt;&gt;];
+        &quot;/admin/sporks&quot; -&gt;
+            [403, #{}, &lt;&lt;&quot;It is not possible here&quot;&gt;&gt;]
+    end
+end)
+</code></pre>
+<p><a href="http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_request.md">Module to work with request</a></p>
+<p><a href="http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_response.md">Module to work with response</a></p>
+<h5><a name="Stub_multiple_requests_with_one_response">Stub multiple requests with one response</a></h5><p>It can be usefull to stub several requests with one command</p>
+<pre><code class="erlang">
+bookish_spork:stub_request([200, #{&lt;&lt;&quot;Content-Type&quot; =&gt; &quot;text/plan&quot;&gt;&gt;}, &lt;&lt;&quot;Pants&quot;&gt;&gt;], _Times = 20)
+</code></pre>
+<p>The same with the <code class="inline">fun</code></p>
+<pre><code class="erlang">
+bookish_spork:stub_request(fun(Req) -&gt;
+    Body = bookish_spork_request:body(Req),
+    [200, #{&lt;&lt;&quot;X-Respond-With&quot;&gt;&gt; =&gt; &lt;&lt;&quot;echo&quot;&gt;&gt;}, Body]
+end, _Times = 150)
+</code></pre>
+<p>As you can see that it&#39;s not necessary to build response structure yourself. You can use handy <a href="https://github.com/tank-bohr/bookish_spork/issues/32">three-element tuple or list syntax</a> to define the response. But the <a href="http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_response.md#new-1"><code class="inline">bookish_spork_response:new/1</code></a> still works.</p>
+<h5><a name="Elixir_example">Elixir example</a></h5><pre><code class="nohighlight makeup elixir"><span class="w">
+</span><span class="kd">defmodule</span><span class="w"> </span><span class="nc">ChuckNorrisApiTest</span><span class="w"> </span><span class="k" data-group-id="1353657836-1">do</span><span class="w">
+  </span><span class="kn">use</span><span class="w"> </span><span class="nc">ExUnit.Case</span><span class="w">
+  </span><span class="n">doctest</span><span class="w"> </span><span class="nc">ChuckNorrisApi</span><span class="w">
+
+  </span><span class="n">setup_all</span><span class="w"> </span><span class="k" data-group-id="1353657836-2">do</span><span class="w">
+    </span><span class="p" data-group-id="1353657836-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="bp">_</span><span class="p" data-group-id="1353657836-3">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ss">:bookish_spork</span><span class="o">.</span><span class="n">start_server</span><span class="w">
+    </span><span class="p" data-group-id="1353657836-4">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="1353657836-5">%{</span><span class="p" data-group-id="1353657836-5">}</span><span class="p" data-group-id="1353657836-4">}</span><span class="w">
+  </span><span class="k" data-group-id="1353657836-2">end</span><span class="w">
+
+  </span><span class="n">test</span><span class="w"> </span><span class="s">&quot;retrieves a random joke&quot;</span><span class="w"> </span><span class="k" data-group-id="1353657836-6">do</span><span class="w">
+    </span><span class="ss">:bookish_spork</span><span class="o">.</span><span class="n">stub_request</span><span class="p" data-group-id="1353657836-7">(</span><span class="p" data-group-id="1353657836-8">[</span><span class="mi">200</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="1353657836-9">%{</span><span class="p" data-group-id="1353657836-9">}</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;{
+      </span><span class="se">\&quot;</span><span class="s">value</span><span class="se">\&quot;</span><span class="s">: </span><span class="se">\&quot;</span><span class="s">Chuck norris tried to crank that soulja boy but it wouldn&#39;t crank up</span><span class="se">\&quot;</span><span class="s">
+    }&quot;</span><span class="p" data-group-id="1353657836-8">]</span><span class="p" data-group-id="1353657836-7">)</span><span class="w">
+    </span><span class="n">assert</span><span class="w"> </span><span class="nc">ChuckNorrisApi</span><span class="o">.</span><span class="n">random</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;Chuck norris tried to crank that soulja boy but it wouldn&#39;t crank up&quot;</span><span class="w">
+
+    </span><span class="p" data-group-id="1353657836-10">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">request</span><span class="p" data-group-id="1353657836-10">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ss">:bookish_spork</span><span class="o">.</span><span class="n">capture_request</span><span class="w">
+    </span><span class="n">assert</span><span class="w"> </span><span class="n">request</span><span class="o">.</span><span class="n">uri</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;/jokes/random&#39;</span><span class="w">
+  </span><span class="k" data-group-id="1353657836-6">end</span><span class="w">
+</span><span class="k" data-group-id="1353657836-1">end</span><span class="w">
+</span></code></pre>
+<p>For more details see examples dir.</p>
+<h2 id="modules" class="section-heading">
+  <a href="#modules" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Modules
+</h2>
+
+<table width="100%" border="0" summary="list of modules">
+<tr><td><a href="http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork.md" class="module">bookish_spork</a></td></tr>
+<tr><td><a href="http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_format.md" class="module">bookish_spork_format</a></td></tr>
+<tr><td><a href="http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_request.md" class="module">bookish_spork_request</a></td></tr>
+<tr><td><a href="http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_response.md" class="module">bookish_spork_response</a></td></tr>
+<tr><td><a href="http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_server.md" class="module">bookish_spork_server</a></td></tr></table>      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener">ExDoc</a> (v0.19.3),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" rel="noopener" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  
+  </body>
+</html>
+

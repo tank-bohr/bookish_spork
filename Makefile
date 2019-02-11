@@ -1,4 +1,4 @@
-.PHONY: all doc edown codecov dialyzer test lint
+.PHONY: all doc edown codecov dialyzer test lint eep48 ex_doc
 .DEFAULT_GOAL := all
 
 COVERTOOL_REPORT=_build/test/covertool/bookish_spork.covertool.xml
@@ -15,12 +15,20 @@ dialyzer:
 lint:
 	elvis rock --verbose
 
-doc: edown
+doc: edown ex_doc
 	rebar3 edoc
 	open doc/index.html
 
 edown:
 	rebar3 as edown edoc
+
+eep48:
+	rebar3 as eep48 eep48
+
+ex_doc: eep48
+	mix deps.get
+	mix docs
+	cp logo.svg docs
 
 cover: test
 	open $(COVERAGE_REPORT)
