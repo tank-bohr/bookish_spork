@@ -125,6 +125,11 @@ But bookish_spork has some advantages:
 
 </ul>
 
+
+=== Elli comparision ===
+
+Very often people use <a target="_blank" href="https://github.com/elli-lib/elli">elli</a> for this purpose. But elli is a full-featured web-server while bookish_spork is a testing library. It allows you to stub requests as close to your tests as possible. Without callback module and supervisor.
+
 === Examples ===
 
 Setup and teardown

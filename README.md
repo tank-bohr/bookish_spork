@@ -120,6 +120,11 @@ But bookish_spork has some advantages:
 * Bookish spork much simpler (I believe)
 
 
+#### <a name="Elli_comparision">Elli comparision</a> ####
+
+Very often people use [elli](https://github.com/elli-lib/elli) for this purpose. But elli is a full-featured web-server while bookish_spork is a testing library. It allows you to stub requests as close to your tests as possible. Without callback module and supervisor.
+
+
 #### <a name="Examples">Examples</a> ####
 
 Setup and teardown
