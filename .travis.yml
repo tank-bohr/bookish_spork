@@ -2,7 +2,7 @@ language: erlang
 
 otp_release:
   - 20.3
-  - 21.2
+  - 21.3
 
 before_install:
   - sudo apt-add-repository --yes ppa:ansible/ansible
