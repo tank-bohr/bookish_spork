@@ -38,7 +38,7 @@ There are several ways to test your http interaction
   <li>Real http request to real servers: not very reliable, requires internet</li>
   <li>You can use external http server like [https://httpbin.org/] (hackney approach)</li>
   <li>You can mock your http client library</li>
-  <li>Also you can run an http-server within your application on your localhost on a particualr port</li>
+  <li>Also you can run an http-server within your application on your localhost on a particular port</li>
 </ul>
 
 The last approach is the best IMHO. It is absolutely http-client agnostic. It doesn't require internet connection or any external utilities.
@@ -156,7 +156,7 @@ Make assertions
 <pre lang="erlang"><![CDATA[random_test(_Config) ->
     ?assertEqual(<<"Chuck Norris' favourite word: chunk.">>, testee:make_request()),
     {ok, Request} = bookish_spork:capture_request(),
-    ?ssertEqual("/jokes/random", bookish_spork_request:uri(Request)).]]>
+    ?assertEqual("/jokes/random", bookish_spork_request:uri(Request)).]]>
 </pre>
 
 As you can see there are two types of assertions:
@@ -196,7 +196,7 @@ end)]]>
 
 ==== Stub multiple requests with one response ====
 
-It can be usefull to stub several requests with one command
+It can be useful to stub several requests with one command
 
 <pre lang="erlang"><![CDATA[
 bookish_spork:stub_request([200, #{<<"Content-Type" => "text/plan">>}, <<"Pants">>], _Times = 20)

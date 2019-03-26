@@ -31,7 +31,7 @@ There are several ways to test your http interaction
 * Real http request to real servers: not very reliable, requires internet
 * You can use external http server like [`https://httpbin.org/`](https://httpbin.org/) (hackney approach)
 * You can mock your http client library
-* Also you can run an http-server within your application on your localhost on a particualr port
+* Also you can run an http-server within your application on your localhost on a particular port
 
 
 The last approach is the best IMHO. It is absolutely http-client agnostic. It doesn't require internet connection or any external utilities.
@@ -156,7 +156,7 @@ Make assertions
 random_test(_Config) ->
     ?assertEqual(<<"Chuck Norris' favourite word: chunk.">>, testee:make_request()),
     {ok, Request} = bookish_spork:capture_request(),
-    ?ssertEqual("/jokes/random", bookish_spork_request:uri(Request)).
+    ?assertEqual("/jokes/random", bookish_spork_request:uri(Request)).
 
 ```
 
@@ -198,7 +198,7 @@ end)
 
 <h5><a name="Stub_multiple_requests_with_one_response">Stub multiple requests with one response</a></h5>
 
-It can be usefull to stub several requests with one command
+It can be useful to stub several requests with one command
 
 ```erlang
 
