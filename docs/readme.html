@@ -87,7 +87,7 @@ Bookish spork      </a>
 </li>
 <li>You can mock your http client library
 </li>
-<li>Also you can run an http-server within your application on your localhost on a particualr port
+<li>Also you can run an http-server within your application on your localhost on a particular port
 </li>
 </ul>
 <p>The last approach is the best IMHO. It is absolutely http-client agnostic. It doesn&#39;t require internet connection or any external utilities.</p>
@@ -173,7 +173,7 @@ end_per_group(_GroupName, _Config) -&gt;
 <pre><code class="erlang">random_test(_Config) -&gt;
     ?assertEqual(&lt;&lt;&quot;Chuck Norris&#39; favourite word: chunk.&quot;&gt;&gt;, testee:make_request()),
     {ok, Request} = bookish_spork:capture_request(),
-    ?ssertEqual(&quot;/jokes/random&quot;, bookish_spork_request:uri(Request)).
+    ?assertEqual(&quot;/jokes/random&quot;, bookish_spork_request:uri(Request)).
 </code></pre>
 <p>As you can see there are two types of assertions:</p>
 <ul>
@@ -199,7 +199,7 @@ end)
 </code></pre>
 <p><a href="http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_request.md">Module to work with request</a></p>
 <p><a href="http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_response.md">Module to work with response</a></p>
-<h5><a name="Stub_multiple_requests_with_one_response">Stub multiple requests with one response</a></h5><p>It can be usefull to stub several requests with one command</p>
+<h5><a name="Stub_multiple_requests_with_one_response">Stub multiple requests with one response</a></h5><p>It can be useful to stub several requests with one command</p>
 <pre><code class="erlang">
 bookish_spork:stub_request([200, #{&lt;&lt;&quot;Content-Type&quot; =&gt; &quot;text/plan&quot;&gt;&gt;}, &lt;&lt;&quot;Pants&quot;&gt;&gt;], _Times = 20)
 </code></pre>
@@ -212,25 +212,25 @@ end, _Times = 150)
 </code></pre>
 <p>As you can see that it&#39;s not necessary to build response structure yourself. You can use handy <a href="https://github.com/tank-bohr/bookish_spork/issues/32">three-element tuple or list syntax</a> to define the response. But the <a href="http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_response.md#new-1"><code class="inline">bookish_spork_response:new/1</code></a> still works.</p>
 <h5><a name="Elixir_example">Elixir example</a></h5><pre><code class="nohighlight makeup elixir"><span class="w">
-</span><span class="kd">defmodule</span><span class="w"> </span><span class="nc">ChuckNorrisApiTest</span><span class="w"> </span><span class="k" data-group-id="1353657836-1">do</span><span class="w">
+</span><span class="kd">defmodule</span><span class="w"> </span><span class="nc">ChuckNorrisApiTest</span><span class="w"> </span><span class="k" data-group-id="0263555412-1">do</span><span class="w">
   </span><span class="kn">use</span><span class="w"> </span><span class="nc">ExUnit.Case</span><span class="w">
   </span><span class="n">doctest</span><span class="w"> </span><span class="nc">ChuckNorrisApi</span><span class="w">
 
-  </span><span class="n">setup_all</span><span class="w"> </span><span class="k" data-group-id="1353657836-2">do</span><span class="w">
-    </span><span class="p" data-group-id="1353657836-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="bp">_</span><span class="p" data-group-id="1353657836-3">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ss">:bookish_spork</span><span class="o">.</span><span class="n">start_server</span><span class="w">
-    </span><span class="p" data-group-id="1353657836-4">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="1353657836-5">%{</span><span class="p" data-group-id="1353657836-5">}</span><span class="p" data-group-id="1353657836-4">}</span><span class="w">
-  </span><span class="k" data-group-id="1353657836-2">end</span><span class="w">
+  </span><span class="n">setup_all</span><span class="w"> </span><span class="k" data-group-id="0263555412-2">do</span><span class="w">
+    </span><span class="p" data-group-id="0263555412-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="bp">_</span><span class="p" data-group-id="0263555412-3">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ss">:bookish_spork</span><span class="o">.</span><span class="n">start_server</span><span class="w">
+    </span><span class="p" data-group-id="0263555412-4">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="0263555412-5">%{</span><span class="p" data-group-id="0263555412-5">}</span><span class="p" data-group-id="0263555412-4">}</span><span class="w">
+  </span><span class="k" data-group-id="0263555412-2">end</span><span class="w">
 
-  </span><span class="n">test</span><span class="w"> </span><span class="s">&quot;retrieves a random joke&quot;</span><span class="w"> </span><span class="k" data-group-id="1353657836-6">do</span><span class="w">
-    </span><span class="ss">:bookish_spork</span><span class="o">.</span><span class="n">stub_request</span><span class="p" data-group-id="1353657836-7">(</span><span class="p" data-group-id="1353657836-8">[</span><span class="mi">200</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="1353657836-9">%{</span><span class="p" data-group-id="1353657836-9">}</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;{
+  </span><span class="n">test</span><span class="w"> </span><span class="s">&quot;retrieves a random joke&quot;</span><span class="w"> </span><span class="k" data-group-id="0263555412-6">do</span><span class="w">
+    </span><span class="ss">:bookish_spork</span><span class="o">.</span><span class="n">stub_request</span><span class="p" data-group-id="0263555412-7">(</span><span class="p" data-group-id="0263555412-8">[</span><span class="mi">200</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="0263555412-9">%{</span><span class="p" data-group-id="0263555412-9">}</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;{
       </span><span class="se">\&quot;</span><span class="s">value</span><span class="se">\&quot;</span><span class="s">: </span><span class="se">\&quot;</span><span class="s">Chuck norris tried to crank that soulja boy but it wouldn&#39;t crank up</span><span class="se">\&quot;</span><span class="s">
-    }&quot;</span><span class="p" data-group-id="1353657836-8">]</span><span class="p" data-group-id="1353657836-7">)</span><span class="w">
+    }&quot;</span><span class="p" data-group-id="0263555412-8">]</span><span class="p" data-group-id="0263555412-7">)</span><span class="w">
     </span><span class="n">assert</span><span class="w"> </span><span class="nc">ChuckNorrisApi</span><span class="o">.</span><span class="n">random</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;Chuck norris tried to crank that soulja boy but it wouldn&#39;t crank up&quot;</span><span class="w">
 
-    </span><span class="p" data-group-id="1353657836-10">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">request</span><span class="p" data-group-id="1353657836-10">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ss">:bookish_spork</span><span class="o">.</span><span class="n">capture_request</span><span class="w">
+    </span><span class="p" data-group-id="0263555412-10">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">request</span><span class="p" data-group-id="0263555412-10">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ss">:bookish_spork</span><span class="o">.</span><span class="n">capture_request</span><span class="w">
     </span><span class="n">assert</span><span class="w"> </span><span class="n">request</span><span class="o">.</span><span class="n">uri</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;/jokes/random&#39;</span><span class="w">
-  </span><span class="k" data-group-id="1353657836-6">end</span><span class="w">
-</span><span class="k" data-group-id="1353657836-1">end</span><span class="w">
+  </span><span class="k" data-group-id="0263555412-6">end</span><span class="w">
+</span><span class="k" data-group-id="0263555412-1">end</span><span class="w">
 </span></code></pre>
 <p>For more details see examples dir.</p>
 <h2 id="modules" class="section-heading">
