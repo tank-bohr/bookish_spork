@@ -18,9 +18,16 @@
 listen(Port, Options) ->
     ssl:listen(Port, Options ++ ?SSL_OPTIONS).
 
+-ifdef(OTP_RELEASE).
 accept(ListenSocket) ->
     {ok, Socket} = ssl:transport_accept(ListenSocket),
     ssl:handshake(Socket).
+-else.
+accept(ListenSocket) ->
+    {ok, Socket} = ssl:transport_accept(ListenSocket),
+    ok = ssl:ssl_accept(Socket),
+    {ok, Socket}.
+-endif.
 
 recv(Socket, Length) ->
     ssl:recv(Socket, Length).
