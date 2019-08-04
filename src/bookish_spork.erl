@@ -16,7 +16,6 @@
     capture_request/0
 ]).
 
--define(DEFAUT_PORT, 32002).
 -define(DEFAULT_STATUS, 204).
 -define(DEFAULT_HEADERS, #{}).
 -define(DEFAULT_CONTENT, <<>>).
@@ -30,12 +29,12 @@
 -spec start_server() -> {ok, pid()} | {error, Error :: term()}.
 %% @equiv start_server(32002)
 start_server() ->
-    start_server(?DEFAUT_PORT).
+    start_server([]).
 
--spec start_server(Port :: non_neg_integer()) -> {ok, pid()} | {error, Error :: term()}.
+-spec start_server(Options :: proplists:proplist()) -> {ok, pid()} | {error, Error :: term()}.
 %% @doc starts http server on a particular port
-start_server(Port) ->
-    bookish_spork_server:start(Port).
+start_server(Options) ->
+    bookish_spork_server:start(Options).
 
 -spec stop_server() -> ok.
 %% @doc stops http server
