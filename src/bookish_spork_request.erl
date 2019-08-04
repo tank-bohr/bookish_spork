@@ -10,7 +10,8 @@
     request_line/4,
     add_header/3,
     content_length/1,
-    is_keepalive/1
+    is_keepalive/1,
+    new_from_socket/1
 ]).
 
 -export([
@@ -20,7 +21,8 @@
     header/2,
     headers/1,
     body/1,
-    body/2
+    body/2,
+    ssl/1
 ]).
 
 -type http_version() :: {
@@ -29,12 +31,13 @@
 }.
 
 -opaque t() :: #{
-    '__struct__'  := ?MODULE,
-    method        := nil | atom(),
-    uri           := nil | string(),
-    version       := nil | http_version(),
-    headers       := map(),
-    body          := nil | binary()
+    '__struct__' := ?MODULE,
+    method       := nil | atom(),
+    uri          := nil | string(),
+    version      := nil | http_version(),
+    headers      := map(),
+    body         := nil | binary(),
+    ssl          := nil | proplists:proplist()
 }.
 
 -export_type([
@@ -60,15 +63,23 @@ new() ->
         uri => nil,
         version => nil,
         headers => #{},
-        body => nil
+        body => nil,
+        ssl => nil
     }.
 
--spec new(From :: list() | map()) -> t().
+-spec new(From :: list() | map() | ssl:sslsocket()) -> t().
 %% @private
 new(List) when is_list(List) ->
     new(maps:from_list(List));
 new(Map) when is_map(Map) ->
     maps:fold(fun maps:update/3, new(), Map).
+
+%% @doc creates request with ssl info if socket is an ssl socket
+new_from_socket(Socket) when is_tuple(Socket) ->
+    {ok, Info} = ssl:connection_information(Socket),
+    maps:put(ssl, Info, new());
+new_from_socket(_Socket) ->
+    new().
 
 -spec request_line(
     Request :: t(),
@@ -132,6 +143,11 @@ body(#{ body := Body }) ->
 %% @private
 body(Request, Body) ->
     maps:update(body, Body, Request).
+
+-spec ssl(Request :: t()) -> proplists:proplist().
+%% @private
+ssl(#{ ssl:= SslInfo }) ->
+    SslInfo.
 
 -spec is_keepalive(Request :: t()) -> boolean().
 %% @doc tells you if the request is keepalive or not [https://tools.ietf.org/html/rfc6223]

@@ -12,13 +12,15 @@
     failed_capture_test/1,
     stub_multiple_requests/1,
     stub_with_fun/1,
+    ssl_test/1,
     keepalive_connection/1,
     without_keepalive/1
 ]).
 
 all() ->
     [base_integration_test, customized_response_test, failed_capture_test,
-    stub_multiple_requests, stub_with_fun, keepalive_connection, without_keepalive].
+    stub_multiple_requests, stub_with_fun, keepalive_connection, without_keepalive,
+    ssl_test].
 
 base_integration_test(_Config) ->
     {ok, _Pid} = bookish_spork:start_server(),
@@ -34,7 +36,7 @@ base_integration_test(_Config) ->
     ok = bookish_spork:stop_server().
 
 customized_response_test(_Config) ->
-    {ok, _Pid} = bookish_spork:start_server(9871),
+    {ok, _Pid} = bookish_spork:start_server([{port, 9871}]),
     bookish_spork:stub_request([200,
         #{<<"X-Custom-Response-Header">> => <<"test">>},
         <<"Hello, Test">>]),
@@ -84,6 +86,19 @@ stub_with_fun(_Config) ->
     {ok, {{"HTTP/1.1", 200, "OK"}, _, LentilsBody}} = httpc:request(get,
         {"http://localhost:32002/lentils", []}, [], [{body_format, binary}]),
     ?assertEqual(<<"Unknown">>, string:chomp(LentilsBody)),
+    ok = bookish_spork:stop_server().
+
+ssl_test(_Config) ->
+    ok = application:ensure_started(inets),
+    ok = application:ensure_started(ssl),
+    {ok, _Pid} = bookish_spork:start_server([ssl]),
+    ok = bookish_spork:stub_request(),
+    {ok, {{"HTTP/1.1", 204, "No Content"}, _, _}} = httpc:request(get,
+        {"https://localhost:32002/secure", []}, [], []),
+    {ok, Request} = bookish_spork:capture_request(),
+    SslInfo = bookish_spork_request:ssl(Request),
+    Ciphers = proplists:get_value(ciphers, SslInfo, []),
+    ?assert(length(Ciphers) > 0),
     ok = bookish_spork:stop_server().
 
 keepalive_connection(_Config) ->
