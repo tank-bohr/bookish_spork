@@ -11,7 +11,7 @@
     add_header/3,
     content_length/1,
     is_keepalive/1,
-    new_from_socket/1
+    new_from_socket/2
 ]).
 
 -export([
@@ -22,7 +22,8 @@
     headers/1,
     body/1,
     body/2,
-    ssl/1
+    ssl_info/1,
+    tls_ext/1
 ]).
 
 -type http_version() :: {
@@ -37,7 +38,8 @@
     version      := nil | http_version(),
     headers      := map(),
     body         := nil | binary(),
-    ssl          := nil | proplists:proplist()
+    ssl_info     := nil | proplists:proplist(),
+    tls_ext      := nil | ssl:protocol_extensions()
 }.
 
 -export_type([
@@ -64,7 +66,8 @@ new() ->
         version => nil,
         headers => #{},
         body => nil,
-        ssl => nil
+        ssl_info => nil,
+        tls_ext => nil
     }.
 
 -spec new(From :: list() | map() | ssl:sslsocket()) -> t().
@@ -75,10 +78,12 @@ new(Map) when is_map(Map) ->
     maps:fold(fun maps:update/3, new(), Map).
 
 %% @doc creates request with ssl info if socket is an ssl socket
-new_from_socket(Socket) when is_tuple(Socket) ->
+new_from_socket(Socket, undefined) ->
+    new_from_socket(Socket, nil);
+new_from_socket(Socket, TlsExt) when is_tuple(Socket) ->
     {ok, Info} = ssl:connection_information(Socket),
-    maps:put(ssl, Info, new());
-new_from_socket(_Socket) ->
+    maps:merge(new(), #{ssl_info => Info, tls_ext => TlsExt});
+new_from_socket(_Socket, _) ->
     new().
 
 -spec request_line(
@@ -144,10 +149,15 @@ body(#{ body := Body }) ->
 body(Request, Body) ->
     maps:update(body, Body, Request).
 
--spec ssl(Request :: t()) -> proplists:proplist().
+-spec ssl_info(Request :: t()) -> proplists:proplist().
 %% @private
-ssl(#{ ssl:= SslInfo }) ->
+ssl_info(#{ ssl_info:= SslInfo }) ->
     SslInfo.
+
+-spec tls_ext(Request :: t()) -> proplists:proplist().
+%% @private
+tls_ext(#{ tls_ext := TlsExt }) ->
+    TlsExt.
 
 -spec is_keepalive(Request :: t()) -> boolean().
 %% @doc tells you if the request is keepalive or not [https://tools.ietf.org/html/rfc6223]

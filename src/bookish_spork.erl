@@ -40,6 +40,7 @@ start_server(Options) ->
 %% @doc stops http server
 stop_server() ->
     bookish_spork_server:stop().
+
 -spec stub_request() -> ok.
 %% @equiv
 %% stub_request(204, #{
