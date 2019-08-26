@@ -104,9 +104,11 @@ handle_connection(#state{transport = Transport, socket = Socket, server = Server
             case bookish_spork_server:response(Server) of
                 {ok, Response} ->
                     ok = reply(Transport, Socket, Response, Request),
-                    complete_connection(State, Request);
+                    ok = complete_connection(State, Request);
                 {error, no_response} ->
-                    Transport:close(Socket)
+                    ok = Transport:close(Socket),
+                    ok = accept()
+
             end;
         socket_closed ->
             accept()
@@ -122,7 +124,7 @@ complete_connection(#state{transport = Transport, socket = Socket}, Request) ->
             ok = handle_connection();
         false ->
             ok = Transport:shutdown(Socket, read_write),
-            ok = gen_server:cast(self(), accept)
+            ok = accept()
     end.
 
 -spec receive_request(State :: state()) -> Result when
@@ -158,7 +160,7 @@ read_from_socket(Transport, Socket, RequestIn) ->
             Body = read_body(Transport, Socket, bookish_spork_request:content_length(RequestIn)),
             RequestOut = bookish_spork_request:body(RequestIn, Body),
             {ok, RequestOut};
-        {http_error, HttpError} ->
+        {ok, {http_error, HttpError}} ->
             erlang:error({http_error, HttpError}, [Transport, Socket, RequestIn]);
         {error, closed} ->
             socket_closed

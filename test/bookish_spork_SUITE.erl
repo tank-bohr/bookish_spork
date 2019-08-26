@@ -21,7 +21,8 @@
     tls_ext_test/1,
     keepalive_connection/1,
     without_keepalive/1,
-    connection_id/1
+    connection_id/1,
+    request_when_there_is_no_stub/1
 ]).
 
 -define(CUSTOM_PORT, 9871).
@@ -29,7 +30,7 @@
 all() ->
     [base_integration_test, customized_response_test, failed_capture_test,
     stub_multiple_requests, stub_with_fun, keepalive_connection, without_keepalive,
-    ssl_test, tls_ext_test, connection_id].
+    ssl_test, tls_ext_test, connection_id, request_when_there_is_no_stub].
 
 init_per_suite(Config) ->
     ok = application:ensure_started(inets),
@@ -156,7 +157,6 @@ without_keepalive(_Config) ->
     {ok, {{"HTTP/1.1", 204, "No Content"}, _, _}} = httpc:request(get,
         {"http://localhost:32002", [{"Connection", "close"}]}, [], [{body_format, binary}]).
 
-
 connection_id(_Config) ->
     ok = bookish_spork:stub_request([200, #{}, <<"OK1">>]),
     ok = bookish_spork:stub_request([200, #{}, <<"OK2">>]),
@@ -174,6 +174,13 @@ connection_id(_Config) ->
     ?assert(bookish_spork_request:connection_id(Req1) =/= bookish_spork_request:connection_id(Req3)),
     ?assert(bookish_spork_request:socket(Req1) =:= bookish_spork_request:socket(Req2)),
     ?assert(bookish_spork_request:socket(Req1) =/= bookish_spork_request:socket(Req3)).
+
+request_when_there_is_no_stub(_Config) ->
+    NoStub = httpc:request(get, {"http://localhost:32002/no_stub", []}, [], []),
+    ?assertMatch({error, _}, NoStub),
+    ok = bookish_spork:stub_request(),
+    Stubbed = httpc:request(get, {"http://localhost:32002/stubbed", []}, [], []),
+    ?assertMatch({ok, {{_, 204, _}, _, _}}, Stubbed).
 
 gun_request(ConnectionPid) ->
     StreamRef = gun:get(ConnectionPid, "/"),
