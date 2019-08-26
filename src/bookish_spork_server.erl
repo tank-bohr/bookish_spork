@@ -86,8 +86,6 @@ init(Options) ->
     State :: state()
 ) -> {reply, {ok, pid()}, state()}.
 %% @private
-handle_call({respond_with, Response}, _From, #state{response_queue = Q} = State) ->
-    {reply, ok, State#state{response_queue = queue:in(Response, Q)}};
 handle_call({respond_with, Response, Times}, _From, #state{response_queue = Q1} = State) ->
     Q2 = lists:foldl(fun(_, Q) -> queue:in(Response, Q) end, Q1, lists:seq(1, Times)),
     {reply, ok, State#state{response_queue = Q2}};

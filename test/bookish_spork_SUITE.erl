@@ -190,7 +190,8 @@ response(Request) ->
     [200, #{}, Body].
 
 start_server(Config) ->
-    start_server([], Config).
+    {ok, Pid} = bookish_spork:start_server(),
+    [{server, Pid} | Config].
 
 start_server(Options, Config) ->
     {ok, Pid} = bookish_spork:start_server(Options),
