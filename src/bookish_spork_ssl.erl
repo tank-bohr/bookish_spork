@@ -12,12 +12,17 @@
 -define(SSL_OPTIONS, [
     {certfile, filename:join(code:priv_dir(bookish_spork), "cert/cert.pem")},
     {keyfile, filename:join(code:priv_dir(bookish_spork), "cert/key.pem")},
-    {verify, verify_none},
-    {handshake, hello}
+    {verify, verify_none}
 ]).
 
+-ifdef(OTP_RELEASE).
+-define(HELLO, [{handshake, hello}]).
+-else.
+-define(HELLO, []).
+-endif.
+
 listen(Port, Options) ->
-    ssl:listen(Port, Options ++ ?SSL_OPTIONS).
+    ssl:listen(Port, Options ++ ?SSL_OPTIONS ++ ?HELLO).
 
 -ifdef(OTP_RELEASE).
 accept(ListenSocket) ->
