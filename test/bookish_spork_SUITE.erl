@@ -6,8 +6,11 @@
 -export([
     all/0,
     init_per_suite/1,
-    end_per_suite/1
+    end_per_suite/1,
+    init_per_testcase/2,
+    end_per_testcase/2
 ]).
+
 -export([
     base_integration_test/1,
     customized_response_test/1,
@@ -17,13 +20,16 @@
     ssl_test/1,
     tls_ext_test/1,
     keepalive_connection/1,
-    without_keepalive/1
+    without_keepalive/1,
+    connection_id/1
 ]).
+
+-define(CUSTOM_PORT, 9871).
 
 all() ->
     [base_integration_test, customized_response_test, failed_capture_test,
     stub_multiple_requests, stub_with_fun, keepalive_connection, without_keepalive,
-    ssl_test, tls_ext_test].
+    ssl_test, tls_ext_test, connection_id].
 
 init_per_suite(Config) ->
     ok = application:ensure_started(inets),
@@ -32,10 +38,19 @@ init_per_suite(Config) ->
     Config.
 
 end_per_suite(_Config) ->
-    ok.
+    application:stop(gun).
+
+init_per_testcase(customized_response_test, Config) ->
+    [{custom_port, ?CUSTOM_PORT} | start_server([{port, ?CUSTOM_PORT}], Config)];
+init_per_testcase(TestCase, Config) when TestCase =:= ssl_test orelse TestCase =:= tls_ext_test ->
+    start_server([ssl], Config);
+init_per_testcase(_TestCase, Config) ->
+    start_server(Config).
+
+end_per_testcase(_TestCase, _Config) ->
+    bookish_spork:stop_server().
 
 base_integration_test(_Config) ->
-    {ok, _Pid} = bookish_spork:start_server(),
     ok = bookish_spork:stub_request(),
     RequestHeaders = [],
     {ok, {{"HTTP/1.1", 204, "No Content"}, _ResponseHeaders, _Body}} =
@@ -44,17 +59,16 @@ base_integration_test(_Config) ->
     ?assertEqual('GET', bookish_spork_request:method(Request)),
     ?assertEqual("/o/lo/lo?q=kjk", bookish_spork_request:uri(Request)),
     ?assertEqual({1, 1}, bookish_spork_request:version(Request)),
-    ?assertMatch(#{"host" := "localhost:32002"}, bookish_spork_request:headers(Request)),
-    ok = bookish_spork:stop_server().
+    ?assertMatch(#{"host" := "localhost:32002"}, bookish_spork_request:headers(Request)).
 
-customized_response_test(_Config) ->
-    {ok, _Pid} = bookish_spork:start_server([{port, 9871}]),
+customized_response_test(Config) ->
+    CustomPort = integer_to_list(?config(custom_port, Config)),
     bookish_spork:stub_request([200,
         #{<<"X-Custom-Response-Header">> => <<"test">>},
         <<"Hello, Test">>]),
     RequestBody = <<"{\"name\": \"John Doe\", \"email\": \"john@doe.com\"}">>,
     {ok, {{"HTTP/1.1", 200, "OK"}, ResponseHeaders, Body}} = httpc:request(post, {
-        "http://localhost:9871/api/v1/users",
+        "http://localhost:" ++ CustomPort ++ "/api/v1/users",
         [{"Accept", "text/plain"}],
         "application/json",
         RequestBody
@@ -66,16 +80,12 @@ customized_response_test(_Config) ->
     ?assertEqual("/api/v1/users", bookish_spork_request:uri(Request)),
     ?assertEqual({1, 1}, bookish_spork_request:version(Request)),
     ?assertEqual(RequestBody, bookish_spork_request:body(Request)),
-    ?assertMatch(#{"accept" := "text/plain"}, bookish_spork_request:headers(Request)),
-    ok = bookish_spork:stop_server().
+    ?assertMatch(#{"accept" := "text/plain"}, bookish_spork_request:headers(Request)).
 
 failed_capture_test(_Config) ->
-    {ok, _Pid} = bookish_spork:start_server(),
-    ?assertMatch({error, _}, bookish_spork:capture_request(), "Got an error when there is no stub"),
-    ok = bookish_spork:stop_server().
+    ?assertMatch({error, _}, bookish_spork:capture_request(), "Got an error when there is no stub").
 
 stub_multiple_requests(_Config) ->
-    {ok, _} = bookish_spork:start_server(),
     bookish_spork:stub_request([200, #{}, <<"Multi-pulti">>], _Times = 2),
     {ok, {{"HTTP/1.1", 200, "OK"}, _, Body}} = httpc:request(get,
         {"http://localhost:32002/multi", []}, [], [{body_format, binary}]),
@@ -86,34 +96,28 @@ stub_multiple_requests(_Config) ->
     {ok, Request2} = bookish_spork:capture_request(),
     ?assertEqual("/pulti", bookish_spork_request:uri(Request2)),
     ?assertMatch({error, _},
-        httpc:request(get, {"http://localhost:32002", []}, [], [{body_format, binary}])),
-    ok = bookish_spork:stop_server().
+        httpc:request(get, {"http://localhost:32002", []}, [], [{body_format, binary}])).
 
 stub_with_fun(_Config) ->
-    {ok, _Pid} = bookish_spork:start_server(),
     bookish_spork:stub_request(fun response/1, _Times = 2),
     {ok, {{"HTTP/1.1", 200, "OK"}, _, WalrusBody}} = httpc:request(get,
         {"http://localhost:32002/walrus", []}, [], [{body_format, binary}]),
     ?assertEqual(<<"Walrus">>, string:chomp(WalrusBody)),
     {ok, {{"HTTP/1.1", 200, "OK"}, _, LentilsBody}} = httpc:request(get,
         {"http://localhost:32002/lentils", []}, [], [{body_format, binary}]),
-    ?assertEqual(<<"Unknown">>, string:chomp(LentilsBody)),
-    ok = bookish_spork:stop_server().
+    ?assertEqual(<<"Unknown">>, string:chomp(LentilsBody)).
 
 ssl_test(_Config) ->
-    {ok, _Pid} = bookish_spork:start_server([ssl]),
     ok = bookish_spork:stub_request(),
     {ok, {{"HTTP/1.1", 204, "No Content"}, _, _}} = httpc:request(get,
         {"https://localhost:32002/secure", [{"Connection", "close"}]}, [], []),
     {ok, Request} = bookish_spork:capture_request(),
     SslInfo = bookish_spork_request:ssl_info(Request),
     Ciphers = proplists:get_value(ciphers, SslInfo, []),
-    ?assert(length(Ciphers) > 0),
-    ok = bookish_spork:stop_server().
+    ?assert(length(Ciphers) > 0).
 
 -ifdef(OTP_RELEASE).
 tls_ext_test(_Config) ->
-    {ok, _Pid} = bookish_spork:start_server([ssl]),
     ok = bookish_spork:stub_request(),
     {ok, {{"HTTP/1.1", 204, "No Content"}, _, _}} = httpc:request(get,
         {"https://localhost:32002/tls", [{"Connection", "close"}]}, [], []),
@@ -127,15 +131,13 @@ tls_ext_test(_Config) ->
         alpn               := _,
         sni                := _,
         srp                := _
-    }, TlsExt),
-    ok = bookish_spork:stop_server().
+    }, TlsExt).
 -else.
 tls_ext_test(_Config) ->
     {skip, "Nothing to test"}.
 -endif.
 
 keepalive_connection(_Config) ->
-    {ok, _Pid} = bookish_spork:start_server(),
     bookish_spork:stub_request([200, #{}, <<"OK1">>]),
     bookish_spork:stub_request([200, #{}, <<"OK2">>]),
     bookish_spork:stub_request([200, #{}, <<"OK3">>]),
@@ -145,18 +147,33 @@ keepalive_connection(_Config) ->
     ok = gun:close(ConnectionPid1),
     {ok, ConnectionPid2} = gun:open("localhost", 32002),
     ?assertEqual(<<"OK3">>, gun_request(ConnectionPid2)),
-    ok = gun:close(ConnectionPid2),
-    ok = bookish_spork:stop_server(),
-    ok = application:stop(gun).
+    ok = gun:close(ConnectionPid2).
 
 without_keepalive(_Config) ->
-    {ok, _Pid} = bookish_spork:start_server(),
     bookish_spork:stub_request([204, #{}, <<>>], _Times = 2),
     {ok, {{"HTTP/1.1", 204, "No Content"}, _, _}} = httpc:request(get,
         {"http://localhost:32002", [{"Connection", "close"}]}, [], [{body_format, binary}]),
     {ok, {{"HTTP/1.1", 204, "No Content"}, _, _}} = httpc:request(get,
-        {"http://localhost:32002", [{"Connection", "close"}]}, [], [{body_format, binary}]),
-    ok = bookish_spork:stop_server().
+        {"http://localhost:32002", [{"Connection", "close"}]}, [], [{body_format, binary}]).
+
+
+connection_id(_Config) ->
+    ok = bookish_spork:stub_request([200, #{}, <<"OK1">>]),
+    ok = bookish_spork:stub_request([200, #{}, <<"OK2">>]),
+    ok = bookish_spork:stub_request([200, #{}, <<"OK3">>]),
+    {ok, ConnectionPid1} = gun:open("localhost", 32002),
+    <<"OK1">> = gun_request(ConnectionPid1),
+    <<"OK2">> = gun_request(ConnectionPid1),
+    ok = gun:close(ConnectionPid1),
+    {ok, ConnectionPid2} = gun:open("localhost", 32002),
+    <<"OK3">> = gun_request(ConnectionPid2),
+    {ok, Req1} = bookish_spork:capture_request(),
+    {ok, Req2} = bookish_spork:capture_request(),
+    {ok, Req3} = bookish_spork:capture_request(),
+    ?assert(bookish_spork_request:connection_id(Req1) =:= bookish_spork_request:connection_id(Req2)),
+    ?assert(bookish_spork_request:connection_id(Req1) =/= bookish_spork_request:connection_id(Req3)),
+    ?assert(bookish_spork_request:socket(Req1) =:= bookish_spork_request:socket(Req2)),
+    ?assert(bookish_spork_request:socket(Req1) =/= bookish_spork_request:socket(Req3)).
 
 gun_request(ConnectionPid) ->
     StreamRef = gun:get(ConnectionPid, "/"),
@@ -171,3 +188,10 @@ response(Request) ->
             <<"Unknown">>
     end,
     [200, #{}, Body].
+
+start_server(Config) ->
+    start_server([], Config).
+
+start_server(Options, Config) ->
+    {ok, Pid} = bookish_spork:start_server(Options),
+    [{server, Pid} | Config].
