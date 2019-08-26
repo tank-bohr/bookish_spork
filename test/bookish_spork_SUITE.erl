@@ -22,7 +22,8 @@
     keepalive_connection/1,
     without_keepalive/1,
     connection_id/1,
-    request_when_there_is_no_stub/1
+    request_when_there_is_no_stub/1,
+    http_error/1
 ]).
 
 -define(CUSTOM_PORT, 9871).
@@ -30,7 +31,7 @@
 all() ->
     [base_integration_test, customized_response_test, failed_capture_test,
     stub_multiple_requests, stub_with_fun, keepalive_connection, without_keepalive,
-    ssl_test, tls_ext_test, connection_id, request_when_there_is_no_stub].
+    ssl_test, tls_ext_test, connection_id, request_when_there_is_no_stub, http_error].
 
 init_per_suite(Config) ->
     ok = application:ensure_started(inets),
@@ -178,6 +179,13 @@ connection_id(_Config) ->
 request_when_there_is_no_stub(_Config) ->
     NoStub = httpc:request(get, {"http://localhost:32002/no_stub", []}, [], []),
     ?assertMatch({error, _}, NoStub),
+    ok = bookish_spork:stub_request(),
+    Stubbed = httpc:request(get, {"http://localhost:32002/stubbed", []}, [], []),
+    ?assertMatch({ok, {{_, 204, _}, _, _}}, Stubbed).
+
+http_error(_Config) ->
+    Error = httpc:request(get, {"https://localhost:32002/ssl", []}, [], []),
+    ?assertMatch({error, {failed_connect, _}}, Error),
     ok = bookish_spork:stub_request(),
     Stubbed = httpc:request(get, {"http://localhost:32002/stubbed", []}, [], []),
     ?assertMatch({ok, {{_, 204, _}, _, _}}, Stubbed).
