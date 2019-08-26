@@ -4,7 +4,9 @@
 -include_lib("eunit/include/eunit.hrl").
 
 -export([
-    all/0
+    all/0,
+    init_per_suite/1,
+    end_per_suite/1
 ]).
 -export([
     base_integration_test/1,
@@ -13,6 +15,7 @@
     stub_multiple_requests/1,
     stub_with_fun/1,
     ssl_test/1,
+    tls_ext_test/1,
     keepalive_connection/1,
     without_keepalive/1
 ]).
@@ -20,7 +23,16 @@
 all() ->
     [base_integration_test, customized_response_test, failed_capture_test,
     stub_multiple_requests, stub_with_fun, keepalive_connection, without_keepalive,
-    ssl_test].
+    ssl_test, tls_ext_test].
+
+init_per_suite(Config) ->
+    ok = application:ensure_started(inets),
+    ok = application:ensure_started(ssl),
+    {ok, _} = application:ensure_all_started(gun),
+    Config.
+
+end_per_suite(_Config) ->
+    ok.
 
 base_integration_test(_Config) ->
     {ok, _Pid} = bookish_spork:start_server(),
@@ -89,20 +101,40 @@ stub_with_fun(_Config) ->
     ok = bookish_spork:stop_server().
 
 ssl_test(_Config) ->
-    ok = application:ensure_started(inets),
-    ok = application:ensure_started(ssl),
     {ok, _Pid} = bookish_spork:start_server([ssl]),
     ok = bookish_spork:stub_request(),
     {ok, {{"HTTP/1.1", 204, "No Content"}, _, _}} = httpc:request(get,
-        {"https://localhost:32002/secure", []}, [], []),
+        {"https://localhost:32002/secure", [{"Connection", "close"}]}, [], []),
     {ok, Request} = bookish_spork:capture_request(),
-    SslInfo = bookish_spork_request:ssl(Request),
+    SslInfo = bookish_spork_request:ssl_info(Request),
     Ciphers = proplists:get_value(ciphers, SslInfo, []),
     ?assert(length(Ciphers) > 0),
     ok = bookish_spork:stop_server().
 
+-ifdef(OTP_RELEASE).
+tls_ext_test(_Config) ->
+    {ok, _Pid} = bookish_spork:start_server([ssl]),
+    ok = bookish_spork:stub_request(),
+    {ok, {{"HTTP/1.1", 204, "No Content"}, _, _}} = httpc:request(get,
+        {"https://localhost:32002/tls", [{"Connection", "close"}]}, [], []),
+    {ok, Request} = bookish_spork:capture_request(),
+    TlsExt = bookish_spork_request:tls_ext(Request),
+    ?assertMatch(#{
+        renegotiation_info := _,
+        ec_point_formats   := _,
+        elliptic_curves    := _,
+        signature_algs     := _,
+        alpn               := _,
+        sni                := _,
+        srp                := _
+    }, TlsExt),
+    ok = bookish_spork:stop_server().
+-else.
+tls_ext_test(_Config) ->
+    {skip, "Nothing to test"}.
+-endif.
+
 keepalive_connection(_Config) ->
-    {ok, _Apps} = application:ensure_all_started(gun),
     {ok, _Pid} = bookish_spork:start_server(),
     bookish_spork:stub_request([200, #{}, <<"OK1">>]),
     bookish_spork:stub_request([200, #{}, <<"OK2">>]),

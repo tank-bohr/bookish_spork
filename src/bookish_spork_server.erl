@@ -117,57 +117,60 @@ handle_info(_Info, State) ->
 
 -spec terminate(Reason :: term(), State :: state()) -> ok.
 %% @private
-terminate(_Reason, #state{transport = Transport, socket = ListenSocket, acceptor = Acceptor}) ->
-    exit(Acceptor, kill),
+terminate(_Reason, #state{transport = Transport, socket = ListenSocket}) ->
     Transport:close(ListenSocket).
 
 %% @private
 accept(Transport, ListenSocket) ->
     AcceptorPid = spawn_link(fun AcceptorFun() ->
-        {ok, Socket} = Transport:accept(ListenSocket),
-        ok = handle_connection(Transport, Socket),
+        {Socket, TlsExt} = case Transport:accept(ListenSocket) of
+            {ok, Sock, Ext} -> {Sock, Ext};
+            {ok, Sock}      -> {Sock, undefined}
+        end,
+        ok = handle_connection(Transport, Socket, TlsExt),
         AcceptorFun()
     end),
     {ok, AcceptorPid}.
 
 %% @private
-handle_connection(Transport, Socket) ->
-    case receive_request(Transport, Socket) of
+handle_connection(Transport, Socket, TlsExt) ->
+    case receive_request(Transport, Socket, TlsExt) of
         {ok, Request} ->
             store_request(Request),
             case response() of
                 {ok, Response} ->
                     ok = reply(Transport, Socket, Response, Request),
-                    complete_connection(Transport, Socket, Request);
+                    complete_connection(Request, Transport, Socket, TlsExt);
                 {error, no_response} ->
-                    gen_tcp:close(Socket)
+                    Transport:close(Socket)
             end;
         socket_closed ->
             ok
     end.
 
 %% @private
-complete_connection(Transport, Socket, Request) ->
+complete_connection(Request, Transport, Socket, TlsExt) ->
     case bookish_spork_request:is_keepalive(Request) of
         true ->
-            handle_connection(Transport, Socket);
+            handle_connection(Transport, Socket, TlsExt);
         false ->
             Transport:shutdown(Socket, read_write)
     end.
 
 %% @private
-receive_request(Transport, Socket) ->
-    receive_request(Transport, Socket, bookish_spork_request:new_from_socket(Socket)).
+receive_request(Transport, Socket, TlsExt) ->
+    Request = bookish_spork_request:new_from_socket(Socket, TlsExt),
+    read_from_socket(Transport, Socket, Request).
 
 %% @private
-receive_request(Transport, Socket, RequestIn) ->
+read_from_socket(Transport, Socket, RequestIn) ->
     case Transport:recv(Socket, 0) of
         {ok, {http_request, Method, {abs_path, Uri}, Version}} ->
             RequestOut = bookish_spork_request:request_line(RequestIn, Method, Uri, Version),
-            receive_request(Transport, Socket, RequestOut);
+            read_from_socket(Transport, Socket, RequestOut);
         {ok, {http_header, _, Header, _, Value}} ->
             RequestOut = bookish_spork_request:add_header(RequestIn, Header, Value),
-            receive_request(Transport, Socket, RequestOut);
+            read_from_socket(Transport, Socket, RequestOut);
         {ok, http_eoh} ->
             Body = read_body(Transport, Socket, bookish_spork_request:content_length(RequestIn)),
             RequestOut = bookish_spork_request:body(RequestIn, Body),

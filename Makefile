@@ -1,4 +1,4 @@
-.PHONY: all doc edown codecov dialyzer test lint eep48 ex_doc gen-cert
+.PHONY: all doc edown codecov dialyzer test lint eep48 ex_doc gen-cert clean
 .DEFAULT_GOAL := all
 
 COVERTOOL_REPORT=_build/test/covertool/bookish_spork.covertool.xml
@@ -46,3 +46,6 @@ $(COVERTOOL_REPORT):
 
 gen-cert:
 	make -C priv/cert all
+
+clean:
+	rebar3 clean

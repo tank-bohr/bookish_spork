@@ -15,13 +15,21 @@
     {verify, verify_none}
 ]).
 
+-ifdef(OTP_RELEASE).
+-define(HELLO, [{handshake, hello}]).
+-else.
+-define(HELLO, []).
+-endif.
+
 listen(Port, Options) ->
-    ssl:listen(Port, Options ++ ?SSL_OPTIONS).
+    ssl:listen(Port, Options ++ ?SSL_OPTIONS ++ ?HELLO).
 
 -ifdef(OTP_RELEASE).
 accept(ListenSocket) ->
     {ok, Socket} = ssl:transport_accept(ListenSocket),
-    ssl:handshake(Socket).
+    {ok, HsSocket, Ext} = ssl:handshake(Socket),
+    {ok, SslSocket} = ssl:handshake_continue(HsSocket, []),
+    {ok, SslSocket, Ext}.
 -else.
 accept(ListenSocket) ->
     {ok, Socket} = ssl:transport_accept(ListenSocket),
