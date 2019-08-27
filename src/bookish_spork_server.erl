@@ -7,6 +7,11 @@
     retrieve_request/0
 ]).
 
+-export([
+    store_request/2,
+    response/1
+]).
+
 -behaviour(gen_server).
 
 -export([
@@ -26,7 +31,7 @@
 -record(state, {
     response_queue = queue:new() :: queue:queue(response()),
     request_queue = queue:new() :: queue:queue(request()),
-    acceptor :: pid(),
+    acceptor_sup :: pid(),
     socket :: gen_tcp:socket() | ssl:sslsocket(),
     transport :: gen_tcp | bookish_spork_ssl
 }).
@@ -51,15 +56,15 @@ respond_with(Response, Times) ->
 retrieve_request() ->
     gen_server:call(?SERVER, request).
 
--spec store_request(Request :: request()) -> ok.
-%% @private
-store_request(Request) ->
-    gen_server:call(?SERVER, {request, Request}).
+-spec store_request(Server :: pid(), Request :: request()) -> ok.
+%% @doc Used by {@link bookish_spork_acceptor}
+store_request(Server, Request) ->
+    gen_server:call(Server, {request, Request}).
 
--spec response() -> {ok, response()} | {error, no_response}.
-%% @private
-response() ->
-    gen_server:call(?SERVER, response).
+-spec response(Server :: pid()) -> {ok, response()} | {error, no_response}.
+%% @doc Used by {@link bookish_spork_acceptor}
+response(Server) ->
+    gen_server:call(Server, response).
 
 -spec init(Options :: proplists:proplist()) -> {ok, state()}.
 %% @private
@@ -72,8 +77,8 @@ init(Options) ->
         {active, false},
         {reuseaddr, true}
     ]),
-    {ok, Acceptor} = accept(Transport, ListenSocket),
-    {ok, #state{transport = Transport, socket = ListenSocket, acceptor = Acceptor}}.
+    {ok, AcceptorSup} = bookish_spork_acceptor_sup:start_link(self(), Transport, ListenSocket),
+    {ok, #state{transport = Transport, socket = ListenSocket, acceptor_sup = AcceptorSup}}.
 
 -spec handle_call(
     {respond_with, bookish_spork_response:response()},
@@ -81,8 +86,6 @@ init(Options) ->
     State :: state()
 ) -> {reply, {ok, pid()}, state()}.
 %% @private
-handle_call({respond_with, Response}, _From, #state{response_queue = Q} = State) ->
-    {reply, ok, State#state{response_queue = queue:in(Response, Q)}};
 handle_call({respond_with, Response, Times}, _From, #state{response_queue = Q1} = State) ->
     Q2 = lists:foldl(fun(_, Q) -> queue:in(Response, Q) end, Q1, lists:seq(1, Times)),
     {reply, ok, State#state{response_queue = Q2}};
@@ -117,84 +120,14 @@ handle_info(_Info, State) ->
 
 -spec terminate(Reason :: term(), State :: state()) -> ok.
 %% @private
-terminate(_Reason, #state{transport = Transport, socket = ListenSocket}) ->
-    Transport:close(ListenSocket).
-
-%% @private
-accept(Transport, ListenSocket) ->
-    AcceptorPid = spawn_link(fun AcceptorFun() ->
-        {Socket, TlsExt} = case Transport:accept(ListenSocket) of
-            {ok, Sock, Ext} -> {Sock, Ext};
-            {ok, Sock}      -> {Sock, undefined}
-        end,
-        ok = handle_connection(Transport, Socket, TlsExt),
-        AcceptorFun()
-    end),
-    {ok, AcceptorPid}.
-
-%% @private
-handle_connection(Transport, Socket, TlsExt) ->
-    case receive_request(Transport, Socket, TlsExt) of
-        {ok, Request} ->
-            store_request(Request),
-            case response() of
-                {ok, Response} ->
-                    ok = reply(Transport, Socket, Response, Request),
-                    complete_connection(Request, Transport, Socket, TlsExt);
-                {error, no_response} ->
-                    Transport:close(Socket)
-            end;
-        socket_closed ->
-            ok
-    end.
-
-%% @private
-complete_connection(Request, Transport, Socket, TlsExt) ->
-    case bookish_spork_request:is_keepalive(Request) of
-        true ->
-            handle_connection(Transport, Socket, TlsExt);
-        false ->
-            Transport:shutdown(Socket, read_write)
-    end.
-
-%% @private
-receive_request(Transport, Socket, TlsExt) ->
-    Request = bookish_spork_request:new_from_socket(Socket, TlsExt),
-    read_from_socket(Transport, Socket, Request).
-
-%% @private
-read_from_socket(Transport, Socket, RequestIn) ->
-    case Transport:recv(Socket, 0) of
-        {ok, {http_request, Method, {abs_path, Uri}, Version}} ->
-            RequestOut = bookish_spork_request:request_line(RequestIn, Method, Uri, Version),
-            read_from_socket(Transport, Socket, RequestOut);
-        {ok, {http_header, _, Header, _, Value}} ->
-            RequestOut = bookish_spork_request:add_header(RequestIn, Header, Value),
-            read_from_socket(Transport, Socket, RequestOut);
-        {ok, http_eoh} ->
-            Body = read_body(Transport, Socket, bookish_spork_request:content_length(RequestIn)),
-            RequestOut = bookish_spork_request:body(RequestIn, Body),
-            {ok, RequestOut};
-        {error, closed} ->
-            socket_closed
-    end.
-
-%% @private
-read_body(_Transport, _Socket, 0) ->
-    <<>>;
-read_body(Transport, Socket, ContentLength) ->
-    inet:setopts(Socket, [{packet, raw}]),
-    {ok, Body} = Transport:recv(Socket, ContentLength),
-    inet:setopts(Socket, [{packet, http}]),
-    Body.
-
-%% @private
-reply(Transport, Socket, ResponseFun, Request) when is_function(ResponseFun) ->
-    Response = ResponseFun(Request),
-    reply(Transport, Socket, bookish_spork_response:new(Response), Request);
-reply(Transport, Socket, Response, _Request) ->
-    String = bookish_spork_response:write_str(Response, calendar:universal_time()),
-    Transport:send(Socket, [String]).
+terminate(_Reason, State) ->
+    #state{
+        transport = Transport,
+        socket = ListenSocket,
+        acceptor_sup = AcceptorSup
+    } = State,
+    ok = bookish_spork_acceptor_sup:stop(AcceptorSup),
+    ok = Transport:close(ListenSocket).
 
 %% @private
 detect_transport(Options) ->
