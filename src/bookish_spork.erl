@@ -13,7 +13,8 @@
     stub_request/0,
     stub_request/1,
     stub_request/2,
-    capture_request/0
+    capture_request/0,
+    capture_request/1
 ]).
 
 -define(DEFAULT_STATUS, 204).
@@ -88,4 +89,11 @@ stub_request(Response, Times) ->
 
 -spec capture_request() -> {ok, Request :: bookish_spork_request:t()} | {error, Error :: term()}.
 capture_request() ->
-    bookish_spork_server:retrieve_request().
+    capture_request(_Timeout = 0).
+
+-spec capture_request(Timeout) -> {ok, Request} | {error, Error} when
+    Error :: term(),
+    Request :: bookish_spork_request:t(),
+    Timeout :: non_neg_integer().
+capture_request(Timeout) ->
+    bookish_spork_server:retrieve_request(Timeout).

@@ -4,7 +4,7 @@
     start/1,
     stop/0,
     respond_with/2,
-    retrieve_request/0
+    retrieve_request/1
 ]).
 
 -export([
@@ -30,7 +30,7 @@
 
 -record(state, {
     response_queue = queue:new() :: queue:queue(response()),
-    request_queue = queue:new() :: queue:queue(request()),
+    request_queue :: pid(),
     acceptor_sup :: pid(),
     socket :: gen_tcp:socket() | ssl:sslsocket(),
     transport :: gen_tcp | bookish_spork_ssl
@@ -52,9 +52,18 @@ stop() ->
 respond_with(Response, Times) ->
     gen_server:call(?SERVER, {respond_with, Response, Times}).
 
--spec retrieve_request() -> {ok, Request :: request()} | {error, Error :: term()}.
-retrieve_request() ->
-    gen_server:call(?SERVER, request).
+-spec retrieve_request(Timeout) -> {ok, Request} | {error, Error} when
+    Timeout :: non_neg_integer(),
+    Request :: request(),
+    Error :: term().
+retrieve_request(Timeout) ->
+    {ok, Q} = gen_server:call(?SERVER, request_queue),
+    case bookish_spork_blocking_queue:out(Q, Timeout) of
+        {ok, Val} ->
+            {ok, Val};
+        {error, timeout} ->
+            {error, no_request}
+    end.
 
 -spec store_request(Server :: pid(), Request :: request()) -> ok.
 %% @doc Used by {@link bookish_spork_acceptor}
@@ -78,7 +87,9 @@ init(Options) ->
         {reuseaddr, true}
     ]),
     {ok, AcceptorSup} = bookish_spork_acceptor_sup:start_link(self(), Transport, ListenSocket),
-    {ok, #state{transport = Transport, socket = ListenSocket, acceptor_sup = AcceptorSup}}.
+    {ok, RequestQueuePid} = bookish_spork_blocking_queue:start_link(),
+    {ok, #state{request_queue = RequestQueuePid,
+        transport = Transport, socket = ListenSocket, acceptor_sup = AcceptorSup}}.
 
 -spec handle_call(
     {respond_with, bookish_spork_response:response()},
@@ -89,8 +100,6 @@ init(Options) ->
 handle_call({respond_with, Response, Times}, _From, #state{response_queue = Q1} = State) ->
     Q2 = lists:foldl(fun(_, Q) -> queue:in(Response, Q) end, Q1, lists:seq(1, Times)),
     {reply, ok, State#state{response_queue = Q2}};
-handle_call({request, Request}, _From, #state{request_queue = Q} = State) ->
-    {reply, ok, State#state{request_queue = queue:in(Request, Q)}};
 handle_call(response, _From, #state{response_queue = Q1} = State) ->
     case queue:out(Q1) of
         {{value, Val}, Q2} ->
@@ -98,13 +107,11 @@ handle_call(response, _From, #state{response_queue = Q1} = State) ->
         {empty, _} ->
             {reply, {error, no_response}, State}
     end;
-handle_call(request, _From, #state{request_queue = Q1} = State) ->
-    case queue:out(Q1) of
-        {{value, Val}, Q2} ->
-            {reply, {ok, Val}, State#state{request_queue = Q2}};
-        {empty, _} ->
-            {reply, {error, no_request}, State}
-    end;
+handle_call({request, Request}, _From, #state{request_queue = Q} = State) ->
+    ok = bookish_spork_blocking_queue:in(Q, Request),
+    {reply, ok, State};
+handle_call(request_queue, _From, State) ->
+    {reply, {ok, State#state.request_queue}, State};
 handle_call(_Request, _From, State) ->
     {reply, {error, unknown_call}, State}.
 
