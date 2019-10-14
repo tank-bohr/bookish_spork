@@ -12,8 +12,7 @@
     init/1,
     handle_call/3,
     handle_cast/2,
-    handle_info/2,
-    terminate/2
+    handle_info/2
 ]).
 
 -type element() :: any().
@@ -88,10 +87,6 @@ handle_info({timeout, Client}, #state{waiting = Waiting} = State) ->
             Waiting
     end,
     {noreply, State#state{waiting = Remaining}}.
-
-%% @private
-terminate(_Reason, _State) ->
-    ok.
 
 enqueue_client(Client, Waiting, 0) ->
     gen_server:reply(Client, {error, timeout}),
