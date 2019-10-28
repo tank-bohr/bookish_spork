@@ -141,6 +141,8 @@ read_from_socket(Transport, Socket, RequestIn) ->
         {ok, {http_error, HttpError}} ->
             erlang:error({http_error, HttpError}, [Transport, Socket, RequestIn]);
         {error, closed} ->
+            socket_closed;
+        {error, enotconn} ->
             socket_closed
     end.
 
