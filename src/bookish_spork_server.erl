@@ -26,14 +26,14 @@
 -define(DEFAULT_PORT, 32002).
 
 -type response() :: bookish_spork_response:t() | bookish_spork:stub_request_fun().
--type request() :: bookish_spork_request:t().
+-type request()  :: bookish_spork_request:t().
 
 -record(state, {
     response_queue = queue:new() :: queue:queue(response()),
-    request_queue :: pid(),
-    acceptor_sup :: pid(),
-    socket :: gen_tcp:socket() | ssl:sslsocket(),
-    transport :: gen_tcp | bookish_spork_ssl
+    request_queue                :: pid(),
+    acceptor_sup                 :: pid(),
+    socket                       :: gen_tcp:socket() | ssl:sslsocket(),
+    transport                    :: gen_tcp | bookish_spork_ssl
 }).
 
 -type state() :: #state{}.
@@ -55,7 +55,7 @@ respond_with(Response, Times) ->
 -spec retrieve_request(Timeout) -> {ok, Request} | {error, Error} when
     Timeout :: non_neg_integer(),
     Request :: request(),
-    Error :: term().
+    Error   :: term().
 retrieve_request(Timeout) ->
     {ok, Q} = gen_server:call(?SERVER, request_queue),
     case bookish_spork_blocking_queue:out(Q, Timeout) of
@@ -86,7 +86,7 @@ init(Options) ->
         {active, false},
         {reuseaddr, true}
     ]),
-    {ok, AcceptorSup} = bookish_spork_acceptor_sup:start_link(self(), Transport, ListenSocket),
+    {ok, AcceptorSup} = bookish_spork_sup:start_acceptor_sup(self(), Transport, ListenSocket),
     {ok, RequestQueuePid} = bookish_spork_blocking_queue:start_link(),
     {ok, #state{request_queue = RequestQueuePid,
         transport = Transport, socket = ListenSocket, acceptor_sup = AcceptorSup}}.
@@ -129,11 +129,11 @@ handle_info(_Info, State) ->
 %% @private
 terminate(_Reason, State) ->
     #state{
-        transport = Transport,
-        socket = ListenSocket,
+        transport    = Transport,
+        socket       = ListenSocket,
         acceptor_sup = AcceptorSup
     } = State,
-    ok = bookish_spork_acceptor_sup:stop(AcceptorSup),
+    ok = bookish_spork_sup:stop(AcceptorSup),
     ok = Transport:close(ListenSocket).
 
 %% @private

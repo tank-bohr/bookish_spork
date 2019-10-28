@@ -24,7 +24,8 @@
     connection_id/1,
     request_when_there_is_no_stub/1,
     http_error/1,
-    wait_for_async_request_completed/1
+    wait_for_async_request_completed/1,
+    multiple_async_requests/1
 ]).
 
 -define(CUSTOM_PORT, 9871).
@@ -33,7 +34,7 @@ all() ->
     [base_integration_test, customized_response_test, failed_capture_test,
     stub_multiple_requests, stub_with_fun, keepalive_connection, without_keepalive,
     ssl_test, tls_ext_test, connection_id, request_when_there_is_no_stub, http_error,
-    wait_for_async_request_completed].
+    wait_for_async_request_completed, multiple_async_requests].
 
 init_per_suite(Config) ->
     ok = application:ensure_started(inets),
@@ -200,6 +201,14 @@ wait_for_async_request_completed(_Config) ->
     end),
     {ok, Req} = bookish_spork:capture_request(4000),
     ?assertMatch("/async", bookish_spork_request:uri(Req)).
+
+multiple_async_requests(_Config) ->
+    ok = bookish_spork:stub_request([200, #{}, <<>>], 2),
+    spawn_link(fun() -> httpc:request(get, {"http://localhost:32002/one", []}, [], []) end),
+    spawn_link(fun() -> httpc:request(get, {"http://localhost:32002/two", []}, [], []) end),
+    {ok, _} = bookish_spork:capture_request(500),
+    {ok, _} = bookish_spork:capture_request(500),
+    {error, no_request} = bookish_spork:capture_request(500).
 
 gun_request(ConnectionPid) ->
     StreamRef = gun:get(ConnectionPid, "/"),
