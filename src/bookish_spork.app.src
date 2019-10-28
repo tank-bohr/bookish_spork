@@ -9,7 +9,6 @@
   {env,[]},
   {modules, []},
 
-  {maintainers, ["Alexey Nikitin", "Vasily Kolesnikov"]},
   {licenses, ["Apache 2.0"]},
   {links, [
     {"Github", "https://github.com/tank-bohr/bookish_spork"},
