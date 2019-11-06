@@ -1,6 +1,7 @@
 -module(bookish_spork_acceptor).
 
 -export([
+    child_spec/1,
     start_link/3
 ]).
 
@@ -19,6 +20,16 @@
     socket    :: gen_tcp:socket() | ssl:sslsocket(),
     sup       :: pid()
 }).
+
+child_spec(Args) ->
+    #{
+        id       => ?MODULE,
+        start    => {?MODULE, start_link, Args},
+        restart  => permanent,
+        shutdown => 5000,
+        type     => worker,
+        modules  => [?MODULE]
+    }.
 
 start_link(Server, Transport, ListenSocket) ->
     gen_server:start_link(?MODULE, {Server, Transport, ListenSocket}, []).
@@ -57,7 +68,7 @@ accept() ->
     gen_server:cast(self(), accept).
 
 accept(Transport, ListenSocket, Sup) ->
-    {Socket, TlsExt} = case Transport:accept(ListenSocket) of
+    {Socket, TlsExt} = case Transport:accept(ListenSocket, 5000) of
         {ok, Sock, Ext} ->
             {Sock, Ext};
         {ok, Sock} ->
