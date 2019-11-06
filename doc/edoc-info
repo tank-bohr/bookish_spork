@@ -1,4 +1,6 @@
 %% encoding: UTF-8
 {application,bookish_spork}.
-{modules,[bookish_spork,bookish_spork_format,bookish_spork_request,
-          bookish_spork_response,bookish_spork_server]}.
+{modules,[bookish_spork,bookish_spork_acceptor,bookish_spork_blocking_queue,
+          bookish_spork_format,bookish_spork_handler,bookish_spork_request,
+          bookish_spork_response,bookish_spork_server,bookish_spork_ssl,
+          bookish_spork_sup]}.

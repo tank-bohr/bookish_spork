@@ -4,7 +4,7 @@
 
 Copyright (c) 2018-2019 Alexey Nikitin
 
-__Version:__ 0.3.3
+__Version:__ 0.3.5
 
 __Authors:__ Alexey Nikitin ([`tank@bohr.su`](mailto:tank@bohr.su)) (_web site:_ [`https://twitter.com/tank_bohr`](https://twitter.com/tank_bohr)).
 
@@ -52,7 +52,7 @@ First step: add to your rebar config
 {profiles, [
     {test, [
         {deps, [
-            {bookish_spork, "0.3.3"}
+            {bookish_spork, "0.3.5"}
         ]}
     ]}
 ]}.
@@ -252,8 +252,13 @@ For more details see examples dir.
 
 <table width="100%" border="0" summary="list of modules">
 <tr><td><a href="bookish_spork.md" class="module">bookish_spork</a></td></tr>
+<tr><td><a href="bookish_spork_acceptor.md" class="module">bookish_spork_acceptor</a></td></tr>
+<tr><td><a href="bookish_spork_blocking_queue.md" class="module">bookish_spork_blocking_queue</a></td></tr>
 <tr><td><a href="bookish_spork_format.md" class="module">bookish_spork_format</a></td></tr>
+<tr><td><a href="bookish_spork_handler.md" class="module">bookish_spork_handler</a></td></tr>
 <tr><td><a href="bookish_spork_request.md" class="module">bookish_spork_request</a></td></tr>
 <tr><td><a href="bookish_spork_response.md" class="module">bookish_spork_response</a></td></tr>
-<tr><td><a href="bookish_spork_server.md" class="module">bookish_spork_server</a></td></tr></table>
+<tr><td><a href="bookish_spork_server.md" class="module">bookish_spork_server</a></td></tr>
+<tr><td><a href="bookish_spork_ssl.md" class="module">bookish_spork_ssl</a></td></tr>
+<tr><td><a href="bookish_spork_sup.md" class="module">bookish_spork_sup</a></td></tr></table>
 

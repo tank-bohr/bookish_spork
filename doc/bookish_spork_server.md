@@ -36,7 +36,7 @@ response() = <a href="bookish_spork_response.md#type-t">bookish_spork_response:t
 ## Function Index ##
 
 
-<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#respond_with-2">respond_with/2</a></td><td></td></tr><tr><td valign="top"><a href="#retrieve_request-0">retrieve_request/0</a></td><td></td></tr><tr><td valign="top"><a href="#start-1">start/1</a></td><td>starts server.</td></tr><tr><td valign="top"><a href="#stop-0">stop/0</a></td><td>stops server.</td></tr></table>
+<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#respond_with-2">respond_with/2</a></td><td></td></tr><tr><td valign="top"><a href="#response-1">response/1</a></td><td>Used by <a href="bookish_spork_acceptor.md"><code>bookish_spork_acceptor</code></a></td></tr><tr><td valign="top"><a href="#retrieve_request-1">retrieve_request/1</a></td><td></td></tr><tr><td valign="top"><a href="#start-1">start/1</a></td><td>starts server.</td></tr><tr><td valign="top"><a href="#stop-0">stop/0</a></td><td>stops server.</td></tr><tr><td valign="top"><a href="#store_request-2">store_request/2</a></td><td>Used by <a href="bookish_spork_acceptor.md"><code>bookish_spork_acceptor</code></a></td></tr></table>
 
 
 <a name="functions"></a>
@@ -52,21 +52,33 @@ respond_with(Response::<a href="#type-response">response()</a>, Times::non_neg_i
 </code></pre>
 <br />
 
-<a name="retrieve_request-0"></a>
+<a name="response-1"></a>
 
-### retrieve_request/0 ###
+### response/1 ###
 
 <pre><code>
-retrieve_request() -&gt; {ok, Request::<a href="#type-request">request()</a>} | {error, Error::term()}
+response(Server::pid()) -&gt; {ok, <a href="#type-response">response()</a>} | {error, no_response}
 </code></pre>
 <br />
+
+Used by [`bookish_spork_acceptor`](bookish_spork_acceptor.md)
+
+<a name="retrieve_request-1"></a>
+
+### retrieve_request/1 ###
+
+<pre><code>
+retrieve_request(Timeout) -&gt; {ok, Request} | {error, Error}
+</code></pre>
+
+<ul class="definitions"><li><code>Timeout = non_neg_integer()</code></li><li><code>Request = <a href="#type-request">request()</a></code></li><li><code>Error = term()</code></li></ul>
 
 <a name="start-1"></a>
 
 ### start/1 ###
 
 <pre><code>
-start(Port::non_neg_integer()) -&gt; {ok, pid()} | {error, Error::term()}
+start(Options::<a href="proplists.md#type-proplist">proplists:proplist()</a>) -&gt; {ok, pid()} | {error, Error::term()}
 </code></pre>
 <br />
 
@@ -82,4 +94,15 @@ stop() -&gt; ok
 <br />
 
 stops server
+
+<a name="store_request-2"></a>
+
+### store_request/2 ###
+
+<pre><code>
+store_request(Server::pid(), Request::<a href="#type-request">request()</a>) -&gt; ok
+</code></pre>
+<br />
+
+Used by [`bookish_spork_acceptor`](bookish_spork_acceptor.md)
 
