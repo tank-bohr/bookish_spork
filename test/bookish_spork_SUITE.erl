@@ -25,7 +25,8 @@
     request_when_there_is_no_stub/1,
     http_error/1,
     wait_for_async_request_completed/1,
-    multiple_async_requests/1
+    multiple_async_requests/1,
+    multiple_async_with_closed_connection_requests/1
 ]).
 
 -define(CUSTOM_PORT, 9871).
@@ -34,7 +35,7 @@ all() ->
     [base_integration_test, customized_response_test, failed_capture_test,
     stub_multiple_requests, stub_with_fun, keepalive_connection, without_keepalive,
     ssl_test, tls_ext_test, connection_id, request_when_there_is_no_stub, http_error,
-    wait_for_async_request_completed, multiple_async_requests].
+    wait_for_async_request_completed, multiple_async_requests, multiple_async_with_closed_connection_requests].
 
 init_per_suite(Config) ->
     ok = application:ensure_started(inets),
@@ -206,6 +207,14 @@ multiple_async_requests(_Config) ->
     ok = bookish_spork:stub_request([200, #{}, <<>>], 2),
     spawn_link(fun() -> httpc:request(get, {"http://localhost:32002/one", []}, [], []) end),
     spawn_link(fun() -> httpc:request(get, {"http://localhost:32002/two", []}, [], []) end),
+    {ok, _} = bookish_spork:capture_request(500),
+    {ok, _} = bookish_spork:capture_request(500),
+    {error, no_request} = bookish_spork:capture_request(500).
+
+multiple_async_with_closed_connection_requests(_Config) ->
+    ok = bookish_spork:stub_request([200, #{}, <<>>], 2),
+    spawn_link(fun() -> httpc:request(get, {"http://localhost:32002/one", [{"Connection", "close"}]}, [], []) end),
+    spawn_link(fun() -> httpc:request(get, {"http://localhost:32002/two", [{"Connection", "close"}]}, [], []) end),
     {ok, _} = bookish_spork:capture_request(500),
     {ok, _} = bookish_spork:capture_request(500),
     {error, no_request} = bookish_spork:capture_request(500).
