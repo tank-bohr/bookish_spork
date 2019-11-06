@@ -12,6 +12,16 @@
 
 
 
+### <a name="type-socket">socket()</a> ###
+
+
+<pre><code>
+socket() = <a href="gen_tcp.md#type-socket">gen_tcp:socket()</a> | <a href="ssl.md#type-sslsocket">ssl:sslsocket()</a>
+</code></pre>
+
+
+
+
 ### <a name="type-t">t()</a> ###
 
 
@@ -22,7 +32,7 @@ __abstract datatype__: `t()`
 ## Function Index ##
 
 
-<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#body-1">body/1</a></td><td>request body.</td></tr><tr><td valign="top"><a href="#content_length-1">content_length/1</a></td><td>Content-Length header value as intger.</td></tr><tr><td valign="top"><a href="#header-2">header/2</a></td><td>Returns a particular header from request.</td></tr><tr><td valign="top"><a href="#headers-1">headers/1</a></td><td>http headers map.</td></tr><tr><td valign="top"><a href="#is_keepalive-1">is_keepalive/1</a></td><td>tells you if the request is keepalive or not <a href="https://tools.ietf.org.md/rfc6223" target="_top"><tt>https://tools.ietf.org/html/rfc6223</tt></a></td></tr><tr><td valign="top"><a href="#method-1">method/1</a></td><td>http verb: 'GET', 'POST','PUT', 'DELETE', 'OPTIONS', ...</td></tr><tr><td valign="top"><a href="#uri-1">uri/1</a></td><td>path with query string.</td></tr><tr><td valign="top"><a href="#version-1">version/1</a></td><td>http protocol version tuple.</td></tr></table>
+<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#body-1">body/1</a></td><td>request body.</td></tr><tr><td valign="top"><a href="#content_length-1">content_length/1</a></td><td>Content-Length header value as intger.</td></tr><tr><td valign="top"><a href="#header-2">header/2</a></td><td>Returns a particular header from request.</td></tr><tr><td valign="top"><a href="#headers-1">headers/1</a></td><td>http headers map.</td></tr><tr><td valign="top"><a href="#is_keepalive-1">is_keepalive/1</a></td><td>tells you if the request is keepalive or not <a href="https://tools.ietf.org.md/rfc6223" target="_top"><tt>https://tools.ietf.org/html/rfc6223</tt></a></td></tr><tr><td valign="top"><a href="#method-1">method/1</a></td><td>http verb: 'GET', 'POST','PUT', 'DELETE', 'OPTIONS', ...</td></tr><tr><td valign="top"><a href="#new-3">new/3</a></td><td>creates request with ssl info if socket is an ssl socket.</td></tr><tr><td valign="top"><a href="#uri-1">uri/1</a></td><td>path with query string.</td></tr><tr><td valign="top"><a href="#version-1">version/1</a></td><td>http protocol version tuple.</td></tr></table>
 
 
 <a name="functions"></a>
@@ -94,6 +104,18 @@ method(Request::<a href="#type-t">t()</a>) -&gt; atom()
 <br />
 
 http verb: 'GET', 'POST','PUT', 'DELETE', 'OPTIONS', ...
+
+<a name="new-3"></a>
+
+### new/3 ###
+
+<pre><code>
+new(ConnectionId, Socket, TlsExt) -&gt; Request
+</code></pre>
+
+<ul class="definitions"><li><code>ConnectionId = binary()</code></li><li><code>Socket = <a href="#type-socket">socket()</a></code></li><li><code>TlsExt = undefined | nil | <a href="ssl.md#type-protocol_extensions">ssl:protocol_extensions()</a></code></li><li><code>Request = <a href="#type-t">t()</a></code></li></ul>
+
+creates request with ssl info if socket is an ssl socket
 
 <a name="uri-1"></a>
 
