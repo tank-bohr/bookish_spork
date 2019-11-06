@@ -1,6 +1,9 @@
 -module(bookish_spork_handler).
 
--export([start_link/5]).
+-export([
+    child_spec/1,
+    start_link/5
+]).
 
 -behaviour(gen_server).
 -export([
@@ -24,6 +27,16 @@
 }).
 
 -type state() :: #state{}.
+
+child_spec(Args) ->
+    #{
+        id       => ?MODULE,
+        start    => {?MODULE, start_link, Args},
+        restart  => temporary,
+        shutdown => 5000,
+        type     => worker,
+        modules  => [?MODULE]
+    }.
 
 -spec start_link(Server, Transport, Socket, TlsExt, ConnectionId) -> {ok, pid()} when
     Server       :: pid(),

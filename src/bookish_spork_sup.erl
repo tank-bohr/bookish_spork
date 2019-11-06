@@ -11,15 +11,6 @@
     init/1
 ]).
 
--define(CHILD(I, Args), #{
-    id       => I,
-    start    => {I, start_link, Args},
-    restart  => permanent,
-    shutdown => 5000,
-    type     => worker,
-    modules  => [I]
-}).
-
 -define(ACCEPTOR_SUP_FLAGS, #{
     strategy  => one_for_one,
     intensity => 5,
@@ -50,6 +41,6 @@ stop(Sup) ->
 
 %% @private
 init({acceptor, Args}) ->
-    {ok, {?ACCEPTOR_SUP_FLAGS, [?CHILD(bookish_spork_acceptor, Args)]}};
+    {ok, {?ACCEPTOR_SUP_FLAGS, [bookish_spork_acceptor:child_spec(Args)]}};
 init({handler, Args}) ->
-    {ok, {?HANDLER_SUP_FLAGS, [?CHILD(bookish_spork_handler, Args)]}}.
+    {ok, {?HANDLER_SUP_FLAGS, [bookish_spork_handler:child_spec(Args)]}}.
