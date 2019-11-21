@@ -4,7 +4,7 @@
 
 -export([
     listen/2,
-    accept/2,
+    accept/1,
     recv/2,
     send/2,
     close/1,
@@ -27,14 +27,14 @@ listen(Port, Options) ->
     ssl:listen(Port, Options ++ ?SSL_OPTIONS ++ ?HELLO).
 
 -ifdef(OTP_RELEASE).
-accept(ListenSocket, Timeout) ->
-    {ok, Socket} = ssl:transport_accept(ListenSocket, Timeout),
+accept(ListenSocket) ->
+    {ok, Socket} = ssl:transport_accept(ListenSocket),
     {ok, HsSocket, Ext} = ssl:handshake(Socket),
     {ok, SslSocket} = ssl:handshake_continue(HsSocket, []),
     {ok, SslSocket, Ext}.
 -else.
-accept(ListenSocket, Timeout) ->
-    {ok, Socket} = ssl:transport_accept(ListenSocket, Timeout),
+accept(ListenSocket) ->
+    {ok, Socket} = ssl:transport_accept(ListenSocket),
     ok = ssl:ssl_accept(Socket),
     {ok, Socket}.
 -endif.

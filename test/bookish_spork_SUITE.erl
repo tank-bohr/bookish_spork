@@ -101,7 +101,7 @@ stub_multiple_requests(_Config) ->
         {"http://localhost:32002/pulti", []}, [], [{body_format, binary}]),
     {ok, Request2} = bookish_spork:capture_request(),
     ?assertEqual("/pulti", bookish_spork_request:uri(Request2)),
-    ?assertMatch({error, _},
+    ?assertMatch({error, socket_closed_remotely},
         httpc:request(get, {"http://localhost:32002", []}, [], [{body_format, binary}])).
 
 stub_with_fun(_Config) ->
