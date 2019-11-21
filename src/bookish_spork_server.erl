@@ -32,8 +32,7 @@
     response_queue = queue:new() :: queue:queue(response()),
     request_queue                :: pid(),
     acceptor_sup                 :: pid(),
-    socket                       :: gen_tcp:socket() | ssl:sslsocket(),
-    transport                    :: gen_tcp | bookish_spork_ssl
+    listen_socket                :: bookish_spork_transport:listen()
 }).
 
 -type state() :: #state{}.
@@ -79,17 +78,12 @@ response(Server) ->
 %% @private
 init(Options) ->
     Port = proplists:get_value(port, Options, ?DEFAULT_PORT),
-    Transport = detect_transport(Options),
-    {ok, ListenSocket} = Transport:listen(Port, [
-        binary,
-        {packet, http},
-        {active, false},
-        {reuseaddr, true}
-    ]),
-    {ok, AcceptorSup} = bookish_spork_sup:start_acceptor_sup(self(), Transport, ListenSocket),
+    Mod = detect_transport(Options),
+    ListenSocket = bookish_spork_transport:listen(Mod, Port),
+    {ok, AcceptorSup} = bookish_spork_sup:start_acceptor_sup(self(), ListenSocket),
     {ok, RequestQueuePid} = bookish_spork_blocking_queue:start_link(),
     {ok, #state{request_queue = RequestQueuePid,
-        transport = Transport, socket = ListenSocket, acceptor_sup = AcceptorSup}}.
+        listen_socket = ListenSocket, acceptor_sup = AcceptorSup}}.
 
 -spec handle_call(
     {respond_with, bookish_spork_response:response()},
@@ -129,12 +123,11 @@ handle_info(_Info, State) ->
 %% @private
 terminate(_Reason, State) ->
     #state{
-        transport    = Transport,
-        socket       = ListenSocket,
-        acceptor_sup = AcceptorSup
+        listen_socket = ListenSocket,
+        acceptor_sup  = AcceptorSup
     } = State,
     ok = bookish_spork_sup:stop(AcceptorSup),
-    ok = Transport:close(ListenSocket).
+    ok = bookish_spork_transport:close(ListenSocket).
 
 %% @private
 detect_transport(Options) ->

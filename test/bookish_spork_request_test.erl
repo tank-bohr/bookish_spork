@@ -61,3 +61,9 @@ is_keepalive_test_() ->
     ?_assertEqual(true, bookish_spork_request:is_keepalive(Http10KeepAliveReq)),
     ?_assertEqual(false, bookish_spork_request:is_keepalive(ConnectionCloseReq)),
     ?_assertEqual(true, bookish_spork_request:is_keepalive(ReqularRequest))].
+
+transport_attribute_accessors_test_() ->
+    Attrs = [socket, ssl_info, tls_ext, connection_id, transport],
+    Dummy = [{A, A} || A <- Attrs],
+    Request = bookish_spork_request:new(Dummy),
+    [?_assertEqual(A, apply(bookish_spork_request, A, [Request])) || A <- Attrs].

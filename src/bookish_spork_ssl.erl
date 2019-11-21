@@ -1,5 +1,7 @@
 -module(bookish_spork_ssl).
 
+-behaviour(bookish_spork_transport).
+
 -export([
     listen/2,
     accept/2,

@@ -1,8 +1,8 @@
 -module(bookish_spork_sup).
 -export([
-    start_acceptor_sup/3,
-    start_handler_sup/2,
-    start_handler/4,
+    start_acceptor_sup/2,
+    start_handler_sup/1,
+    start_handler/2,
     stop/1
 ]).
 
@@ -23,18 +23,17 @@
     period    => 10
 }).
 
--spec start_acceptor_sup(Server, Transport, ListenSocket) -> {ok, pid()} when
+-spec start_acceptor_sup(Server, ListenSocket) -> {ok, pid()} when
     Server       :: pid(),
-    Transport    :: gen_tcp | bookish_spork_ssl,
-    ListenSocket :: term().
-start_acceptor_sup(Server, Transport, ListenSocket) ->
-    supervisor:start_link(?MODULE, {acceptor, [Server, Transport, ListenSocket]}).
+    ListenSocket :: bookish_spork_transport:listen().
+start_acceptor_sup(Server, ListenSocket) ->
+    supervisor:start_link(?MODULE, {acceptor, [Server, ListenSocket]}).
 
-start_handler_sup(Server, Transport) ->
-    supervisor:start_link(?MODULE, {handler, [Server, Transport]}).
+start_handler_sup(Server) ->
+    supervisor:start_link(?MODULE, {handler, [Server]}).
 
-start_handler(Sup, Socket, TlsExt, ConnectionId) ->
-    supervisor:start_child(Sup, [Socket, TlsExt, ConnectionId]).
+start_handler(Sup, Transport) ->
+    supervisor:start_child(Sup, [Transport]).
 
 stop(Sup) ->
     ok = gen_server:stop(Sup).
