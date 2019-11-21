@@ -80,7 +80,7 @@ init(Options) ->
     Port = proplists:get_value(port, Options, ?DEFAULT_PORT),
     Mod = detect_transport(Options),
     ListenSocket = bookish_spork_transport:listen(Mod, Port),
-    {ok, AcceptorSup} = bookish_spork_sup:start_acceptor_sup(self(), ListenSocket),
+    {ok, AcceptorSup} = bookish_spork_acceptor_sup:start_link(self(), ListenSocket),
     {ok, RequestQueuePid} = bookish_spork_blocking_queue:start_link(),
     {ok, #state{request_queue = RequestQueuePid,
         listen_socket = ListenSocket, acceptor_sup = AcceptorSup}}.
@@ -126,7 +126,7 @@ terminate(_Reason, State) ->
         listen_socket = ListenSocket,
         acceptor_sup  = AcceptorSup
     } = State,
-    ok = bookish_spork_sup:stop(AcceptorSup),
+    ok = gen_server:stop(AcceptorSup),
     ok = bookish_spork_transport:close(ListenSocket).
 
 %% @private
