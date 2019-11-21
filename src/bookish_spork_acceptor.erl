@@ -10,12 +10,10 @@
     init/1,
     handle_call/3,
     handle_cast/2,
-    handle_info/2,
-    terminate/2
+    handle_info/2
 ]).
 
 -record(state, {
-    sup           :: pid(),
     server        :: pid(),
     listen_socket :: bookish_spork_transport:listen()
 }).
@@ -35,10 +33,8 @@ start_link(Server, ListenSocket) ->
 
 %% @private
 init({Server, ListenSocket}) ->
-    {ok, Sup} = bookish_spork_sup:start_handler_sup(Server),
     accept(),
     {ok, #state{
-        sup = Sup,
         server = Server,
         listen_socket = ListenSocket
     }}.
@@ -48,8 +44,8 @@ handle_call(_Request, _From, State) ->
     {reply, {error, unknown_call}, State}.
 
 %% @private
-handle_cast(accept, #state{listen_socket = ListenSocket, sup = Sup} = State) ->
-    accept(ListenSocket, Sup),
+handle_cast(accept, #state{listen_socket = ListenSocket, server = Server} = State) ->
+    accept(ListenSocket, Server),
     {noreply, State};
 handle_cast(_Msg, State) ->
     {noreply, State}.
@@ -58,17 +54,13 @@ handle_cast(_Msg, State) ->
 handle_info(_Info, State) ->
     {noreply, State}.
 
-%% @private
-terminate(_Reason, #state{sup = Sup}) ->
-    bookish_spork_sup:stop(Sup).
-
 accept() ->
     gen_server:cast(self(), accept).
 
--spec accept(ListenSocket, Sup) -> ok when
+-spec accept(ListenSocket, Server) -> ok when
     ListenSocket :: bookish_spork_transport:listen(),
-    Sup          :: pid().
-accept(ListenSocket, Sup) ->
+    Server       :: pid().
+accept(ListenSocket, Server) ->
     Transport = bookish_spork_transport:accept(ListenSocket),
-    bookish_spork_sup:start_handler(Sup, Transport),
+    bookish_spork_handler:start_link(Server, Transport),
     accept().

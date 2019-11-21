@@ -1,7 +1,6 @@
 -module(bookish_spork_handler).
 
 -export([
-    child_spec/1,
     start_link/2
 ]).
 
@@ -15,27 +14,18 @@
 
 -record(state, {
     server    :: pid(),
-    transport :: bookish_spork_transport:t()
+    transport :: bookish_spork_transport:t(),
+    request   :: undefined | bookish_spork_request:t(),
+    response  :: undefined | bookish_spork_response:t() | bookish_spork:stub_request_fun()
 }).
 
 -type state() :: #state{}.
-
-child_spec(Args) ->
-    #{
-        id       => ?MODULE,
-        start    => {?MODULE, start_link, Args},
-        restart  => temporary,
-        shutdown => 5000,
-        type     => worker,
-        modules  => [?MODULE]
-    }.
 
 -spec start_link(Server, Transport) -> {ok, pid()} when
     Server       :: pid(),
     Transport    :: bookish_spork_transport:t().
 start_link(Server, Transport) ->
-    Args = {Server, Transport},
-    gen_server:start_link(?MODULE, Args, []).
+    gen_server:start_link(?MODULE, {Server, Transport}, []).
 
 -spec init({Server, Transport}) -> {ok, State} when
     State     :: state(),
@@ -43,7 +33,7 @@ start_link(Server, Transport) ->
     Transport :: bookish_spork_transport:t().
 %% @private
 init({Server, Transport}) ->
-    handle_connection(),
+    keepalive_loop(),
     {ok, #state{
         server    = Server,
         transport = Transport
@@ -54,8 +44,8 @@ handle_call(_Request, _From, State) ->
     {reply, {error, unknown_call}, State}.
 
 %% @private
-handle_cast(handle_connection, State) ->
-    handle_connection(State);
+handle_cast(keepalive_loop, State) ->
+    keepalive_loop(State);
 handle_cast(_Msg, State) ->
     {noreply, State}.
 
@@ -63,94 +53,95 @@ handle_cast(_Msg, State) ->
 handle_info(_Info, State) ->
     {noreply, State}.
 
--spec handle_connection() -> ok.
+-spec keepalive_loop() -> ok.
 %% @private
-handle_connection() ->
-    gen_server:cast(self(), handle_connection).
+keepalive_loop() ->
+    gen_server:cast(self(), keepalive_loop).
 
--spec handle_connection(state()) -> {noreply, state()} | {stop, normal, state()}.
+-spec keepalive_loop(state()) -> {noreply, state()} | {stop, normal, state()}.
 %% @private
-handle_connection(#state{transport = Transport, server = Server} = State) ->
-    case receive_request(State) of
-        {ok, Request} ->
-            ok = bookish_spork_server:store_request(Server, Request),
-            case bookish_spork_server:response(Server) of
-                {ok, Response} ->
-                    reply(Transport, Response, Request),
-                    complete_connection(State, Request);
-                {error, no_response} ->
-                    bookish_spork_transport:close(Transport),
-                    {stop, normal, State}
+keepalive_loop(State) ->
+    reduce_while(State, [
+        fun reset/1,
+        fun receive_request/1,
+        fun store_request/1,
+        fun pick_response/1,
+        fun reply/1,
+        fun complete_connection/1
+    ]).
 
-            end;
-        socket_closed ->
-            {stop, normal, State}
-    end.
-
--spec complete_connection(State, Request) -> {noreply, State} | {stop, normal, State} when
-    State   :: state(),
-    Request :: bookish_spork_request:t().
-%% @private
-complete_connection(#state{transport = Transport} = State, Request) ->
-    case bookish_spork_request:is_keepalive(Request) of
-        true ->
-            handle_connection(),
-            {noreply, State};
-        false ->
-            bookish_spork_transport:shutdown(Transport),
-            {stop, normal, State}
-    end.
-
--spec receive_request(State :: state()) -> Result when
-    Result :: {ok, Request} | socket_closed,
-    Request :: bookish_spork_request:t().
-%% @private
-receive_request(#state{transport = Transport}) ->
+reset(#state{server = Server, transport = Transport}) ->
     Request = bookish_spork_request:from_transport(Transport),
-    read_from_socket(Transport, Request).
+    {cont, #state{
+        server    = Server,
+        request   = Request,
+        transport = Transport
+    }}.
 
--spec read_from_socket(Transport, RequestIn) -> Result when
-    Transport  :: bookish_spork_transport:t(),
-    RequestIn  :: bookish_spork_request:t(),
-    Result     :: {ok, RequestOut} | socket_closed,
-    RequestOut :: bookish_spork_request:t().
+-spec receive_request(state()) -> {cont, state()} | {halt, normal}.
 %% @private
-read_from_socket(Transport, RequestIn) ->
+receive_request(#state{transport = Transport, request = RequestIn} = State) ->
     case bookish_spork_transport:recv(Transport) of
         {ok, {http_request, Method, {abs_path, Uri}, Version}} ->
             RequestOut = bookish_spork_request:request_line(RequestIn, Method, Uri, Version),
-            read_from_socket(Transport, RequestOut);
+            ?FUNCTION_NAME(State#state{request = RequestOut});
         {ok, {http_header, _, Header, _, Value}} ->
             RequestOut = bookish_spork_request:add_header(RequestIn, Header, Value),
-            read_from_socket(Transport, RequestOut);
+            ?FUNCTION_NAME(State#state{request = RequestOut});
         {ok, http_eoh} ->
-            Body = read_body(Transport, bookish_spork_request:content_length(RequestIn)),
+            ContentLength = bookish_spork_request:content_length(RequestIn),
+            Body = bookish_spork_transport:read_raw(Transport, ContentLength),
             RequestOut = bookish_spork_request:body(RequestIn, Body),
-            {ok, RequestOut};
+            {cont, State#state{request = RequestOut}};
         {ok, {http_error, HttpError}} ->
             erlang:error({http_error, HttpError}, [Transport, RequestIn]);
         {error, closed} ->
-            socket_closed;
+            {halt, normal};
         {error, enotconn} ->
-            socket_closed
+            {halt, normal}
     end.
 
--spec read_body(Transport, ContentLength) -> Body when
-    Transport     :: bookish_spork_transport:t(),
-    ContentLength :: non_neg_integer(),
-    Body          :: binary().
-%% @private
-read_body(Transport, ContentLength) ->
-    bookish_spork_transport:read_raw(Transport, ContentLength).
+store_request(#state{server = Server, request = Request} = State) ->
+    bookish_spork_server:store_request(Server, Request),
+    {cont, State}.
 
--spec reply(Transport, Response, Request) -> ok when
-    Transport :: bookish_spork_transport:t(),
-    Response  :: bookish_spork:stub_request_fun() | bookish_spork_response:t(),
-    Request   :: bookish_spork_request:t().
+pick_response(#state{server = Server, transport = Transport} = State) ->
+    case bookish_spork_server:response(Server) of
+        {ok, Response} ->
+            {cont, State#state{response = Response}};
+        {error, no_response} ->
+            bookish_spork_transport:close(Transport),
+            {halt, normal}
+    end.
+
+-spec reply(state()) -> {cont, state()}.
 %% @private
-reply(Transport, ResponseFun, Request) when is_function(ResponseFun) ->
+reply(State = #state{request = Request, response = ResponseFun}) when is_function(ResponseFun) ->
     Response = ResponseFun(Request),
-    reply(Transport, bookish_spork_response:new(Response), Request);
-reply(Transport, Response, _Request) ->
+    ?FUNCTION_NAME(State#state{response = bookish_spork_response:new(Response)});
+reply(State = #state{transport = Transport, response = Response}) ->
     String = bookish_spork_response:write_str(Response, calendar:universal_time()),
-    bookish_spork_transport:send(Transport, [String]).
+    bookish_spork_transport:send(Transport, [String]),
+    {cont, State}.
+
+-spec complete_connection(state()) -> {cont, state()} | {halt, normal}.
+%% @private
+complete_connection(State = #state{transport = Transport, request = Request}) ->
+    case bookish_spork_request:is_keepalive(Request) of
+        true ->
+            keepalive_loop(),
+            {cont, State};
+        false ->
+            bookish_spork_transport:shutdown(Transport),
+            {halt, normal}
+    end.
+
+reduce_while(State, []) ->
+    {noreply, State};
+reduce_while(State, [Fun|Rest]) ->
+    case Fun(State) of
+        {cont, NewState} ->
+            reduce_while(NewState, Rest);
+        {halt, Reason} ->
+            {stop, Reason, State}
+    end.

@@ -38,9 +38,8 @@
     Result       :: {ok, ListenSocket} | {error, Reason},
     ListenSocket :: socket(),
     Reason       :: system_limit | inet:posix().
--callback accept(ListenSocket, Timeout) -> Result when
+-callback accept(ListenSocket) -> Result when
     ListenSocket :: socket(),
-    Timeout      :: timeout(),
     Result       :: {ok, Socket} | {ok, Socket, Ext} | {error, Reason},
     Socket       :: socket(),
     Ext          :: ssl:protocol_extensions(),
@@ -74,7 +73,6 @@
     {active, false},
     {reuseaddr, true}
 ]).
--define(ACCEPT_TIMEOUT, 5000).
 -define(IS_SSL_SOCKET(Socket), is_tuple(Socket) andalso element(1, Socket) =:= sslsocket).
 
 -spec listen(callback_module(), inet:port_number()) -> listen().
@@ -84,7 +82,7 @@ listen(Module, Port) ->
 
 -spec accept(listen()) -> t().
 accept(#listen{socket = ListenSocket, module = Module}) ->
-    case Module:accept(ListenSocket, ?ACCEPT_TIMEOUT) of
+    case Module:accept(ListenSocket) of
         {ok, Socket, Ext} ->
             #transport{id = generate_id(), module = Module, socket = Socket, ssl_ext = Ext};
         {ok, Socket} ->
