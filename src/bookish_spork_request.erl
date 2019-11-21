@@ -7,7 +7,7 @@
 
 -export([
     new/0,
-    new/3,
+    from_transport/1,
     request_line/4,
     add_header/3,
     content_length/1,
@@ -22,10 +22,11 @@
     headers/1,
     body/1,
     body/2,
+    socket/1,
     ssl_info/1,
     tls_ext/1,
     connection_id/1,
-    socket/1
+    transport/1
 ]).
 
 -type http_version() :: {
@@ -33,19 +34,18 @@
     Minor :: integer()
 }.
 
--type socket() :: gen_tcp:socket() | ssl:sslsocket().
-
 -opaque t() :: #{
     '__struct__'  := ?MODULE,
     connection_id := nil | binary(),
-    socket        := nil | gen_tcp:socket() | ssl:sslsocket(),
+    socket        := nil | bookish_spork_transport:socket(),
     method        := nil | atom(),
     uri           := nil | string(),
     version       := nil | http_version(),
     headers       := map(),
     body          := nil | binary(),
     ssl_info      := nil | proplists:proplist(),
-    tls_ext       := nil | ssl:protocol_extensions()
+    tls_ext       := nil | ssl:protocol_extensions(),
+    transport     := nil | bookish_spork_transport:t()
 }.
 
 -export_type([
@@ -75,7 +75,8 @@ new() ->
         headers => #{},
         body => nil,
         ssl_info => nil,
-        tls_ext => nil
+        tls_ext => nil,
+        transport => nil
     }.
 
 -spec new(From :: list() | map() | ssl:sslsocket()) -> t().
@@ -85,24 +86,15 @@ new(List) when is_list(List) ->
 new(Map) when is_map(Map) ->
     maps:fold(fun maps:update/3, new(), Map).
 
--spec new(ConnectionId, Socket, TlsExt) -> Request when
-    ConnectionId :: binary(),
-    Socket :: socket(),
-    TlsExt :: undefined | nil | ssl:protocol_extensions(),
-    Request :: t().
-%% @doc creates request with ssl info if socket is an ssl socket
-new(ConnectionId, Socket, undefined) ->
-    new(ConnectionId, Socket, nil);
-new(ConnectionId, Socket, TlsExt) when is_tuple(Socket) andalso element(1, Socket) =:= sslsocket ->
-    {ok, Info} = ssl:connection_information(Socket),
+-spec from_transport(bookish_spork_transport:t()) -> t().
+from_transport(Transport) ->
     maps:merge(new(), #{
-        connection_id => ConnectionId,
-        socket => Socket,
-        ssl_info => Info,
-        tls_ext => TlsExt
-    });
-new(ConnectionId, Socket, _) ->
-    maps:merge(new(), #{connection_id => ConnectionId, socket => Socket}).
+        connection_id => bookish_spork_transport:connection_id(Transport),
+        socket        => bookish_spork_transport:socket(Transport),
+        ssl_info      => bookish_spork_transport:ssl_info(Transport),
+        tls_ext       => bookish_spork_transport:ssl_ext(Transport),
+        transport     => Transport
+    }).
 
 -spec request_line(
     Request :: t(),
@@ -182,10 +174,13 @@ tls_ext(#{ tls_ext := TlsExt }) ->
 connection_id(#{ connection_id := ConnectionId }) ->
     ConnectionId.
 
--spec socket(Request :: t()) -> socket().
+-spec socket(Request :: t()) -> bookish_spork_transport:socket().
 %% @private
 socket(#{ socket := Socket }) ->
     Socket.
+
+transport(#{transport := Transport}) ->
+    Transport.
 
 -spec is_keepalive(Request :: t()) -> boolean().
 %% @doc tells you if the request is keepalive or not [https://tools.ietf.org/html/rfc6223]

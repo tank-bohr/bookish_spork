@@ -2,7 +2,7 @@
 
 -export([
     child_spec/1,
-    start_link/3
+    start_link/2
 ]).
 
 -behaviour(gen_server).
@@ -15,10 +15,9 @@
 ]).
 
 -record(state, {
-    server    :: pid(),
-    transport :: gen_tcp | bookish_spork_ssl,
-    socket    :: gen_tcp:socket() | ssl:sslsocket(),
-    sup       :: pid()
+    sup           :: pid(),
+    server        :: pid(),
+    listen_socket :: bookish_spork_transport:listen()
 }).
 
 child_spec(Args) ->
@@ -31,18 +30,17 @@ child_spec(Args) ->
         modules  => [?MODULE]
     }.
 
-start_link(Server, Transport, ListenSocket) ->
-    gen_server:start_link(?MODULE, {Server, Transport, ListenSocket}, []).
+start_link(Server, ListenSocket) ->
+    gen_server:start_link(?MODULE, {Server, ListenSocket}, []).
 
 %% @private
-init({Server, Transport, ListenSocket}) ->
-    {ok, Sup} = bookish_spork_sup:start_handler_sup(Server, Transport),
+init({Server, ListenSocket}) ->
+    {ok, Sup} = bookish_spork_sup:start_handler_sup(Server),
     accept(),
     {ok, #state{
+        sup = Sup,
         server = Server,
-        transport = Transport,
-        socket = ListenSocket,
-        sup = Sup
+        listen_socket = ListenSocket
     }}.
 
 %% @private
@@ -50,8 +48,8 @@ handle_call(_Request, _From, State) ->
     {reply, {error, unknown_call}, State}.
 
 %% @private
-handle_cast(accept, #state{transport = Transport, socket = Socket, sup = Sup} = State) ->
-    accept(Transport, Socket, Sup),
+handle_cast(accept, #state{listen_socket = ListenSocket, sup = Sup} = State) ->
+    accept(ListenSocket, Sup),
     {noreply, State};
 handle_cast(_Msg, State) ->
     {noreply, State}.
@@ -67,20 +65,10 @@ terminate(_Reason, #state{sup = Sup}) ->
 accept() ->
     gen_server:cast(self(), accept).
 
-accept(Transport, ListenSocket, Sup) ->
-    {Socket, TlsExt} = case Transport:accept(ListenSocket, 5000) of
-        {ok, Sock, Ext} ->
-            {Sock, Ext};
-        {ok, Sock} ->
-            {Sock, undefined}
-    end,
-    ConnectionId = generate_id(),
-    bookish_spork_sup:start_handler(Sup, Socket, TlsExt, ConnectionId),
+-spec accept(ListenSocket, Sup) -> ok when
+    ListenSocket :: bookish_spork_transport:listen(),
+    Sup          :: pid().
+accept(ListenSocket, Sup) ->
+    Transport = bookish_spork_transport:accept(ListenSocket),
+    bookish_spork_sup:start_handler(Sup, Transport),
     accept().
-
--spec generate_id() -> Id :: binary().
-%% @doc generates unique id to be a connection id
-generate_id() ->
-    Bytes = crypto:strong_rand_bytes(7),
-    Base64 = base64:encode(Bytes),
-    string:trim(Base64, trailing, "=").
