@@ -14,7 +14,9 @@
     stub_request/1,
     stub_request/2,
     capture_request/0,
-    capture_request/1
+    capture_request/1,
+    capture_requests/0,
+    capture_requests/1
 ]).
 
 -define(DEFAULT_STATUS, 204).
@@ -87,13 +89,36 @@ stub_request(Fun, Times) when is_function(Fun) ->
 stub_request(Response, Times) ->
     bookish_spork_server:respond_with(bookish_spork_response:new(Response), Times).
 
+%% @equiv capture_request(0)
 -spec capture_request() -> {ok, Request :: bookish_spork_request:t()} | {error, Error :: term()}.
 capture_request() ->
     capture_request(_Timeout = 0).
 
+%% @doc retrieve request which was sent to server
 -spec capture_request(Timeout) -> {ok, Request} | {error, Error} when
     Error :: term(),
     Request :: bookish_spork_request:t(),
     Timeout :: non_neg_integer().
 capture_request(Timeout) ->
     bookish_spork_server:retrieve_request(Timeout).
+
+%% @equiv capture_requests(0)
+-spec capture_requests() -> [Request] when
+    Request :: bookish_spork_request:t().
+capture_requests() ->
+    capture_requests(_Timeout = 0).
+
+%% @doc retrieve all requests which were sent to server
+-spec capture_requests(Timeout) -> [Request] when
+    Request :: bookish_spork_request:t(),
+    Timeout :: non_neg_integer().
+capture_requests(Timeout) ->
+    capture_requests(Timeout, []).
+
+capture_requests(Timeout, Acc) ->
+    case capture_request(Timeout) of
+        {ok, Request} ->
+            capture_requests(Timeout, [Request | Acc]);
+        {error, no_request} ->
+            lists:reverse(Acc)
+    end.

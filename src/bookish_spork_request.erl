@@ -39,7 +39,7 @@
     connection_id := nil | binary(),
     socket        := nil | bookish_spork_transport:socket(),
     method        := nil | atom(),
-    uri           := nil | string(),
+    uri           := nil | binary(),
     version       := nil | http_version(),
     headers       := map(),
     body          := nil | binary(),
@@ -104,7 +104,11 @@ from_transport(Transport) ->
 ) -> t().
 %% @private
 request_line(Request, Method, Uri, Version) ->
-    maps:merge(Request, #{ method => Method, uri => Uri, version => Version }).
+    maps:merge(Request, #{
+        uri => list_to_binary(Uri),
+        method => Method,
+        version => Version
+    }).
 
 -spec add_header(Request :: t(), Name :: string(), Value :: string()) -> t().
 %% @private
@@ -129,12 +133,12 @@ content_length(Request) ->
 method(#{ method := Method}) ->
     Method.
 
--spec uri(Request :: t()) -> string().
+-spec uri(Request :: t()) -> binary() | nil.
 %% @doc path with query string
 uri(#{ uri := Uri}) ->
     Uri.
 
--spec version(Request :: t()) -> string() | nil.
+-spec version(Request :: t()) -> tuple() | nil.
 %% @doc http protocol version tuple. Most often would be `{1, 1}'
 version(#{ version := Version }) ->
     Version.

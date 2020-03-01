@@ -125,6 +125,8 @@ connection_id(#transport{id = Id}) ->
     Id.
 
 -spec ssl_ext(t()) -> undefined | ssl:protocol_extensions().
+ssl_ext(#transport{ssl_ext = undefined}) ->
+    nil;
 ssl_ext(#transport{ssl_ext = Ext}) ->
     Ext.
 

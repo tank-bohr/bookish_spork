@@ -20,14 +20,14 @@ new_test_() ->
     ]),
     Map = #{
         method => Method,
-        uri => Uri,
+        uri => list_to_binary(Uri),
         version => Version,
         headers => #{"x-foo" => "Bar"},
         body => Body
     },
     List = [
         {method, Method},
-        {uri, Uri},
+        {uri, list_to_binary(Uri)},
         {version, Version},
         {headers, #{"x-foo" => "Bar"}},
         {body, Body}
