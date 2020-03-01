@@ -1,0 +1,39 @@
+name: Erlang CI
+
+on:
+  push:
+  schedule:
+    - cron: '0 1 1 * *'
+
+jobs:
+
+  tests:
+
+    runs-on: ubuntu-latest
+    name: OTP ${{ matrix.otp }}
+    strategy:
+      matrix:
+        otp: [20.3, 21.3, 22.2]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: gleam-lang/setup-erlang@v1.0.0
+        with:
+          otp-version: ${{ matrix.otp }}
+
+      - name: Run tests
+        run: rebar3 do eunit, ct, dialyzer
+
+      - name: Run elvis
+        run: rebar3 as elvis lint
+
+      - name: Generate report for codecov
+        run: rebar3 as test covertool generate
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: _build/test/covertool/bookish_spork.covertool.xml
+          fail_ci_if_error: true
