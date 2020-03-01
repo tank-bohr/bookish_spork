@@ -15,27 +15,33 @@
     base_integration_test/1,
     customized_response_test/1,
     failed_capture_test/1,
-    stub_multiple_requests/1,
-    stub_with_fun/1,
+    stub_multiple_requests_test/1,
+    stub_with_fun_test/1,
     ssl_test/1,
     tls_ext_test/1,
-    keepalive_connection/1,
-    without_keepalive/1,
-    connection_id/1,
-    request_when_there_is_no_stub/1,
-    http_error/1,
-    wait_for_async_request_completed/1,
-    multiple_async_requests/1,
-    multiple_async_with_closed_connection_requests/1
+    keepalive_connection_test/1,
+    without_keepalive_test/1,
+    connection_id_test/1,
+    request_when_there_is_no_stub_test/1,
+    http_error_test/1,
+    wait_for_async_request_completed_test/1,
+    multiple_async_requests_test/1,
+    multiple_async_with_closed_connection_requests_test/1,
+    capture_requests_test/1
 ]).
 
 -define(CUSTOM_PORT, 9871).
+-define(HTTPC_SUCCESS(Status), {ok, {{_, Status, _}, _, _}}).
+-define(HTTPC_OK, ?HTTPC_SUCCESS(200)).
+-define(HTTPC_NO_CONTENT, ?HTTPC_SUCCESS(204)).
 
 all() ->
     [base_integration_test, customized_response_test, failed_capture_test,
-    stub_multiple_requests, stub_with_fun, keepalive_connection, without_keepalive,
-    ssl_test, tls_ext_test, connection_id, request_when_there_is_no_stub, http_error,
-    wait_for_async_request_completed, multiple_async_requests, multiple_async_with_closed_connection_requests].
+    stub_multiple_requests_test, stub_with_fun_test, keepalive_connection_test,
+    without_keepalive_test, ssl_test, tls_ext_test, connection_id_test,
+    request_when_there_is_no_stub_test, http_error_test,
+    wait_for_async_request_completed_test, multiple_async_requests_test,
+    multiple_async_with_closed_connection_requests_test, capture_requests_test].
 
 init_per_suite(Config) ->
     ok = application:ensure_started(inets),
@@ -63,7 +69,7 @@ base_integration_test(_Config) ->
       httpc:request(get, {"http://localhost:32002/o/lo/lo?q=kjk", RequestHeaders}, [], []),
     {ok, Request} = bookish_spork:capture_request(),
     ?assertEqual('GET', bookish_spork_request:method(Request)),
-    ?assertEqual("/o/lo/lo?q=kjk", bookish_spork_request:uri(Request)),
+    ?assertEqual(<<"/o/lo/lo?q=kjk">>, bookish_spork_request:uri(Request)),
     ?assertEqual({1, 1}, bookish_spork_request:version(Request)),
     ?assertMatch(#{"host" := "localhost:32002"}, bookish_spork_request:headers(Request)).
 
@@ -83,7 +89,7 @@ customized_response_test(Config) ->
     ?assertEqual(<<"Hello, Test">>, string:chomp(Body)),
     {ok, Request} = bookish_spork:capture_request(),
     ?assertEqual('POST', bookish_spork_request:method(Request)),
-    ?assertEqual("/api/v1/users", bookish_spork_request:uri(Request)),
+    ?assertEqual(<<"/api/v1/users">>, bookish_spork_request:uri(Request)),
     ?assertEqual({1, 1}, bookish_spork_request:version(Request)),
     ?assertEqual(RequestBody, bookish_spork_request:body(Request)),
     ?assertMatch(#{"accept" := "text/plain"}, bookish_spork_request:headers(Request)).
@@ -91,20 +97,20 @@ customized_response_test(Config) ->
 failed_capture_test(_Config) ->
     ?assertMatch({error, _}, bookish_spork:capture_request(), "Got an error when there is no stub").
 
-stub_multiple_requests(_Config) ->
+stub_multiple_requests_test(_Config) ->
     bookish_spork:stub_request([200, #{}, <<"Multi-pulti">>], _Times = 2),
     {ok, {{"HTTP/1.1", 200, "OK"}, _, Body}} = httpc:request(get,
         {"http://localhost:32002/multi", []}, [], [{body_format, binary}]),
     {ok, Request1} = bookish_spork:capture_request(),
-    ?assertEqual("/multi", bookish_spork_request:uri(Request1)),
+    ?assertEqual(<<"/multi">>, bookish_spork_request:uri(Request1)),
     {ok, {{"HTTP/1.1", 200, "OK"}, _, Body}} = httpc:request(get,
         {"http://localhost:32002/pulti", []}, [], [{body_format, binary}]),
     {ok, Request2} = bookish_spork:capture_request(),
-    ?assertEqual("/pulti", bookish_spork_request:uri(Request2)),
+    ?assertEqual(<<"/pulti">>, bookish_spork_request:uri(Request2)),
     ?assertMatch({error, socket_closed_remotely},
         httpc:request(get, {"http://localhost:32002", []}, [], [{body_format, binary}])).
 
-stub_with_fun(_Config) ->
+stub_with_fun_test(_Config) ->
     bookish_spork:stub_request(fun response/1, _Times = 2),
     {ok, {{"HTTP/1.1", 200, "OK"}, _, WalrusBody}} = httpc:request(get,
         {"http://localhost:32002/walrus", []}, [], [{body_format, binary}]),
@@ -143,7 +149,7 @@ tls_ext_test(_Config) ->
     {skip, "Nothing to test"}.
 -endif.
 
-keepalive_connection(_Config) ->
+keepalive_connection_test(_Config) ->
     bookish_spork:stub_request([200, #{}, <<"OK1">>]),
     bookish_spork:stub_request([200, #{}, <<"OK2">>]),
     bookish_spork:stub_request([200, #{}, <<"OK3">>]),
@@ -155,14 +161,14 @@ keepalive_connection(_Config) ->
     ?assertEqual(<<"OK3">>, gun_request(ConnectionPid2)),
     ok = gun:close(ConnectionPid2).
 
-without_keepalive(_Config) ->
+without_keepalive_test(_Config) ->
     bookish_spork:stub_request([204, #{}, <<>>], _Times = 2),
     {ok, {{"HTTP/1.1", 204, "No Content"}, _, _}} = httpc:request(get,
         {"http://localhost:32002", [{"Connection", "close"}]}, [], [{body_format, binary}]),
     {ok, {{"HTTP/1.1", 204, "No Content"}, _, _}} = httpc:request(get,
         {"http://localhost:32002", [{"Connection", "close"}]}, [], [{body_format, binary}]).
 
-connection_id(_Config) ->
+connection_id_test(_Config) ->
     ok = bookish_spork:stub_request([200, #{}, <<"OK1">>]),
     ok = bookish_spork:stub_request([200, #{}, <<"OK2">>]),
     ok = bookish_spork:stub_request([200, #{}, <<"OK3">>]),
@@ -180,30 +186,30 @@ connection_id(_Config) ->
     ?assert(bookish_spork_request:socket(Req1) =:= bookish_spork_request:socket(Req2)),
     ?assert(bookish_spork_request:socket(Req1) =/= bookish_spork_request:socket(Req3)).
 
-request_when_there_is_no_stub(_Config) ->
+request_when_there_is_no_stub_test(_Config) ->
     NoStub = httpc:request(get, {"http://localhost:32002/no_stub", []}, [], []),
     ?assertMatch({error, _}, NoStub),
     ok = bookish_spork:stub_request(),
     Stubbed = httpc:request(get, {"http://localhost:32002/stubbed", []}, [], []),
-    ?assertMatch({ok, {{_, 204, _}, _, _}}, Stubbed).
+    ?assertMatch(?HTTPC_NO_CONTENT, Stubbed).
 
-http_error(_Config) ->
+http_error_test(_Config) ->
     Error = httpc:request(get, {"https://localhost:32002/ssl", []}, [], []),
     ?assertMatch({error, {failed_connect, _}}, Error),
     ok = bookish_spork:stub_request(),
     Stubbed = httpc:request(get, {"http://localhost:32002/stubbed", []}, [], []),
-    ?assertMatch({ok, {{_, 204, _}, _, _}}, Stubbed).
+    ?assertMatch(?HTTPC_NO_CONTENT, Stubbed).
 
-wait_for_async_request_completed(_Config) ->
+wait_for_async_request_completed_test(_Config) ->
     ok = bookish_spork:stub_request(),
     spawn_link(fun() ->
         ct:sleep(500),
         {ok, _} = httpc:request(get, {"http://localhost:32002/async", []}, [], [])
     end),
     {ok, Req} = bookish_spork:capture_request(4000),
-    ?assertMatch("/async", bookish_spork_request:uri(Req)).
+    ?assertMatch(<<"/async">>, bookish_spork_request:uri(Req)).
 
-multiple_async_requests(_Config) ->
+multiple_async_requests_test(_Config) ->
     ok = bookish_spork:stub_request([200, #{}, <<>>], 2),
     spawn_link(fun() -> httpc:request(get, {"http://localhost:32002/one", []}, [], []) end),
     spawn_link(fun() -> httpc:request(get, {"http://localhost:32002/two", []}, [], []) end),
@@ -211,13 +217,20 @@ multiple_async_requests(_Config) ->
     {ok, _} = bookish_spork:capture_request(500),
     {error, no_request} = bookish_spork:capture_request(500).
 
-multiple_async_with_closed_connection_requests(_Config) ->
+multiple_async_with_closed_connection_requests_test(_Config) ->
     ok = bookish_spork:stub_request([200, #{}, <<>>], 2),
     spawn_link(fun() -> httpc:request(get, {"http://localhost:32002/one", [{"Connection", "close"}]}, [], []) end),
     spawn_link(fun() -> httpc:request(get, {"http://localhost:32002/two", [{"Connection", "close"}]}, [], []) end),
     {ok, _} = bookish_spork:capture_request(500),
     {ok, _} = bookish_spork:capture_request(500),
     {error, no_request} = bookish_spork:capture_request(500).
+
+capture_requests_test(_Config) ->
+    ok = bookish_spork:stub_request([200, #{}, <<>>], 2),
+    ?HTTPC_OK = httpc:request(get, {"http://localhost:32002/one", [{"Connection", "close"}]}, [], []),
+    ?HTTPC_OK = httpc:request(get, {"http://localhost:32002/two", [{"Connection", "close"}]}, [], []),
+    Requests = bookish_spork:capture_requests(),
+    ?assertEqual([<<"/one">>, <<"/two">>], [bookish_spork_request:uri(Req) || Req <- Requests]).
 
 gun_request(ConnectionPid) ->
     StreamRef = gun:get(ConnectionPid, "/"),
@@ -226,7 +239,7 @@ gun_request(ConnectionPid) ->
 
 response(Request) ->
     Body = case bookish_spork_request:uri(Request) of
-        "/walrus" ->
+        <<"/walrus">> ->
             <<"Walrus">>;
         _ ->
             <<"Unknown">>
