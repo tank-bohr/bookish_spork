@@ -7,4 +7,4 @@ mkdir -p ~/.config/rebar3
 echo '{plugins, [{rebar3_hex, ">= 6.9.3"}]}.' > ~/.config/rebar3/rebar.config
 
 rebar3 hex publish --yes --repo=hexpm
-rebar3 hex docs
+rebar3 hex docs --repo=hexpm
