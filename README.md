@@ -2,9 +2,9 @@
 
 # Bookish spork #
 
-Copyright (c) 2018-2019 Alexey Nikitin
+Copyright (c) 2018-2020 Alexey Nikitin
 
-__Version:__ 0.3.5
+__Version:__ 0.3.6
 
 __Authors:__ Alexey Nikitin ([`tank@bohr.su`](mailto:tank@bohr.su)) (_web site:_ [`https://twitter.com/tank_bohr`](https://twitter.com/tank_bohr)).
 
@@ -14,10 +14,10 @@ An erlang library to test http requests. Inspired by Ruby's [WebMock](https://gi
 
 Suitable for Elixir.
 
-[![Build Status](https://travis-ci.org/tank-bohr/bookish_spork.svg?branch=master)
-](https://travis-ci.org/tank-bohr/bookish_spork)
-[![Coverage Status](https://coveralls.io/repos/github/tank-bohr/bookish_spork/badge.svg?branch=master)
-](https://coveralls.io/github/tank-bohr/bookish_spork?branch=master)
+[![Erlang CI](https://github.com/tank-bohr/bookish_spork/workflows/Erlang%20CI/badge.svg)
+](https://github.com/tank-bohr/bookish_spork/actions)
+[![codecov](https://codecov.io/gh/tank-bohr/bookish_spork/branch/master/graph/badge.svg)
+](https://codecov.io/gh/tank-bohr/bookish_spork)
 [![Hex.pm](https://img.shields.io/hexpm/v/bookish_spork.svg)
 ](https://hex.pm/packages/bookish_spork)
 [![Gitter](https://badges.gitter.im/join.svg)
@@ -52,7 +52,7 @@ First step: add to your rebar config
 {profiles, [
     {test, [
         {deps, [
-            {bookish_spork, "0.3.5"}
+            {bookish_spork, "0.3.6"}
         ]}
     ]}
 ]}.
@@ -253,6 +253,7 @@ For more details see examples dir.
 <table width="100%" border="0" summary="list of modules">
 <tr><td><a href="http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork.md" class="module">bookish_spork</a></td></tr>
 <tr><td><a href="http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_acceptor.md" class="module">bookish_spork_acceptor</a></td></tr>
+<tr><td><a href="http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_acceptor_sup.md" class="module">bookish_spork_acceptor_sup</a></td></tr>
 <tr><td><a href="http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_blocking_queue.md" class="module">bookish_spork_blocking_queue</a></td></tr>
 <tr><td><a href="http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_format.md" class="module">bookish_spork_format</a></td></tr>
 <tr><td><a href="http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_handler.md" class="module">bookish_spork_handler</a></td></tr>
@@ -260,5 +261,5 @@ For more details see examples dir.
 <tr><td><a href="http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_response.md" class="module">bookish_spork_response</a></td></tr>
 <tr><td><a href="http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_server.md" class="module">bookish_spork_server</a></td></tr>
 <tr><td><a href="http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_ssl.md" class="module">bookish_spork_ssl</a></td></tr>
-<tr><td><a href="http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_sup.md" class="module">bookish_spork_sup</a></td></tr></table>
+<tr><td><a href="http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_transport.md" class="module">bookish_spork_transport</a></td></tr></table>
 

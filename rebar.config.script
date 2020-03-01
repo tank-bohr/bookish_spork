@@ -1,12 +1,3 @@
-Config1 = case os:getenv("TRAVIS") of
-    "true" ->
-        %% Adjust coverall config
-        JobId = os:getenv("TRAVIS_JOB_ID"),
-        lists:keystore(coveralls_service_job_id, 1, CONFIG, {coveralls_service_job_id, JobId});
-    _ ->
-        CONFIG
-end,
-
 %% Add logo and year to Copyright
 LogoBin = case file:read_file("logo.svg") of
     {ok, Bin} ->
@@ -15,20 +6,20 @@ LogoBin = case file:read_file("logo.svg") of
         <<>>
 end,
 {{Year, _, _}, _} = calendar:universal_time(),
-EdocOpts0 = proplists:get_value(edoc_opts, Config1),
+EdocOpts0 = proplists:get_value(edoc_opts, CONFIG),
 EdocOpts1 = [
     {def, {logo, binary_to_list(LogoBin)}} | [
     {def, {years, "2018-" ++ integer_to_list(Year)}} |
     EdocOpts0
 ]],
-Config2 = lists:keyreplace(edoc_opts, 1, Config1, {edoc_opts, EdocOpts1}),
+Config = lists:keyreplace(edoc_opts, 1, CONFIG, {edoc_opts, EdocOpts1}),
 
 %% Add version number for edoc
-Config3 = case os:cmd("git tag | tail -1") of
+case os:cmd("git tag | tail -1") of
     [$v | Version0] ->
         Version = string:trim(Version0, both, "\n"),
         EdocOpts2 = [{def, {version, Version}} | EdocOpts1],
-        lists:keyreplace(edoc_opts, 1, Config2, {edoc_opts, EdocOpts2});
+        lists:keyreplace(edoc_opts, 1, Config, {edoc_opts, EdocOpts2});
     _ ->
-        Config2
+        Config
 end.

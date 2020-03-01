@@ -11,7 +11,7 @@ __Behaviours:__ [`gen_server`](gen_server.md).
 ## Function Index ##
 
 
-<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#child_spec-1">child_spec/1</a></td><td></td></tr><tr><td valign="top"><a href="#start_link-3">start_link/3</a></td><td></td></tr></table>
+<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#child_spec-1">child_spec/1</a></td><td></td></tr><tr><td valign="top"><a href="#start_link-2">start_link/2</a></td><td></td></tr></table>
 
 
 <a name="functions"></a>
@@ -24,9 +24,9 @@ __Behaviours:__ [`gen_server`](gen_server.md).
 
 `child_spec(Args) -> any()`
 
-<a name="start_link-3"></a>
+<a name="start_link-2"></a>
 
-### start_link/3 ###
+### start_link/2 ###
 
-`start_link(Server, Transport, ListenSocket) -> any()`
+`start_link(Server, ListenSocket) -> any()`
 

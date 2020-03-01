@@ -15,12 +15,13 @@ An erlang library to test http requests. Inspired by Ruby's <a target="_blank" h
 
 Suitable for Elixir.
 
-<a target="_blank" href="https://travis-ci.org/tank-bohr/bookish_spork">
-  <img alt="Build Status" src="https://travis-ci.org/tank-bohr/bookish_spork.svg?branch=master"/>
+
+<a target="_blank" href="https://github.com/tank-bohr/bookish_spork/actions">
+  <img alt="Erlang CI" src="https://github.com/tank-bohr/bookish_spork/workflows/Erlang%20CI/badge.svg"/>
 </a>
-<a target="_blank" href="https://coveralls.io/github/tank-bohr/bookish_spork?branch=master">
-  <img alt="Coverage Status"
-       src="https://coveralls.io/repos/github/tank-bohr/bookish_spork/badge.svg?branch=master"
+<a target="_blank" href="https://codecov.io/gh/tank-bohr/bookish_spork">
+  <img alt="codecov"
+       src="https://codecov.io/gh/tank-bohr/bookish_spork/branch/master/graph/badge.svg"
   />
 </a>
 <a target="_blank" href="https://hex.pm/packages/bookish_spork">

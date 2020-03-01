@@ -32,7 +32,7 @@ stub_request_fun() = fun((<a href="bookish_spork_request.md#type-t">bookish_spor
 ## Function Index ##
 
 
-<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#capture_request-0">capture_request/0</a></td><td></td></tr><tr><td valign="top"><a href="#capture_request-1">capture_request/1</a></td><td></td></tr><tr><td valign="top"><a href="#start_server-0">start_server/0</a></td><td>Equivalent to <a href="#start_server-1"><tt>start_server(32002)</tt></a>.</td></tr><tr><td valign="top"><a href="#start_server-1">start_server/1</a></td><td>starts http server on a particular port.</td></tr><tr><td valign="top"><a href="#stop_server-0">stop_server/0</a></td><td>stops http server.</td></tr><tr><td valign="top"><a href="#stub_request-0">stub_request/0</a></td><td>Equivalent to <a href="#stub_request-3"><tt>stub_request(204,
+<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#capture_request-0">capture_request/0</a></td><td>Equivalent to <a href="#capture_request-1"><tt>capture_request(0)</tt></a>.</td></tr><tr><td valign="top"><a href="#capture_request-1">capture_request/1</a></td><td>retrieve request which was sent to server.</td></tr><tr><td valign="top"><a href="#capture_requests-0">capture_requests/0</a></td><td>Equivalent to <a href="#capture_requests-1"><tt>capture_requests(0)</tt></a>.</td></tr><tr><td valign="top"><a href="#capture_requests-1">capture_requests/1</a></td><td>retrieve all requests which were sent to server.</td></tr><tr><td valign="top"><a href="#start_server-0">start_server/0</a></td><td>Equivalent to <a href="#start_server-1"><tt>start_server(32002)</tt></a>.</td></tr><tr><td valign="top"><a href="#start_server-1">start_server/1</a></td><td>starts http server on a particular port.</td></tr><tr><td valign="top"><a href="#stop_server-0">stop_server/0</a></td><td>stops http server.</td></tr><tr><td valign="top"><a href="#stub_request-0">stub_request/0</a></td><td>Equivalent to <a href="#stub_request-3"><tt>stub_request(204,
 #{&lt;&lt;"Server"&gt;&gt; =&gt; &lt;&lt;"BookishSpork/0.0.1"&gt;&gt;,
 &lt;&lt;"Date"&gt;&gt; =&gt; &lt;&lt;"Sat, 28 Apr 2018 05:51:50 GMT"&gt;&gt;},
 &lt;&lt;&gt;&gt;)</tt></a>.</td></tr><tr><td valign="top"><a href="#stub_request-1">stub_request/1</a></td><td>Equivalent to <a href="#stub_request-2"><tt>stub_request(Response, 1)</tt></a>.</td></tr><tr><td valign="top"><a href="#stub_request-2">stub_request/2</a></td><td>stub request with fun or particular response.</td></tr></table>
@@ -51,6 +51,8 @@ capture_request() -&gt; {ok, Request::<a href="bookish_spork_request.md#type-t">
 </code></pre>
 <br />
 
+Equivalent to [`capture_request(0)`](#capture_request-1).
+
 <a name="capture_request-1"></a>
 
 ### capture_request/1 ###
@@ -60,6 +62,32 @@ capture_request(Timeout) -&gt; {ok, Request} | {error, Error}
 </code></pre>
 
 <ul class="definitions"><li><code>Error = term()</code></li><li><code>Request = <a href="bookish_spork_request.md#type-t">bookish_spork_request:t()</a></code></li><li><code>Timeout = non_neg_integer()</code></li></ul>
+
+retrieve request which was sent to server
+
+<a name="capture_requests-0"></a>
+
+### capture_requests/0 ###
+
+<pre><code>
+capture_requests() -&gt; [Request]
+</code></pre>
+
+<ul class="definitions"><li><code>Request = <a href="bookish_spork_request.md#type-t">bookish_spork_request:t()</a></code></li></ul>
+
+Equivalent to [`capture_requests(0)`](#capture_requests-1).
+
+<a name="capture_requests-1"></a>
+
+### capture_requests/1 ###
+
+<pre><code>
+capture_requests(Timeout) -&gt; [Request]
+</code></pre>
+
+<ul class="definitions"><li><code>Request = <a href="bookish_spork_request.md#type-t">bookish_spork_request:t()</a></code></li><li><code>Timeout = non_neg_integer()</code></li></ul>
+
+retrieve all requests which were sent to server
 
 <a name="start_server-0"></a>
 

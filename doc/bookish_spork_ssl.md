@@ -4,29 +4,31 @@
 * [Function Index](#index)
 * [Function Details](#functions)
 
+__Behaviours:__ [`bookish_spork_transport`](bookish_spork_transport.md).
+
 <a name="index"></a>
 
 ## Function Index ##
 
 
-<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#accept-2">accept/2</a></td><td></td></tr><tr><td valign="top"><a href="#accept-2">accept/2</a></td><td></td></tr><tr><td valign="top"><a href="#close-1">close/1</a></td><td></td></tr><tr><td valign="top"><a href="#listen-2">listen/2</a></td><td></td></tr><tr><td valign="top"><a href="#recv-2">recv/2</a></td><td></td></tr><tr><td valign="top"><a href="#send-2">send/2</a></td><td></td></tr><tr><td valign="top"><a href="#shutdown-2">shutdown/2</a></td><td></td></tr></table>
+<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#accept-1">accept/1</a></td><td></td></tr><tr><td valign="top"><a href="#accept-1">accept/1</a></td><td></td></tr><tr><td valign="top"><a href="#close-1">close/1</a></td><td></td></tr><tr><td valign="top"><a href="#listen-2">listen/2</a></td><td></td></tr><tr><td valign="top"><a href="#recv-2">recv/2</a></td><td></td></tr><tr><td valign="top"><a href="#send-2">send/2</a></td><td></td></tr><tr><td valign="top"><a href="#shutdown-2">shutdown/2</a></td><td></td></tr></table>
 
 
 <a name="functions"></a>
 
 ## Function Details ##
 
-<a name="accept-2"></a>
+<a name="accept-1"></a>
 
-### accept/2 ###
+### accept/1 ###
 
-`accept(ListenSocket, Timeout) -> any()`
+`accept(ListenSocket) -> any()`
 
-<a name="accept-2"></a>
+<a name="accept-1"></a>
 
-### accept/2 ###
+### accept/1 ###
 
-`accept(ListenSocket, Timeout) -> any()`
+`accept(ListenSocket) -> any()`
 
 <a name="close-1"></a>
 

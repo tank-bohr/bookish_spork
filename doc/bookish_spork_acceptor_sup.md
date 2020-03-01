@@ -1,10 +1,10 @@
 
 
-# Module bookish_spork_handler #
+# Module bookish_spork_acceptor_sup #
 * [Function Index](#index)
 * [Function Details](#functions)
 
-__Behaviours:__ [`gen_server`](gen_server.md).
+__Behaviours:__ [`supervisor`](supervisor.md).
 
 <a name="index"></a>
 
@@ -23,8 +23,8 @@ __Behaviours:__ [`gen_server`](gen_server.md).
 ### start_link/2 ###
 
 <pre><code>
-start_link(Server, Transport) -&gt; {ok, pid()}
+start_link(Server, ListenSocket) -&gt; {ok, pid()}
 </code></pre>
 
-<ul class="definitions"><li><code>Server = pid()</code></li><li><code>Transport = <a href="bookish_spork_transport.md#type-t">bookish_spork_transport:t()</a></code></li></ul>
+<ul class="definitions"><li><code>Server = pid()</code></li><li><code>ListenSocket = <a href="bookish_spork_transport.md#type-listen">bookish_spork_transport:listen()</a></code></li></ul>
 

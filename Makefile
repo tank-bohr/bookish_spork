@@ -15,7 +15,7 @@ dialyzer:
 lint:
 	elvis rock --verbose
 
-doc: edown ex_doc
+doc: edown
 	rebar3 edoc
 	open doc/index.html
 
