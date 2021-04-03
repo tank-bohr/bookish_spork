@@ -22,7 +22,7 @@ __abstract datatype__: `t()`
 ## Function Index ##
 
 
-<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#body-1">body/1</a></td><td>request body.</td></tr><tr><td valign="top"><a href="#content_length-1">content_length/1</a></td><td>Content-Length header value as intger.</td></tr><tr><td valign="top"><a href="#from_transport-1">from_transport/1</a></td><td></td></tr><tr><td valign="top"><a href="#header-2">header/2</a></td><td>Returns a particular header from request.</td></tr><tr><td valign="top"><a href="#headers-1">headers/1</a></td><td>http headers map.</td></tr><tr><td valign="top"><a href="#is_keepalive-1">is_keepalive/1</a></td><td>tells you if the request is keepalive or not <a href="https://tools.ietf.org.md/rfc6223" target="_top"><tt>https://tools.ietf.org/html/rfc6223</tt></a></td></tr><tr><td valign="top"><a href="#method-1">method/1</a></td><td>http verb: 'GET', 'POST','PUT', 'DELETE', 'OPTIONS', ...</td></tr><tr><td valign="top"><a href="#transport-1">transport/1</a></td><td></td></tr><tr><td valign="top"><a href="#uri-1">uri/1</a></td><td>path with query string.</td></tr><tr><td valign="top"><a href="#version-1">version/1</a></td><td>http protocol version tuple.</td></tr></table>
+<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#body-1">body/1</a></td><td>request body.</td></tr><tr><td valign="top"><a href="#content_length-1">content_length/1</a></td><td>Content-Length header value as intger.</td></tr><tr><td valign="top"><a href="#from_transport-1">from_transport/1</a></td><td></td></tr><tr><td valign="top"><a href="#header-2">header/2</a></td><td>Returns a particular header from request.</td></tr><tr><td valign="top"><a href="#headers-1">headers/1</a></td><td>HTTP headers map.</td></tr><tr><td valign="top"><a href="#is_keepalive-1">is_keepalive/1</a></td><td>tells you if the request is keepalive or not <a href="https://tools.ietf.org.md/rfc6223" target="_top"><tt>https://tools.ietf.org/html/rfc6223</tt></a></td></tr><tr><td valign="top"><a href="#method-1">method/1</a></td><td>http verb in lower case: get, post, put, delete, options, ...</td></tr><tr><td valign="top"><a href="#raw_headers-1">raw_headers/1</a></td><td>HTTP raw headers.</td></tr><tr><td valign="top"><a href="#transport-1">transport/1</a></td><td></td></tr><tr><td valign="top"><a href="#uri-1">uri/1</a></td><td>path with query string.</td></tr><tr><td valign="top"><a href="#version-1">version/1</a></td><td>http protocol version tuple.</td></tr></table>
 
 
 <a name="functions"></a>
@@ -65,11 +65,11 @@ from_transport(Transport::<a href="bookish_spork_transport.md#type-t">bookish_sp
 ### header/2 ###
 
 <pre><code>
-header(Request::<a href="#type-t">t()</a>, HeaderName::string()) -&gt; string() | nil
+header(Request::<a href="#type-t">t()</a>, HeaderName::string() | binary()) -&gt; binary() | nil
 </code></pre>
 <br />
 
-Returns a particular header from request. Header name is lowerced
+Returns a particular header from request.
 
 <a name="headers-1"></a>
 
@@ -80,7 +80,7 @@ headers(Request::<a href="#type-t">t()</a>) -&gt; map()
 </code></pre>
 <br />
 
-http headers map. Header names are normalized and lowercased
+HTTP headers map. Header names are normalized and lowercased
 
 <a name="is_keepalive-1"></a>
 
@@ -102,7 +102,18 @@ method(Request::<a href="#type-t">t()</a>) -&gt; atom()
 </code></pre>
 <br />
 
-http verb: 'GET', 'POST','PUT', 'DELETE', 'OPTIONS', ...
+http verb in lower case: get, post, put, delete, options, ...
+
+<a name="raw_headers-1"></a>
+
+### raw_headers/1 ###
+
+<pre><code>
+raw_headers(Request::<a href="#type-t">t()</a>) -&gt; <a href="proplists.md#type-proplist">proplists:proplist()</a>
+</code></pre>
+<br />
+
+HTTP raw headers. Headers order and case are preserved
 
 <a name="transport-1"></a>
 

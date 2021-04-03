@@ -9,7 +9,7 @@ elixir_interface_test_() ->
     ?_assertEqual(Request, bookish_spork_request:'__struct__'(#{}))].
 
 new_test_() ->
-    Method = 'POST',
+    Method = post,
     Uri = "/foo/bar",
     Version = {1, 1},
     Body = <<"Hello">>,
@@ -22,14 +22,16 @@ new_test_() ->
         method => Method,
         uri => list_to_binary(Uri),
         version => Version,
-        headers => #{"x-foo" => "Bar"},
+        headers => #{<<"x-foo">> => <<"Bar">>},
+        raw_headers => [{<<"X-Foo">>, <<"Bar">>}],
         body => Body
     },
     List = [
         {method, Method},
         {uri, list_to_binary(Uri)},
         {version, Version},
-        {headers, #{"x-foo" => "Bar"}},
+        {headers, #{<<"x-foo">> => <<"Bar">>}},
+        {raw_headers, [{<<"X-Foo">>, <<"Bar">>}]},
         {body, Body}
     ],
     [?_assertEqual(Request, bookish_spork_request:new(Map)),
@@ -43,7 +45,7 @@ content_length_test_() ->
 
 add_header_test() ->
     Request = bookish_spork_request:add_header(bookish_spork_request:new(), "X-Lol", "kjk"),
-    ?assertEqual(#{"x-lol" => "kjk"}, bookish_spork_request:headers(Request),
+    ?assertEqual(#{<<"x-lol">> => <<"kjk">>}, bookish_spork_request:headers(Request),
         "Converts header name to lower case").
 
 

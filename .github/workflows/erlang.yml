@@ -8,19 +8,19 @@ on:
 jobs:
 
   tests:
+    name: OTP ${{ matrix.otp }}
 
     runs-on: ubuntu-latest
-    name: OTP ${{ matrix.otp }}
+
+    container:
+      image: erlang:${{ matrix.otp }}
+
     strategy:
       matrix:
-        otp: [20.3, 21.3, 22.2]
+        otp: ['20.3', '21.3', '22.3', '23.3', '24.0-rc2']
 
     steps:
-      - uses: actions/checkout@v2
-
-      - uses: gleam-lang/setup-erlang@v1.0.0
-        with:
-          otp-version: ${{ matrix.otp }}
+      - uses: actions/checkout@v2.0.0
 
       - name: Run tests
         run: rebar3 do eunit, ct, dialyzer

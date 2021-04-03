@@ -2,9 +2,9 @@
 
 # Bookish spork #
 
-Copyright (c) 2018-2020 Alexey Nikitin
+Copyright (c) 2018-2021 Alexey Nikitin
 
-__Version:__ 0.3.6
+__Version:__ 0.4.0
 
 __Authors:__ Alexey Nikitin ([`tank@bohr.su`](mailto:tank@bohr.su)) (_web site:_ [`https://twitter.com/tank_bohr`](https://twitter.com/tank_bohr)).
 
@@ -52,7 +52,7 @@ First step: add to your rebar config
 {profiles, [
     {test, [
         {deps, [
-            {bookish_spork, "0.3.6"}
+            {bookish_spork, "0.4.0"}
         ]}
     ]}
 ]}.
@@ -111,13 +111,15 @@ It returns you an opaque structure of the request. You can inspect it with
 
 #### <a name="Bypass_comparision">Bypass comparision</a> ####
 
-An elixir library [bypass](https://github.com/PSPDFKit-labs/bypass) does pretty much the same. And illustrates the same approach. It starts a cowboy web-server to replace a real service for test
+An elixir library [bypass](https://github.com/PSPDFKit-labs/bypass) does pretty much the same. And illustrates the same approach. It starts a cowboy web-server to replace a real service for test. It's a beautiful library with great API, documentation, and very concise source code. If you are an elixir developer, most likely, it will be a good fit for you.
 
-But bookish_spork has some advantages:
+But nevertheless bookish_spork has some advantages:
 
-* Bypass depends on `cowboy` and `plug`. Bookish spork has zero dependencies
-* Bookish spork works seamlessly with both erlang and elixir. Bypass is supposed to be an elixir only library
-* Bookish spork much simpler (I believe)
+* Bypass depends on `cowboy` and `plug`. Bookish spork has zero dependencies.
+* Bookish spork works seamlessly with both erlang and elixir. Bypass is supposed to be an elixir only library.
+* <strike>Bookish spork much simpler (I believe)</strike>
+ (not any more).
+* Bookish spork allows you to inspect the request very deeply and accurate. For example take a look at [`bookish_spork_request:raw_headers/1`](http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_request.md#raw_headers-1) and [`bookish_spork_request:ssl_info/1`](http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_request.md#ssl_info-1) and [`bookish_spork_request:tls_ext/1`](http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_request.md#tls_ext-1). It can be useful for HTTP clients testing.
 
 
 #### <a name="Elli_comparision">Elli comparision</a> ####
@@ -227,9 +229,9 @@ defmodule ChuckNorrisApiTest do
   use ExUnit.Case
   doctest ChuckNorrisApi
 
-  setup_all do
-    {:ok, _} = :bookish_spork.start_server
-    {:ok, %{}}
+  setup do
+    {:ok, _} = :bookish_spork.start_server()
+    on_exit(fn -> :bookish_spork.stop_server() end)
   end
 
   test "retrieves a random joke" do
@@ -238,8 +240,8 @@ defmodule ChuckNorrisApiTest do
     }"])
     assert ChuckNorrisApi.random == "Chuck norris tried to crank that soulja boy but it wouldn't crank up"
 
-    {:ok, request} = :bookish_spork.capture_request
-    assert request.uri == '/jokes/random'
+    {:ok, request} = :bookish_spork.capture_request()
+    assert request.uri === "/jokes/random"
   end
 end
 

@@ -85,7 +85,8 @@ receive_request(#state{transport = Transport, request = RequestIn} = State) ->
         {ok, {http_request, Method, {abs_path, Uri}, Version}} ->
             RequestOut = bookish_spork_request:request_line(RequestIn, Method, Uri, Version),
             ?FUNCTION_NAME(State#state{request = RequestOut});
-        {ok, {http_header, _, Header, _, Value}} ->
+        {ok, {http_header, _, NormalizedHeader, PreserveCaseHeader, Value}} ->
+            Header = choose_header(NormalizedHeader, PreserveCaseHeader),
             RequestOut = bookish_spork_request:add_header(RequestIn, Header, Value),
             ?FUNCTION_NAME(State#state{request = RequestOut});
         {ok, http_eoh} ->
@@ -135,6 +136,11 @@ complete_connection(State = #state{transport = Transport, request = Request}) ->
             bookish_spork_transport:shutdown(Transport),
             {halt, normal}
     end.
+
+choose_header(NormalizedHeader, undefined) ->
+    NormalizedHeader;
+choose_header(_NormalizedHeader, PreserveCaseHeader) ->
+    PreserveCaseHeader.
 
 reduce_while(State, []) ->
     {noreply, State};
