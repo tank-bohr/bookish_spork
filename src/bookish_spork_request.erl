@@ -20,6 +20,7 @@
     version/1,
     header/2,
     headers/1,
+    raw_headers/1,
     body/1,
     body/2,
     socket/1,
@@ -41,6 +42,7 @@
     method        := nil | atom(),
     uri           := nil | binary(),
     version       := nil | http_version(),
+    raw_headers   := proplists:proplist(),
     headers       := map(),
     body          := nil | binary(),
     ssl_info      := nil | proplists:proplist(),
@@ -72,6 +74,7 @@ new() ->
         method => nil,
         uri => nil,
         version => nil,
+        raw_headers => [],
         headers => #{},
         body => nil,
         ssl_info => nil,
@@ -79,7 +82,7 @@ new() ->
         transport => nil
     }.
 
--spec new(From :: list() | map() | ssl:sslsocket()) -> t().
+-spec new(From :: list() | map()) -> t().
 %% @private
 new(List) when is_list(List) ->
     new(maps:from_list(List));
@@ -106,17 +109,23 @@ from_transport(Transport) ->
 request_line(Request, Method, Uri, Version) ->
     maps:merge(Request, #{
         uri => list_to_binary(Uri),
-        method => Method,
+        method => lowercase_method(Method),
         version => Version
     }).
 
--spec add_header(Request :: t(), Name :: string(), Value :: string()) -> t().
+-spec add_header(Request :: t(), Name :: atom() | binary(), Value :: string() | binary()) -> t().
 %% @private
 add_header(Request, Name, Value) when is_atom(Name) ->
-    add_header(Request, atom_to_list(Name), Value);
-add_header(#{ headers := Headers } = Request, Name, Value) ->
-    HeaderName = string:lowercase(Name),
-    maps:update(headers, maps:put(HeaderName, Value, Headers), Request).
+    add_header(Request, atom_to_binary(Name, utf8), Value);
+add_header(Request, Name, Value) when is_list(Name) ->
+    add_header(Request, list_to_binary(Name), Value);
+add_header(Request, Name, Value) when is_list(Value) ->
+    add_header(Request, Name, list_to_binary(Value));
+add_header(#{ raw_headers := RawHeaders0, headers := Headers0 } = Request, Name, Value) ->
+    RawHeaders = [{Name, Value} | RawHeaders0],
+    Headers = maps:put(string:lowercase(Name), Value, Headers0),
+    maps:update(headers, Headers,
+        maps:update(raw_headers, RawHeaders, Request)).
 
 -spec content_length(Request :: t()) -> integer().
 %% @doc Content-Length header value as intger
@@ -125,11 +134,11 @@ content_length(Request) ->
         nil ->
             0;
         ContentLength ->
-            list_to_integer(ContentLength)
+            binary_to_integer(ContentLength)
     end.
 
 -spec method(Request :: t()) -> atom().
-%% @doc http verb: 'GET', 'POST','PUT', 'DELETE', 'OPTIONS', ...
+%% @doc http verb in lower case: get, post, put, delete, options, ...
 method(#{ method := Method}) ->
     Method.
 
@@ -143,15 +152,22 @@ uri(#{ uri := Uri}) ->
 version(#{ version := Version }) ->
     Version.
 
--spec header(Request :: t(), HeaderName :: string()) -> string() | nil.
-%% @doc Returns a particular header from request. Header name is lowerced
-header(#{ headers := Headers }, HeaderName) ->
-    maps:get(HeaderName, Headers, nil).
+-spec header(Request :: t(), HeaderName :: string() | binary()) -> binary() | nil.
+%% @doc Returns a particular header from request.
+header(Request, HeaderName) when is_list(HeaderName) ->
+    header(Request, list_to_binary(HeaderName));
+header(#{ headers := Headers }, HeaderName) when is_binary(HeaderName) ->
+    maps:get(string:lowercase(HeaderName), Headers, nil).
 
 -spec headers(Request :: t()) -> map().
-%% @doc http headers map. Header names are normalized and lowercased
+%% @doc HTTP headers map. Header names are normalized and lowercased
 headers(#{ headers := Headers }) ->
     Headers.
+
+-spec raw_headers(Request :: t()) -> proplists:proplist().
+%% @doc HTTP raw headers. Headers order and case are preserved
+raw_headers(#{ raw_headers := RawHeaders }) ->
+    RawHeaders.
 
 -spec body(Request :: t()) -> binary().
 %% @doc request body
@@ -188,11 +204,14 @@ transport(#{transport := Transport}) ->
 
 -spec is_keepalive(Request :: t()) -> boolean().
 %% @doc tells you if the request is keepalive or not [https://tools.ietf.org/html/rfc6223]
-is_keepalive(#{ headers := #{"connection" := Conn }, version := {1, 0} }) ->
-    string:lowercase(Conn) =:= "keep-alive";
+is_keepalive(#{ headers := #{<<"connection">> := Conn }, version := {1, 0} }) ->
+    string:lowercase(Conn) =:= <<"keep-alive">>;
 is_keepalive(#{ version := {1, 0} }) ->
     false;
-is_keepalive(#{ headers := #{"connection" := "close"}, version := {1, 1} }) ->
+is_keepalive(#{ headers := #{<<"connection">> := <<"close">>}, version := {1, 1} }) ->
     false;
 is_keepalive(_) ->
     true.
+
+lowercase_method(Method) ->
+    binary_to_existing_atom(string:lowercase(atom_to_binary(Method, latin1)), latin1).

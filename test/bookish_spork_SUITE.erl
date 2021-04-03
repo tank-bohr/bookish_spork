@@ -1,5 +1,6 @@
 -module(bookish_spork_SUITE).
 
+-include("bookish_spork_test_helpers.hrl").
 -include_lib("common_test/include/ct.hrl").
 -include_lib("eunit/include/eunit.hrl").
 
@@ -27,13 +28,9 @@
     wait_for_async_request_completed_test/1,
     multiple_async_requests_test/1,
     multiple_async_with_closed_connection_requests_test/1,
-    capture_requests_test/1
+    capture_requests_test/1,
+    raw_headers_test/1
 ]).
-
--define(CUSTOM_PORT, 9871).
--define(HTTPC_SUCCESS(Status), {ok, {{_, Status, _}, _, _}}).
--define(HTTPC_OK, ?HTTPC_SUCCESS(200)).
--define(HTTPC_NO_CONTENT, ?HTTPC_SUCCESS(204)).
 
 all() ->
     [base_integration_test, customized_response_test, failed_capture_test,
@@ -41,7 +38,8 @@ all() ->
     without_keepalive_test, ssl_test, tls_ext_test, connection_id_test,
     request_when_there_is_no_stub_test, http_error_test,
     wait_for_async_request_completed_test, multiple_async_requests_test,
-    multiple_async_with_closed_connection_requests_test, capture_requests_test].
+    multiple_async_with_closed_connection_requests_test, capture_requests_test,
+    raw_headers_test].
 
 init_per_suite(Config) ->
     ok = application:ensure_started(inets),
@@ -68,10 +66,10 @@ base_integration_test(_Config) ->
     {ok, {{"HTTP/1.1", 204, "No Content"}, _ResponseHeaders, _Body}} =
       httpc:request(get, {"http://localhost:32002/o/lo/lo?q=kjk", RequestHeaders}, [], []),
     {ok, Request} = bookish_spork:capture_request(),
-    ?assertEqual('GET', bookish_spork_request:method(Request)),
+    ?assertEqual(get, bookish_spork_request:method(Request)),
     ?assertEqual(<<"/o/lo/lo?q=kjk">>, bookish_spork_request:uri(Request)),
     ?assertEqual({1, 1}, bookish_spork_request:version(Request)),
-    ?assertMatch(#{"host" := "localhost:32002"}, bookish_spork_request:headers(Request)).
+    ?assertMatch(#{<<"host">> := <<"localhost:32002">>}, bookish_spork_request:headers(Request)).
 
 customized_response_test(Config) ->
     CustomPort = integer_to_list(?config(custom_port, Config)),
@@ -88,11 +86,11 @@ customized_response_test(Config) ->
     ?assertEqual("test", proplists:get_value("x-custom-response-header", ResponseHeaders)),
     ?assertEqual(<<"Hello, Test">>, string:chomp(Body)),
     {ok, Request} = bookish_spork:capture_request(),
-    ?assertEqual('POST', bookish_spork_request:method(Request)),
+    ?assertEqual(post, bookish_spork_request:method(Request)),
     ?assertEqual(<<"/api/v1/users">>, bookish_spork_request:uri(Request)),
     ?assertEqual({1, 1}, bookish_spork_request:version(Request)),
     ?assertEqual(RequestBody, bookish_spork_request:body(Request)),
-    ?assertMatch(#{"accept" := "text/plain"}, bookish_spork_request:headers(Request)).
+    ?assertMatch(#{<<"accept">> := <<"text/plain">>}, bookish_spork_request:headers(Request)).
 
 failed_capture_test(_Config) ->
     ?assertMatch({error, _}, bookish_spork:capture_request(), "Got an error when there is no stub").
@@ -135,15 +133,7 @@ tls_ext_test(_Config) ->
         {"https://localhost:32002/tls", [{"Connection", "close"}]}, [], []),
     {ok, Request} = bookish_spork:capture_request(),
     TlsExt = bookish_spork_request:tls_ext(Request),
-    ?assertMatch(#{
-        renegotiation_info := _,
-        ec_point_formats   := _,
-        elliptic_curves    := _,
-        signature_algs     := _,
-        alpn               := _,
-        sni                := _,
-        srp                := _
-    }, TlsExt).
+    ?assertMatch(?TLS_EXT, TlsExt).
 -else.
 tls_ext_test(_Config) ->
     {skip, "Nothing to test"}.
@@ -231,6 +221,14 @@ capture_requests_test(_Config) ->
     ?HTTPC_OK = httpc:request(get, {"http://localhost:32002/two", [{"Connection", "close"}]}, [], []),
     Requests = bookish_spork:capture_requests(),
     ?assertEqual([<<"/one">>, <<"/two">>], [bookish_spork_request:uri(Req) || Req <- Requests]).
+
+raw_headers_test(_Config) ->
+    ok = bookish_spork:stub_request(),
+    ?HTTPC_NO_CONTENT = httpc:request(get, {"http://localhost:32002/test", ?CUSTOM_CASE_HEADERS},
+        [], [{headers_as_is, true}]),
+    [Request] = bookish_spork:capture_requests(),
+    RawHeaders = bookish_spork_request:raw_headers(Request),
+    ?assertEqual(?RAW_HEADERS, RawHeaders, "Raw headers preserve order and case").
 
 gun_request(ConnectionPid) ->
     StreamRef = gun:get(ConnectionPid, "/"),
