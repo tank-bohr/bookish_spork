@@ -5,11 +5,13 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    container:
+      image: erlang:latest
+
     steps:
-      - uses: actions/checkout@v2
-      - uses: gleam-lang/setup-erlang@v1.0.0
-        with:
-          otp-version: 22.2
+      - uses: actions/checkout@v2.0.0
+
       - run: ./scripts/publish.sh
         env:
           HEX_API_KEY: ${{ secrets.HEX_KEY }}
