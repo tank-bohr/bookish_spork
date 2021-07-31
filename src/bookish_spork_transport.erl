@@ -97,9 +97,13 @@ recv(#transport{socket = Socket, module = Module}) ->
 read_raw(_, 0) ->
     <<>>;
 read_raw(#transport{socket = Socket, module = Module}, ContentLength) ->
-    inet:setopts(Socket, [{packet, raw}]),
+    SockModule = case ?IS_SSL_SOCKET(Socket) of
+        true -> ssl;
+        false -> inet
+    end,
+    SockModule:setopts(Socket, [{packet, raw}]),
     {ok, Body} = Module:recv(Socket, ContentLength),
-    inet:setopts(Socket, [{packet, http}]),
+    SockModule:setopts(Socket, [{packet, http}]),
     Body.
 
 -spec send(t(), iodata()) -> ok.

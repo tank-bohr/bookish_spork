@@ -19,6 +19,7 @@
     stub_multiple_requests_test/1,
     stub_with_fun_test/1,
     ssl_test/1,
+    ssl_post_test/1,
     tls_ext_test/1,
     keepalive_connection_test/1,
     without_keepalive_test/1,
@@ -35,7 +36,7 @@
 all() ->
     [base_integration_test, customized_response_test, failed_capture_test,
     stub_multiple_requests_test, stub_with_fun_test, keepalive_connection_test,
-    without_keepalive_test, ssl_test, tls_ext_test, connection_id_test,
+    without_keepalive_test, ssl_test, ssl_post_test, tls_ext_test, connection_id_test,
     request_when_there_is_no_stub_test, http_error_test,
     wait_for_async_request_completed_test, multiple_async_requests_test,
     multiple_async_with_closed_connection_requests_test, capture_requests_test,
@@ -52,7 +53,7 @@ end_per_suite(_Config) ->
 
 init_per_testcase(customized_response_test, Config) ->
     [{custom_port, ?CUSTOM_PORT} | start_server([{port, ?CUSTOM_PORT}], Config)];
-init_per_testcase(TestCase, Config) when TestCase =:= ssl_test orelse TestCase =:= tls_ext_test ->
+init_per_testcase(TestCase, Config) when TestCase =:= ssl_test orelse TestCase =:= tls_ext_test orelse TestCase =:= ssl_post_test ->
     start_server([ssl], Config);
 init_per_testcase(_TestCase, Config) ->
     start_server(Config).
@@ -125,6 +126,18 @@ ssl_test(_Config) ->
     SslInfo = bookish_spork_request:ssl_info(Request),
     Ciphers = proplists:get_value(ciphers, SslInfo, []),
     ?assert(length(Ciphers) > 0).
+
+ssl_post_test(_Config) ->
+    ok = bookish_spork:stub_request(),
+    RequestBody = <<"{\"name\": \"John Doe\", \"email\": \"john@doe.com\"}">>,
+    {ok, {{"HTTP/1.1", 204, "No Content"}, _, _}} = httpc:request(post, {
+        "https://localhost:32002/secure",
+        [{"Connection", "close"}],
+        "application/json",
+        RequestBody
+    }, [], []),
+    {ok, Request} = bookish_spork:capture_request(),
+    ?assertEqual(RequestBody, bookish_spork_request:body(Request)).
 
 -ifdef(OTP_RELEASE).
 tls_ext_test(_Config) ->
