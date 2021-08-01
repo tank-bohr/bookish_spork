@@ -8,7 +8,9 @@
     recv/2,
     send/2,
     close/1,
-    shutdown/2
+    shutdown/2,
+    setopts/2,
+    connection_information/1
 ]).
 
 -define(SSL_OPTIONS, [
@@ -50,3 +52,9 @@ close(Socket) ->
 
 shutdown(Socket, How) ->
     ssl:shutdown(Socket, How).
+
+setopts(Socket, Options) ->
+    ssl:setopts(Socket, Options).
+
+connection_information(Socket) ->
+    ssl:connection_information(Socket).

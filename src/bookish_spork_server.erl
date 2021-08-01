@@ -135,5 +135,5 @@ detect_transport(Options) ->
         true ->
             bookish_spork_ssl;
         _ ->
-            gen_tcp
+            bookish_spork_tcp
     end.

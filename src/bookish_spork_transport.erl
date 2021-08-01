@@ -17,7 +17,7 @@
     connection_id/1
 ]).
 
--type callback_module() :: gen_tcp | bookish_spork_ssl.
+-type callback_module() :: bookish_spork_tcp | bookish_spork_ssl.
 -type socket() :: gen_tcp:socket() | ssl:sslsocket().
 
 -record(listen, {
@@ -26,10 +26,10 @@
 }).
 
 -record(transport, {
-    id      :: binary(),
-    module  :: callback_module(),
-    socket  :: socket(),
-    ssl_ext :: undefined | ssl:protocol_extensions()
+    id            :: binary(),
+    module        :: callback_module(),
+    socket        :: socket(),
+    ssl_ext = #{} :: ssl:protocol_extensions()
 }).
 
 -callback listen(Port, Options) -> Result when
@@ -58,6 +58,14 @@
     Socket :: socket(),
     How    :: read | write | read_write,
     Reason :: inet:posix().
+-callback setopts(Socket, Options) -> ok | {error, Reason} when
+    Socket  :: socket(),
+    Options :: [gen_tcp:socket_setopt()],
+    Reason  :: any().
+-callback connection_information(Socket) -> {ok, Result} | {error, Reason} when
+    Socket :: socket(),
+    Result :: ssl:connection_info(),
+    Reason :: any().
 
 -opaque t() :: #transport{}.
 -opaque listen() :: #listen{}.
@@ -97,13 +105,9 @@ recv(#transport{socket = Socket, module = Module}) ->
 read_raw(_, 0) ->
     <<>>;
 read_raw(#transport{socket = Socket, module = Module}, ContentLength) ->
-    SockModule = case ?IS_SSL_SOCKET(Socket) of
-        true -> ssl;
-        false -> inet
-    end,
-    SockModule:setopts(Socket, [{packet, raw}]),
+    Module:setopts(Socket, [{packet, raw}]),
     {ok, Body} = Module:recv(Socket, ContentLength),
-    SockModule:setopts(Socket, [{packet, http}]),
+    Module:setopts(Socket, [{packet, http}]),
     Body.
 
 -spec send(t(), iodata()) -> ok.
@@ -128,18 +132,14 @@ socket(#transport{socket = Socket}) ->
 connection_id(#transport{id = Id}) ->
     Id.
 
--spec ssl_ext(t()) -> undefined | ssl:protocol_extensions().
-ssl_ext(#transport{ssl_ext = undefined}) ->
-    nil;
+-spec ssl_ext(t()) -> ssl:protocol_extensions().
 ssl_ext(#transport{ssl_ext = Ext}) ->
     Ext.
 
--spec ssl_info(t()) -> undefined | proplists:proplist().
-ssl_info(#transport{socket = Socket}) when ?IS_SSL_SOCKET(Socket) ->
-    {ok, Info} = ssl:connection_information(Socket),
-    Info;
-ssl_info(_) ->
-    nil.
+-spec ssl_info(t()) -> proplists:proplist().
+ssl_info(#transport{socket = Socket, module = Module}) ->
+    {ok, Info} = Module:connection_information(Socket),
+    Info.
 
 -spec generate_id() -> Id :: binary().
 %% @doc generates unique id to be a connection id
