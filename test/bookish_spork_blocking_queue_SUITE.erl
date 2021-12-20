@@ -10,11 +10,13 @@
 -export([
     basic_test/1,
     dead_process_awaiting_test/1,
-    wait_for_timer_test/1
+    wait_for_timer_test/1,
+    multiple_waiters_test/1,
+    double_wait_test/1
 ]).
 
 all() ->
-    [basic_test, dead_process_awaiting_test, wait_for_timer_test].
+    [basic_test, dead_process_awaiting_test, wait_for_timer_test, multiple_waiters_test, double_wait_test].
 
 basic_test(_Config) ->
     {ok, Pid} = bookish_spork_blocking_queue:start_link(),
@@ -59,3 +61,28 @@ wait_for_timer_test(_Config) ->
     ok = receive
         {'DOWN', Ref, process, Client, normal} -> ok
     end.
+
+multiple_waiters_test(_Config) ->
+    {ok, Pid} = bookish_spork_blocking_queue:start_link(),
+    {FetcherPid, Ref} = spawn_monitor(fun() ->
+        {ok, Value} = bookish_spork_blocking_queue:out(Pid, 1000),
+        ?assertEqual(pants, Value)
+    end),
+    {error, timeout} = bookish_spork_blocking_queue:out(Pid, 1),
+    ct:sleep(500),
+    ok = bookish_spork_blocking_queue:in(Pid, pants),
+    ok = receive
+        {'DOWN', Ref, process, FetcherPid, normal} -> ok
+    after 0 ->
+        erlang:error(timeout)
+    end.
+
+double_wait_test(_Config) ->
+    {ok, Pid} = bookish_spork_blocking_queue:start_link(),
+    {error, timeout} = bookish_spork_blocking_queue:out(Pid, 0),
+    ok = bookish_spork_blocking_queue:in(Pid, pants),
+    ok = receive
+        Message -> erlang:error({unexpected_message, Message})
+        after 0 -> ok
+    end,
+    {ok, pants} = bookish_spork_blocking_queue:out(Pid).

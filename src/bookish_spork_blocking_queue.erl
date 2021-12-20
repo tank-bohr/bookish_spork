@@ -37,7 +37,7 @@ out(Pid) ->
 
 -spec out(Pid, Timeout) -> {ok, element()} | {error, timeout} when
     Pid :: pid(),
-    Timeout :: non_neg_integer() | infinity.
+    Timeout :: timeout().
 out(Pid, Timeout) ->
     gen_server:call(Pid, {dequeue, Timeout}, infinity).
 
@@ -81,7 +81,7 @@ handle_info({timeout, Client}, #state{waiting = Waiting} = State) ->
     Remaining = case queue:member(Client, Waiting) of
         true ->
             gen_server:reply(Client, {error, timeout}),
-            queue:filter(fun(Item) -> Item =:= Client end, Waiting);
+            queue:delete(Client, Waiting);
         false ->
             %% Already replied
             Waiting

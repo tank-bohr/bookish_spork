@@ -13,7 +13,7 @@ dialyzer:
 	rebar3 dialyzer
 
 lint:
-	elvis rock --verbose
+	rebar3 as elvis lint
 
 doc: edown
 	rebar3 edoc
