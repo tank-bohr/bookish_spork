@@ -1,4 +1,5 @@
 -module(bookish_spork_blocking_queue).
+-include("bookish_spork_blocking_queue.hrl").
 
 -export([
     start_link/0,
@@ -21,8 +22,6 @@
     waiting = queue:new() :: queue:queue(element()),
     elements = queue:new() :: queue:queue(element())
 }).
-
--define(DEFAULT_TIMEOUT_MILLIS, 5000).
 
 start_link() ->
     gen_server:start_link(?MODULE, [], []).
@@ -81,7 +80,7 @@ handle_info({timeout, Client}, #state{waiting = Waiting} = State) ->
     Remaining = case queue:member(Client, Waiting) of
         true ->
             gen_server:reply(Client, {error, timeout}),
-            queue:delete(Client, Waiting);
+            ?QUEUE_DELETE(Client, Waiting);
         false ->
             %% Already replied
             Waiting
