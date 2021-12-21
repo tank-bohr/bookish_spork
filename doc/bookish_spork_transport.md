@@ -5,7 +5,7 @@
 * [Function Index](#index)
 * [Function Details](#functions)
 
-__This module defines the `bookish_spork_transport` behaviour.__<br /> Required callback functions: `listen/2`, `accept/1`, `recv/2`, `send/2`, `close/1`, `shutdown/2`.
+__This module defines the `bookish_spork_transport` behaviour.__<br /> Required callback functions: `listen/2`, `accept/1`, `recv/2`, `send/2`, `close/1`, `shutdown/2`, `setopts/2`, `connection_information/1`.
 
 <a name="types"></a>
 
@@ -18,7 +18,7 @@ __This module defines the `bookish_spork_transport` behaviour.__<br /> Required 
 
 
 <pre><code>
-callback_module() = gen_tcp | bookish_spork_ssl
+callback_module() = bookish_spork_tcp | bookish_spork_ssl
 </code></pre>
 
 
@@ -145,7 +145,7 @@ socket(Transport::<a href="#type-t">t()</a>) -&gt; <a href="#type-socket">socket
 ### ssl_ext/1 ###
 
 <pre><code>
-ssl_ext(Transport::<a href="#type-t">t()</a>) -&gt; undefined | <a href="ssl.md#type-protocol_extensions">ssl:protocol_extensions()</a>
+ssl_ext(Transport::<a href="#type-t">t()</a>) -&gt; <a href="ssl.md#type-protocol_extensions">ssl:protocol_extensions()</a>
 </code></pre>
 <br />
 
@@ -154,7 +154,7 @@ ssl_ext(Transport::<a href="#type-t">t()</a>) -&gt; undefined | <a href="ssl.md#
 ### ssl_info/1 ###
 
 <pre><code>
-ssl_info(Transport::<a href="#type-t">t()</a>) -&gt; undefined | <a href="proplists.md#type-proplist">proplists:proplist()</a>
+ssl_info(Transport::<a href="#type-t">t()</a>) -&gt; <a href="proplists.md#type-proplist">proplists:proplist()</a>
 </code></pre>
 <br />
 

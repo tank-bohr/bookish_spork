@@ -4,7 +4,7 @@
 
 Copyright (c) 2018-2021 Alexey Nikitin
 
-__Version:__ 0.4.0
+__Version:__ 0.5.1
 
 __Authors:__ Alexey Nikitin ([`tank@bohr.su`](mailto:tank@bohr.su)) (_web site:_ [`https://twitter.com/tank_bohr`](https://twitter.com/tank_bohr)).
 
@@ -52,7 +52,7 @@ First step: add to your rebar config
 {profiles, [
     {test, [
         {deps, [
-            {bookish_spork, "0.4.0"}
+            {bookish_spork, "0.5.1"}
         ]}
     ]}
 ]}.
@@ -263,5 +263,6 @@ For more details see examples dir.
 <tr><td><a href="bookish_spork_response.md" class="module">bookish_spork_response</a></td></tr>
 <tr><td><a href="bookish_spork_server.md" class="module">bookish_spork_server</a></td></tr>
 <tr><td><a href="bookish_spork_ssl.md" class="module">bookish_spork_ssl</a></td></tr>
+<tr><td><a href="bookish_spork_tcp.md" class="module">bookish_spork_tcp</a></td></tr>
 <tr><td><a href="bookish_spork_transport.md" class="module">bookish_spork_transport</a></td></tr></table>
 

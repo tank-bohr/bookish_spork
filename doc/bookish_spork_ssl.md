@@ -11,7 +11,7 @@ __Behaviours:__ [`bookish_spork_transport`](bookish_spork_transport.md).
 ## Function Index ##
 
 
-<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#accept-1">accept/1</a></td><td></td></tr><tr><td valign="top"><a href="#accept-1">accept/1</a></td><td></td></tr><tr><td valign="top"><a href="#close-1">close/1</a></td><td></td></tr><tr><td valign="top"><a href="#listen-2">listen/2</a></td><td></td></tr><tr><td valign="top"><a href="#recv-2">recv/2</a></td><td></td></tr><tr><td valign="top"><a href="#send-2">send/2</a></td><td></td></tr><tr><td valign="top"><a href="#shutdown-2">shutdown/2</a></td><td></td></tr></table>
+<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#accept-1">accept/1</a></td><td></td></tr><tr><td valign="top"><a href="#accept-1">accept/1</a></td><td></td></tr><tr><td valign="top"><a href="#close-1">close/1</a></td><td></td></tr><tr><td valign="top"><a href="#connection_information-1">connection_information/1</a></td><td></td></tr><tr><td valign="top"><a href="#listen-2">listen/2</a></td><td></td></tr><tr><td valign="top"><a href="#recv-2">recv/2</a></td><td></td></tr><tr><td valign="top"><a href="#send-2">send/2</a></td><td></td></tr><tr><td valign="top"><a href="#setopts-2">setopts/2</a></td><td></td></tr><tr><td valign="top"><a href="#shutdown-2">shutdown/2</a></td><td></td></tr></table>
 
 
 <a name="functions"></a>
@@ -36,6 +36,12 @@ __Behaviours:__ [`bookish_spork_transport`](bookish_spork_transport.md).
 
 `close(Socket) -> any()`
 
+<a name="connection_information-1"></a>
+
+### connection_information/1 ###
+
+`connection_information(Socket) -> any()`
+
 <a name="listen-2"></a>
 
 ### listen/2 ###
@@ -53,6 +59,12 @@ __Behaviours:__ [`bookish_spork_transport`](bookish_spork_transport.md).
 ### send/2 ###
 
 `send(Socket, Data) -> any()`
+
+<a name="setopts-2"></a>
+
+### setopts/2 ###
+
+`setopts(Socket, Options) -> any()`
 
 <a name="shutdown-2"></a>
 

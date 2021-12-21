@@ -59,7 +59,7 @@ out(Pid::pid()) -&gt; {ok, <a href="#type-element">element()</a>} | {error, time
 out(Pid, Timeout) -&gt; {ok, <a href="#type-element">element()</a>} | {error, timeout}
 </code></pre>
 
-<ul class="definitions"><li><code>Pid = pid()</code></li><li><code>Timeout = non_neg_integer() | infinity</code></li></ul>
+<ul class="definitions"><li><code>Pid = pid()</code></li><li><code>Timeout = timeout()</code></li></ul>
 
 <a name="start_link-0"></a>
 
