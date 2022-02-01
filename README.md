@@ -109,7 +109,7 @@ It returns you an opaque structure of the request. You can inspect it with
 
 
 
-#### <a name="Bypass_comparision">Bypass comparision</a> ####
+#### <a name="Bypass_comparision">Bypass comparison</a> ####
 
 An elixir library [bypass](https://github.com/PSPDFKit-labs/bypass) does pretty much the same. And illustrates the same approach. It starts a cowboy web-server to replace a real service for test. It's a beautiful library with great API, documentation, and very concise source code. If you are an elixir developer, most likely, it will be a good fit for you.
 
@@ -122,7 +122,7 @@ But nevertheless bookish_spork has some advantages:
 * Bookish spork allows you to inspect the request very deeply and accurate. For example take a look at [`bookish_spork_request:raw_headers/1`](http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_request.md#raw_headers-1) and [`bookish_spork_request:ssl_info/1`](http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_request.md#ssl_info-1) and [`bookish_spork_request:tls_ext/1`](http://github.com/tank-bohr/bookish_spork/blob/master/doc/bookish_spork_request.md#tls_ext-1). It can be useful for HTTP clients testing.
 
 
-#### <a name="Elli_comparision">Elli comparision</a> ####
+#### <a name="Elli_comparision">Elli comparison</a> ####
 
 Very often people use [elli](https://github.com/elli-lib/elli) for this purpose. But elli is a full-featured web-server while bookish_spork is a testing library. It allows you to stub requests as close to your tests as possible. Without callback module and supervisor.
 

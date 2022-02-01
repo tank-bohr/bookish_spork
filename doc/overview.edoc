@@ -110,7 +110,7 @@ It returns you an opaque structure of the request. You can inspect it with
   <li>{@link bookish_spork_request:body/1}</li>
 </ul>
 
-=== Bypass comparision ===
+=== Bypass comparison ===
 
 An elixir library <a target="_blank" href="https://github.com/PSPDFKit-labs/bypass">bypass</a> does pretty much the same. And illustrates the same approach. It starts a cowboy web-server to replace a real service for test. It's a beautiful library with great API, documentation, and very concise source code. If you are an elixir developer, most likely, it will be a good fit for you.
 
@@ -129,7 +129,7 @@ But nevertheless bookish_spork has some advantages:
 </ul>
 
 
-=== Elli comparision ===
+=== Elli comparison ===
 
 Very often people use <a target="_blank" href="https://github.com/elli-lib/elli">elli</a> for this purpose. But elli is a full-featured web-server while bookish_spork is a testing library. It allows you to stub requests as close to your tests as possible. Without callback module and supervisor.
 
