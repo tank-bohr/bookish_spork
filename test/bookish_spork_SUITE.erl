@@ -30,7 +30,8 @@
     multiple_async_requests_test/1,
     multiple_async_with_closed_connection_requests_test/1,
     capture_requests_test/1,
-    raw_headers_test/1
+    raw_headers_test/1,
+    iodata_response_test/1
 ]).
 
 all() ->
@@ -40,7 +41,7 @@ all() ->
     request_when_there_is_no_stub_test, http_error_test,
     wait_for_async_request_completed_test, multiple_async_requests_test,
     multiple_async_with_closed_connection_requests_test, capture_requests_test,
-    raw_headers_test].
+    raw_headers_test, iodata_response_test].
 
 init_per_suite(Config) ->
     ok = application:ensure_started(inets),
@@ -242,6 +243,13 @@ raw_headers_test(_Config) ->
     [Request] = bookish_spork:capture_requests(),
     RawHeaders = bookish_spork_request:raw_headers(Request),
     ?assertEqual(?RAW_HEADERS, RawHeaders, "Raw headers preserve order and case").
+
+iodata_response_test(_Config) ->
+    % From OTP 27's json:encode(#{ message => <<"Hello, world!">> }).
+    Body = ["{",[[34,<<"message">>,34],58,34,<<"Hello, world!">>,34],[],"}"],
+    ok = bookish_spork:stub_request([200, #{}, Body]),
+    {ok, {{"HTTP/1.1", 200, "OK"}, _, <<"{\"message\":\"Hello, world!\"}">>}} = httpc:request(get,
+        {"http://localhost:32002/iodata", [{"Connection", "close"}]}, [], [{body_format, binary}]).
 
 gun_request(ConnectionPid) ->
     StreamRef = gun:get(ConnectionPid, "/"),

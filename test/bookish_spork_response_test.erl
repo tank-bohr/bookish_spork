@@ -37,3 +37,18 @@ write_str_test() ->
             "\r\n",
             "Hello"
     >>, bookish_spork_response:write_str(Response, ?NOW)).
+
+iodata_test() ->
+    % From OTP 27's json:encode(#{ message => <<"Hello, world!">> }).
+    Body = ["{",[[34,<<"message">>,34],58,34,<<"Hello, world!">>,34],[],"}"],
+    Response = bookish_spork_response:new(200,
+        #{<<"Content-Type">> => <<"application/json">>}, Body),
+    ?assertEqual(<<
+            "HTTP/1.1 200 OK\r\n",
+            "Content-Length: 27\r\n",
+            "Content-Type: application/json\r\n",
+            "Date: Sat, 28 Apr 2018 05:51:50 GMT\r\n",
+            "Server: BookishSpork/0.0.1\r\n"
+            "\r\n",
+            "{\"message\":\"Hello, world!\"}"
+    >>, bookish_spork_response:write_str(Response, ?NOW)).
