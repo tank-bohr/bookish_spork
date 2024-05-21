@@ -12,14 +12,14 @@
 -define(DEFAULT_SERVER, <<"BookishSpork/0.0.1">>).
 
 -type response() :: t() | non_neg_integer() |
-    {non_neg_integer(), map(), binary()} |
-    {non_neg_integer(), list(), binary()} |
+    {non_neg_integer(), map(), iodata()} |
+    {non_neg_integer(), list(), iodata()} |
     nonempty_list().
 
 -record(response, {
     status  :: non_neg_integer(),
     headers :: map(),
-    content :: binary()
+    content :: iodata()
 }).
 
 -opaque t() :: #response{}.
@@ -60,7 +60,7 @@ new([Status, Headers, Content]) ->
 -spec new(
     Status  :: non_neg_integer(),
     Headers :: map() | list(),
-    Content :: binary()
+    Content :: iodata()
 ) -> t().
 %% @private
 new(Status, Headers, Content) when is_list(Headers) ->
@@ -72,11 +72,11 @@ new(Status, Headers, Content) ->
 write_str(#response{ status = Status, headers = ExtraHeaders, content = Content}, Now) ->
     StatusLine = status_line(Status),
     Headers = headers(ExtraHeaders, Content, Now),
-    <<
-        StatusLine/binary, ?CRLF,
-        Headers/binary, ?CRLF,
-        Content/binary
-    >>.
+    iolist_to_binary([
+        StatusLine, ?CRLF,
+        Headers, ?CRLF,
+        Content
+    ]).
 
 %% @private
 status_line(Status) ->
@@ -91,7 +91,7 @@ headers(ExtraHeaders, Content, Now) ->
     Headers = maps:merge(#{
         <<"Server">> => ?DEFAULT_SERVER,
         <<"Date">> => bookish_spork_format:rfc2616_date(Now),
-        <<"Content-Length">> => list_to_binary(integer_to_list(size(Content)))
+        <<"Content-Length">> => list_to_binary(integer_to_list(iolist_size(Content)))
     }, ExtraHeaders),
     maps:fold(fun(K, V, Acc) ->
         <<
