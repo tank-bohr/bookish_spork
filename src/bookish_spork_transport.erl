@@ -18,6 +18,10 @@
 ]).
 
 -type callback_module() :: bookish_spork_tcp | bookish_spork_ssl.
+-export_type([
+    callback_module/0
+]).
+
 -type socket() :: gen_tcp:socket() | ssl:sslsocket().
 
 -record(listen, {
