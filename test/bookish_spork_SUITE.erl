@@ -122,7 +122,7 @@ stub_with_fun_test(_Config) ->
 ssl_test(_Config) ->
     ok = bookish_spork:stub_request(),
     {ok, {{"HTTP/1.1", 204, "No Content"}, _, _}} = httpc:request(get,
-        {"https://localhost:32002/secure", [{"Connection", "close"}]}, [], []),
+        {"https://localhost:32002/secure", [{"Connection", "close"}]}, [{ssl, [{verify, verify_none}]}], []),
     {ok, Request} = bookish_spork:capture_request(),
     SslInfo = bookish_spork_request:ssl_info(Request),
     Ciphers = proplists:get_value(ciphers, SslInfo, []),
@@ -136,7 +136,7 @@ ssl_post_test(_Config) ->
         [{"Connection", "close"}],
         "application/json",
         RequestBody
-    }, [], []),
+    }, [{ssl, [{verify, verify_none}]}], []),
     {ok, Request} = bookish_spork:capture_request(),
     ?assertEqual(RequestBody, bookish_spork_request:body(Request)).
 
@@ -144,7 +144,7 @@ ssl_post_test(_Config) ->
 tls_ext_test(_Config) ->
     ok = bookish_spork:stub_request(),
     {ok, {{"HTTP/1.1", 204, "No Content"}, _, _}} = httpc:request(get,
-        {"https://localhost:32002/tls", [{"Connection", "close"}]}, [], []),
+        {"https://localhost:32002/tls", [{"Connection", "close"}]}, [{ssl, [{verify, verify_none}]}], []),
     {ok, Request} = bookish_spork:capture_request(),
     TlsExt = bookish_spork_request:tls_ext(Request),
     ?assertMatch(?TLS_EXT, TlsExt).
