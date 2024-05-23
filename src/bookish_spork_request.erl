@@ -51,6 +51,7 @@
 }.
 
 -export_type([
+    http_version/0,
     t/0
 ]).
 

@@ -19,7 +19,10 @@
     response  :: undefined | bookish_spork_response:t() | bookish_spork:stub_request_fun()
 }).
 
--type state() :: #state{}.
+-opaque state() :: #state{}.
+-export_type([
+    state/0
+]).
 
 -spec start_link(Server, Transport) -> {ok, pid()} when
     Server       :: pid(),
@@ -117,17 +120,17 @@ pick_response(#state{server = Server, transport = Transport} = State) ->
 
 -spec reply(state()) -> {cont, state()}.
 %% @private
-reply(State = #state{request = Request, response = ResponseFun}) when is_function(ResponseFun) ->
+reply(#state{request = Request, response = ResponseFun} = State) when is_function(ResponseFun) ->
     Response = ResponseFun(Request),
     ?FUNCTION_NAME(State#state{response = bookish_spork_response:new(Response)});
-reply(State = #state{transport = Transport, response = Response}) ->
+reply(#state{transport = Transport, response = Response} = State) ->
     String = bookish_spork_response:write_str(Response, calendar:universal_time()),
     bookish_spork_transport:send(Transport, [String]),
     {cont, State}.
 
 -spec complete_connection(state()) -> {cont, state()} | {halt, normal}.
 %% @private
-complete_connection(State = #state{transport = Transport, request = Request}) ->
+complete_connection(#state{transport = Transport, request = Request} = State) ->
     case bookish_spork_request:is_keepalive(Request) of
         true ->
             keepalive_loop(),
@@ -144,7 +147,7 @@ choose_header(_NormalizedHeader, PreserveCaseHeader) ->
 
 reduce_while(State, []) ->
     {noreply, State};
-reduce_while(State, [Fun|Rest]) ->
+reduce_while(State, [Fun | Rest]) ->
     case Fun(State) of
         {cont, NewState} ->
             reduce_while(NewState, Rest);

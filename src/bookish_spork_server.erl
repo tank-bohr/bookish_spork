@@ -35,7 +35,13 @@
     listen_socket                :: bookish_spork_transport:listen()
 }).
 
--type state() :: #state{}.
+-opaque state() :: #state{}.
+
+-export_type([
+    response/0,
+    request/0,
+    state/0
+]).
 
 -spec start(Options :: proplists:proplist()) -> {ok, pid()} | {error, Error :: term()}.
 %% @doc starts server

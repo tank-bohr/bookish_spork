@@ -17,6 +17,9 @@
 ]).
 
 -type element() :: any().
+-export_type([
+    element/0
+]).
 
 -record(state, {
     waiting = queue:new() :: queue:queue(element()),
